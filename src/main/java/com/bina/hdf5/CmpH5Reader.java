@@ -1,10 +1,13 @@
 package com.bina.hdf5;
 
-import ncsa.hdf.object.h5.H5File;
 
 /**
  * Created by bayo on 5/1/15.
  */
+
+import org.apache.log4j.Logger;
+import ncsa.hdf.object.h5.H5File;
+
 public class CmpH5Reader {
 
     public CmpH5Reader(String filename){ load(filename); }
@@ -22,6 +25,21 @@ public class CmpH5Reader {
         sb.append(AlnIndex_.toString());
         sb.append("AlnGroup:\n");
         sb.append(AlnGroup_.toString());
+        sb.append("last data alnarray:\n");
+        CmpH5AlnData tmp = new CmpH5AlnData(h5_,AlnGroup_.path(161));
+        try {
+            byte[] bb = tmp.get(CmpH5AlnData.Field.AlnArray);
+            sb.append(bb.length);
+            for(int ii = 0 ;ii<10;++ii){
+                sb.append(" ");
+                sb.append(bb[ii]);
+            }
+            sb.append("\n");
+        }
+        catch(Exception e){
+            log.info(e,e);
+
+        }
         return sb.toString();
     }
 
@@ -29,4 +47,5 @@ public class CmpH5Reader {
     private H5File h5_ = null;
     private CmpH5AlnIndex AlnIndex_ = null;
     private CmpH5AlnGroup AlnGroup_ = null;
+    private final static Logger log = Logger.getLogger(H5Test.class.getName());
 }
