@@ -7,43 +7,18 @@ import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5ScalarDS;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
+
 public class CmpH5AlnIndex {
-
-    //named according to pacbio's pdf
-    public enum Column{
-        AlnID       (0),
-        AlnGroupID  (1),
-        MovieId     (2),
-        RefGroupID  (3),
-        tStart      (4),
-        tEnd        (5),
-        RCRefStrand (6),
-        HoleNumber  (7),
-        SetNumber   (8),
-        StrobeNumber(9),
-        MoleculeID  (10),
-        rStart      (11),
-        rEnd        (12),
-        MapQV       (13),
-        nM          (14),
-        nMM         (15),
-        nIns        (16),
-        nDel        (17),
-        offset_begin(18),
-        offset_end  (19),
-        nBackRead   (20),
-        nBackOverlap(21),
-        num_columns (22);
-
-        Column(int value){ value_=value; }
-        public int value() {return value_;}
-        private final int value_;
-    }
 
     public CmpH5AlnIndex(H5File h5){load(h5);}
 
-    public int get(int alignment_index, Column c){
+    public int get(int alignment_index, EnumIdx c){
         return data_[ alignment_index*num_cols_+c.value()];
+    }
+    public int[] get(int alignment_index){
+        final int begin = alignment_index*num_cols_;
+        return Arrays.copyOfRange(data_,begin,begin+num_cols_);
     }
 
     public boolean load(H5File h5){

@@ -7,14 +7,9 @@ package com.bina.hdf5;
 import java.util.List;
 import java.util.Iterator;
 
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
-import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
-import ncsa.hdf.object.Dataset;
-import ncsa.hdf.object.ScalarDS;
 import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5Group;
 import ncsa.hdf.object.h5.H5ScalarDS;
@@ -25,12 +20,12 @@ public class H5Summary {
     public static void list_data(H5File h5, String full_path)throws Exception{
         H5ScalarDS obj = (H5ScalarDS)h5.get(full_path);
         obj.init();
-        log.info(obj.getClass().getName());
-        log.info(obj.getDims().length);
+        StringBuilder sb = new StringBuilder();
+        sb.append(obj.getClass().getName());
+        sb.append(" "+obj.getDims().length);
         long[] dims = obj.getDims();
-        for(long entry:dims){
-            log.info(entry);
-        }
+        for(long entry:dims){ sb.append(" "+entry); }
+        log.info(sb.toString());
     }
     public static void list_group(H5File h5, String full_path) throws Exception{
         H5Group grp = (H5Group)h5.get(full_path);
@@ -75,14 +70,10 @@ public class H5Summary {
 
             log.info("Closing");
             h5.close();
-*/
+            */
+
             log.info("Finished");
         }
-        /*
-        catch(HDF5Exception e){
-            log.info("exception thrown");
-        }
-        */
         catch(Exception e){
             log.info(e,e);
         }
