@@ -1,18 +1,19 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5.cmp;
 
 /**
  * Created by bayo on 5/2/15.
  */
+import com.bina.hdf5.h5.H5ScalarDSReader;
 import ncsa.hdf.object.h5.H5File;
-public class CmpH5AlnData {
+public class AlnData {
 
-    public CmpH5AlnData(H5File h5, String path){ load(h5,path); }
+    public AlnData(H5File h5, String path){ load(h5,path); }
 
     //these might not be byte for other fields
     // still trying to figure out how to do associate class type with enum then cast and generic
     public byte[] get(EnumDat f) throws Exception{
         if( null == data_[f.value()] ){
-            data_[f.value()] = H5ScalarDSReader.<byte[]>Read(h5_,path_+f.path());
+            data_[f.value()] = H5ScalarDSReader.<byte[]>Read(h5_, path_ + f.path());
         }
         return (byte[])data_[f.value()];
     }

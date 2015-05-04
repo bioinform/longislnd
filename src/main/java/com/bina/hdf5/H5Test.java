@@ -1,9 +1,10 @@
 package com.bina.hdf5;
 
-import ncsa.hdf.object.h5.H5File;
+import com.bina.hdf5.h5.H5Summary;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
+import com.bina.hdf5.h5.cmp.CmpH5Reader;
 
 /**
  * Created by bayo on 4/30/15.
@@ -15,19 +16,28 @@ public class H5Test {
     String VERSION = "H5Test " + getClass().getPackage().getImplementationVersion();
 
     public void run(String[] args) {
-        String usage = "java -jar H5test.jar <h5file> \n"
+        String usage = "java -jar H5test.jar <mode> <h5file> \n"
+                + "       mode    -- cmp/read \n"
                 + "       h5file    -- h5 file to be read "
                 + "\n";
-        if(args.length == 0){
+        if(args.length != 2){
             System.err.println(VERSION);
             System.err.println(usage);
             System.exit(1);
         }
+        String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
 
-        String[] pass_args = Arrays.copyOfRange(args, 0, args.length);
-
-        new H5Summary().run(pass_args[0]);
-
+        switch( args[0] ) {
+            case "cmp":
+                CmpH5Reader ch5 = new CmpH5Reader(args[1]);
+                log.info(ch5.toString());
+                break;
+            case "read":
+                new H5Summary().run(pass_args[0]);
+                break;
+            default:
+                System.err.println(usage);
+        }
     }
 
     public static void main(String[] args){ new H5Test().run(args); }

@@ -1,4 +1,4 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5.cmp;
 
 
 /**
@@ -8,16 +8,19 @@ package com.bina.hdf5;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.bina.hdf5.Alignment;
+import com.bina.hdf5.H5Test;
 import org.apache.log4j.Logger;
 import ncsa.hdf.object.h5.H5File;
+import ncsa.hdf.object.FileFormat;
 
 public class CmpH5Reader {
 
     Alignment getAlignment(int index) throws Exception{
         String path = AlnGroup_.path(index);
-        CmpH5AlnData data = path_data_.get(path);
+        AlnData data = path_data_.get(path);
         if( null == data ){
-            data = new CmpH5AlnData(h5_,path);
+            data = new AlnData(h5_,path);
             path_data_.put(path,data);
         }
         return new Alignment(AlnIndex_.get(index),data);
@@ -27,22 +30,20 @@ public class CmpH5Reader {
 
     public void load(String filename){
         filename_ = filename;
-        h5_ = new H5File(filename);
-        AlnIndex_ = new CmpH5AlnIndex(h5_);
-        AlnGroup_ = new CmpH5AlnGroup(h5_);
-        path_data_ = new HashMap<String,CmpH5AlnData>();
+        h5_ = new H5File(filename,FileFormat.READ);
+        AlnIndex_ = new AlnIndex(h5_);
+        AlnGroup_ = new AlnGroup(h5_);
+        path_data_ = new HashMap<String,AlnData>();
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("AlnIndex:\n");
-//        sb.append(AlnIndex_.toString());
-        sb.append("AlnGroup:\n");
-//        sb.append(AlnGroup_.toString());
+        sb.append(AlnIndex_.toString());
+        sb.append(AlnGroup_.toString());
         sb.append("cmp conversion table:\n");
         sb.append(EnumBP.tableToString());
         sb.append("last data alnarray:\n");
-        CmpH5AlnData tmp = new CmpH5AlnData(h5_,AlnGroup_.path(2));
+        AlnData tmp = new AlnData(h5_,AlnGroup_.path(2));
         sb.append(AlnGroup_.path(2)+"\n");
         try {
             byte[] bb = tmp.get(EnumDat.AlnArray);
@@ -72,8 +73,8 @@ public class CmpH5Reader {
 
     private String filename_ = null;
     private H5File h5_ = null;
-    private CmpH5AlnIndex AlnIndex_ = null;
-    private CmpH5AlnGroup AlnGroup_ = null;
-    private Map<String,CmpH5AlnData> path_data_ = null;
+    private AlnIndex AlnIndex_ = null;
+    private AlnGroup AlnGroup_ = null;
+    private Map<String,AlnData> path_data_ = null;
     private final static Logger log = Logger.getLogger(H5Test.class.getName());
 }

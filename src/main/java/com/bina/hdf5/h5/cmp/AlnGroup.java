@@ -1,12 +1,13 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5.cmp;
 
 /**
  * Created by bayo on 5/1/15.
  */
 
+import com.bina.hdf5.h5.H5ScalarDSReader;
 import ncsa.hdf.object.h5.H5File;
 import org.apache.log4j.Logger;
-public class CmpH5AlnGroup {
+public class AlnGroup {
 
     public String path(int id) {
         if(id < 0 || id >=id2path_.length) return null;
@@ -15,11 +16,11 @@ public class CmpH5AlnGroup {
 
     public int max_key(){ return id2path_.length-1; }
 
-    public CmpH5AlnGroup(H5File h5){ load(h5); }
+    public AlnGroup(H5File h5){ load(h5); }
 
     public boolean load(H5File h5){
         try{
-            final int[] d = H5ScalarDSReader.<int[]>Read(h5,"/AlnGroup/ID");
+            final int[] d = H5ScalarDSReader.<int[]>Read(h5, "/AlnGroup/ID");
             final String[] s = H5ScalarDSReader.<String[]>Read(h5, "/AlnGroup/Path");
 
             if(d.length != s.length) throw new Exception("inconsistent AlnGroup");
@@ -43,13 +44,13 @@ public class CmpH5AlnGroup {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for(int id = 0 ; id < id2path_.length ; ++id) {
-            sb.append(id+" ");
+            sb.append("AlnGroup "+id+" ");
             sb.append(id2path_[id]);
             sb.append("\n");
         }
         return sb.toString();
     }
 
-    private final static Logger log = Logger.getLogger(CmpH5AlnIndex.class.getName());
+    private final static Logger log = Logger.getLogger(AlnIndex.class.getName());
     private String[] id2path_ = null; //the id seems contiguous mostly and there's a small number of them
 }

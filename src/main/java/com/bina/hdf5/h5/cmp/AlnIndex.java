@@ -1,4 +1,4 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5.cmp;
 
 /**
  * Created by bayo on 5/1/15.
@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 
-public class CmpH5AlnIndex {
+public class AlnIndex {
 
-    public CmpH5AlnIndex(H5File h5){load(h5);}
+    public AlnIndex(H5File h5){load(h5);}
 
     public int get(int alignment_index, EnumIdx c){
         return data_[ alignment_index*num_cols_+c.value()];
@@ -50,8 +50,7 @@ public class CmpH5AlnIndex {
     public String toString(){
         StringBuilder sb = new StringBuilder();
         for(int row = 0 ; row < num_rows_ ; ++row){
-            sb.append(row);
-            sb.append("\t");
+            sb.append("AlnIdx " + row + "\t");
             for(int col = 0 ; col < num_cols_ ; ++col){
                 sb.append(" ");
                 sb.append(data_[row*num_cols_+col]);
@@ -61,7 +60,7 @@ public class CmpH5AlnIndex {
         return sb.toString();
     }
 
-    private final static Logger log = Logger.getLogger(CmpH5AlnIndex.class.getName());
+    private final static Logger log = Logger.getLogger(AlnIndex.class.getName());
     private int[] data_= null;
     private int num_rows_;
     private int num_cols_;

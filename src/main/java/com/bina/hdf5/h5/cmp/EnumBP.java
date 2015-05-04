@@ -1,9 +1,8 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5.cmp;
 
 /**
  * Created by bayo on 5/2/15.
  */
-import java.util.Map;
 import java.util.Arrays;
 import java.util.EnumSet;
 public enum EnumBP {
@@ -14,7 +13,7 @@ public enum EnumBP {
     T      (3,     8,                   84,    'T'),
     N      (4,     15,                  78,    'N'),
     Gap    (5,     0,                   32,    ' '),
-    Invalid(6,     127,                 127,   '|');
+    Invalid(6,     -1,                  -1,   '-');
 
     public static EnumBP cmp2ref(byte cmp){
         return cmp2ref_[cmp&0xff];

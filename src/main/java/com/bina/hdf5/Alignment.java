@@ -3,7 +3,11 @@ package com.bina.hdf5;
 /**
  * Created by bayo on 5/2/15.
  */
-import java.util.Arrays;
+
+import com.bina.hdf5.h5.cmp.AlnData;
+import com.bina.hdf5.h5.cmp.EnumBP;
+import com.bina.hdf5.h5.cmp.EnumDat;
+import com.bina.hdf5.h5.cmp.EnumIdx;
 import org.apache.log4j.Logger;
 public class Alignment {
 
@@ -17,10 +21,10 @@ public class Alignment {
     public int aln_begin() {return EnumIdx.offset_begin.value();}
     public int aln_end() {return EnumIdx.offset_end.value();}
 
-    public Alignment(int[] index, CmpH5AlnData data)throws Exception{
+    public Alignment(int[] index, AlnData data)throws Exception{
         load(index,data);
     }
-    public void load(int[] index, CmpH5AlnData data)throws Exception{
+    public void load(int[] index, AlnData data)throws Exception{
 
         try{
             final int begin = index[EnumIdx.offset_begin.value()];
@@ -55,7 +59,7 @@ public class Alignment {
 
 
     private int[] index_ = null;
-    private CmpH5AlnData data_ = null;
+    private AlnData data_ = null;
 
     private int[] aln_=null; // for diagnostic
     private byte[] ref_=null;

@@ -1,4 +1,4 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5;
 
 /**
  * Created by bayo on 4/30/15.
@@ -7,6 +7,7 @@ package com.bina.hdf5;
 import java.util.List;
 import java.util.Iterator;
 
+import com.bina.hdf5.H5Test;
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import ncsa.hdf.object.HObject;
@@ -60,9 +61,6 @@ public class H5Summary {
     }
     public static void run(String filename){
         try {
-            CmpH5Reader ch5 = new CmpH5Reader(filename);
-            log.info(ch5.toString());
-/*
             H5File h5 = new H5File(filename);
             log.info("getting group");
 
@@ -70,7 +68,6 @@ public class H5Summary {
 
             log.info("Closing");
             h5.close();
-            */
 
             log.info("Finished");
         }

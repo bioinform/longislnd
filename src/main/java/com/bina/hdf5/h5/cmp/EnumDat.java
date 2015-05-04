@@ -1,4 +1,4 @@
-package com.bina.hdf5;
+package com.bina.hdf5.h5.cmp;
 
 /**
  * Created by bayo on 5/2/15.
