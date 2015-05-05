@@ -18,8 +18,11 @@ public enum EnumBP {
     public static EnumBP cmp2ref(byte cmp){
         return cmp2ref_[cmp&0xff];
     }
-    public static EnumBP cmp2read(byte cmp){
-        return cmp2read_[cmp&0xff];
+    public static EnumBP cmp2seq(byte cmp){
+        return cmp2seq_[cmp&0xff];
+    }
+    public static byte value2ascii(byte cmp){
+        return value2ascii_[cmp];
     }
 
     public byte value() {return value_;}
@@ -38,25 +41,25 @@ public enum EnumBP {
     private final byte ascii_;
     private final char c_;
 
+    public static final byte[] value2ascii_ = new byte[Invalid.value()+1];
+
     public static final EnumBP[] cmp2ref_= new EnumBP[256];
-    public static final EnumBP[] cmp2read_= new EnumBP[256];
+    public static final EnumBP[] cmp2seq_ = new EnumBP[256];
 
     static {
         Arrays.fill(cmp2ref_,Invalid);
-        Arrays.fill(cmp2read_,Invalid);
-        for(EnumBP read: EnumSet.allOf(EnumBP.class)){
-            if(read.equals(Invalid)) continue;
-            final int read_value = ((int)read.cmp()) << 4;
+        Arrays.fill(cmp2seq_,Invalid);
+        for(EnumBP seq : EnumSet.allOf(EnumBP.class)){
+            value2ascii_[seq.value()] = seq.ascii();
+            if(seq.equals(Invalid)) continue;
+            final int seq_value = ((int) seq.cmp()) << 4;
             for(EnumBP ref: EnumSet.allOf(EnumBP.class)){
                 if(ref.equals(Invalid)) continue;
-                final int key = read_value | (int)ref.cmp();
+                final int key = seq_value | (int)ref.cmp();
                 cmp2ref_[key] = ref;
-                cmp2read_[key] = read;
+                cmp2seq_[key] = seq;
             }
         }
-//    private static final Map<, H5O_type> lookup = new HashMap<Integer, H5O_type>();
-//        for (H5O_type s : EnumSet.allOf(H5O_type.class))
-//            lookup.put(s.getCode(), s);
     }
 
     static public String tableToString() {
@@ -66,7 +69,7 @@ public enum EnumBP {
         sb.append("\nR:");
         for (char entry : RefChar) { sb.append(entry); }
         sb.append("\nQ:");
-        for (EnumBP entry : EnumBP.cmp2read_) { sb.append(entry.c()); }
+        for (EnumBP entry : EnumBP.cmp2seq_) { sb.append(entry.c()); }
         sb.append("\nQ:");
         for (char entry : QueryChar) { sb.append(entry); }
         sb.append("\n");

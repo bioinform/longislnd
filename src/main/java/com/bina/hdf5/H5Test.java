@@ -2,6 +2,7 @@ package com.bina.hdf5;
 
 import com.bina.hdf5.h5.H5Summary;
 import com.bina.hdf5.h5.H5CloneGroups;
+import com.bina.hdf5.h5.bax.BaxH5Writer;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -38,6 +39,16 @@ public class H5Test {
                 break;
             case "clonegroups":
                 H5CloneGroups.run(pass_args[0], pass_args[1]);
+                break;
+            case "write":
+                try {
+                    BaxH5Writer writer = new BaxH5Writer(pass_args[0]);
+                    writer.writeGroups();
+                    writer.close();
+                }
+                catch(Exception e){
+
+                }
                 break;
             default:
                 System.err.println(usage);

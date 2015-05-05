@@ -13,11 +13,11 @@ public enum EnumGroups {
     DyeSet("/ScanData/DyeSet"),
     RunInfo("/ScanData/RunInfo");
 
-    EnumGroups(String path){
+    EnumGroups(String path) {
         path_ = path;
     }
 
-    String path(){
+    String path() {
         return path_;
     }
 

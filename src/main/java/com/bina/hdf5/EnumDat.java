@@ -1,11 +1,12 @@
-package com.bina.hdf5.h5.cmp;
+package com.bina.hdf5;
 
 /**
  * Created by bayo on 5/2/15.
  */
 
 public enum EnumDat {
-    AlnArray       (0,"/AlnArray"),
+    BaseCall       (0,"/Basecall"), //for bax
+    AlnArray       (0,"/AlnArray"), //for cmp
     DeletionQV     (1,"/DeletionQV"),
     DeletionTag    (2,"/DeletionTag"),
     InsertionQV    (3,"/InsertionQV"),
