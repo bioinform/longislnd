@@ -1,6 +1,7 @@
 package com.bina.hdf5;
 
 import com.bina.hdf5.h5.H5Summary;
+import com.bina.hdf5.h5.H5CloneGroups;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -17,10 +18,10 @@ public class H5Test {
 
     public void run(String[] args) {
         String usage = "java -jar H5test.jar <mode> <h5file> \n"
-                + "       mode    -- cmp/read \n"
+                + "       mode    -- cmp/read/clonegroups \n"
                 + "       h5file    -- h5 file to be read "
                 + "\n";
-        if(args.length != 2){
+        if(args.length < 2){
             System.err.println(VERSION);
             System.err.println(usage);
             System.exit(1);
@@ -33,7 +34,10 @@ public class H5Test {
                 log.info(ch5.toString());
                 break;
             case "read":
-                new H5Summary().run(pass_args[0]);
+                H5Summary.run(pass_args[0]);
+                break;
+            case "clonegroups":
+                H5CloneGroups.run(pass_args[0], pass_args[1]);
                 break;
             default:
                 System.err.println(usage);

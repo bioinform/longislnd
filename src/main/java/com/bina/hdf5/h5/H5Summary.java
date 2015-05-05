@@ -14,6 +14,7 @@ import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5Group;
 import ncsa.hdf.object.h5.H5ScalarDS;
+import ncsa.hdf.object.FileFormat;
 
 import org.apache.log4j.Logger;
 
@@ -61,7 +62,7 @@ public class H5Summary {
     }
     public static void run(String filename){
         try {
-            H5File h5 = new H5File(filename);
+            H5File h5 = new H5File(filename,FileFormat.READ);
             log.info("getting group");
 
             list_group(h5, "/");
