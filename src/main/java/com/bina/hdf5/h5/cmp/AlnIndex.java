@@ -16,6 +16,10 @@ class AlnIndex {
         load(h5);
     }
 
+    public int size() {
+        return num_rows_;
+    }
+
     public int get(int alignment_index, EnumIdx c) {
         return data_[alignment_index * num_cols_ + c.value()];
     }

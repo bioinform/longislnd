@@ -16,16 +16,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CmpH5Reader {
+    public int size() {
+        return AlnIndex_.size();
+    }
 
     public Alignment getAlignment(int index) throws Exception {
         String path = AlnGroup_.path(index);
+        if(path == null) return null;
+        /*
         AlnData data = path_data_.get(path);
         if (null == data) {
             data = new AlnData(h5_, path);
             path_data_.put(path, data);
         }
-        return new Alignment(AlnIndex_.get(index), data);
+        */
+        if(last_path_ == null || !path.equals(last_path_)){
+            last_data_ = new AlnData(h5_,path);
+            last_path_ = path;
+        }
+        return new Alignment(AlnIndex_.get(index), last_data_);
     }
+
 
     public CmpH5Reader(String filename) {
         load(filename);
@@ -78,5 +89,8 @@ public class CmpH5Reader {
     private AlnIndex AlnIndex_ = null;
     private AlnGroup AlnGroup_ = null;
     private Map<String, AlnData> path_data_ = null;
+
+    private String last_path_;
+    private AlnData last_data_;
     private final static Logger log = Logger.getLogger(H5Test.class.getName());
 }

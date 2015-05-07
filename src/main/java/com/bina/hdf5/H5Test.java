@@ -50,8 +50,12 @@ public class H5Test {
                 try {
                     BaxH5Writer writer = new BaxH5Writer(pass_args[0]);
                     CmpH5Reader ch5 = new CmpH5Reader(pass_args[1]);
-                    Alignment aln = ch5.getAlignment(1);
-                    writer.addLast(aln.toSeqRead(), 1000);
+                    for(int ii = 1 ; ii < ch5.size() ; ++ii){
+                        log.info("alignment "+ii);
+                        Alignment aln = ch5.getAlignment(ii);
+                        if( null == aln ) continue;
+                        writer.addLast(aln.toSeqRead(), 1000);
+                    }
                     writer.writeGroups();
                     writer.writeBaseCalls();
                     writer.writeZWM();
