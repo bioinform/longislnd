@@ -52,7 +52,7 @@ public class Alignment {
     }
 
     public PBReadBuffer toRefRead() throws Exception {
-        return toRead(seq_);
+        return toRead(ref_);
     }
 
     private PBReadBuffer toRead(byte[] ba) throws Exception {
@@ -60,7 +60,7 @@ public class Alignment {
         PBReadBuffer buffer = new PBReadBuffer(aln_length());
         PBBaseCall bc = new PBBaseCall();
         for (int ii = 0; ii < aln_length(); ++ii) {
-            if (seq_[ii] != EnumBP.Gap.ascii()) {
+            if (ba[ii] != EnumBP.Gap.ascii()) {
                 bc.set(EnumDat.BaseCall, ba[ii]);
                 for (EnumDat e : EnumDat.getNonBaseSet()) {
                     bc.set(e, data_.get(e)[begin + ii]);

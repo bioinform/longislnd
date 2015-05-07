@@ -48,19 +48,15 @@ public class H5Test {
             case "write":
                 log.info("write");
                 try {
-                    BaxH5Writer writer = new BaxH5Writer(pass_args[0]);
+                    BaxH5Writer writer = new BaxH5Writer();
                     CmpH5Reader ch5 = new CmpH5Reader(pass_args[1]);
-                    for(int ii = 1 ; ii < ch5.size() ; ++ii){
-                        log.info("alignment "+ii);
+                    for(int ii = 0 ; ii < 1000/*ch5.size()*/ ; ++ii){
                         Alignment aln = ch5.getAlignment(ii);
+                        log.info("alignment "+ii+" of length "+aln.aln_length());
                         if( null == aln ) continue;
                         writer.addLast(aln.toSeqRead(), 1000);
                     }
-                    writer.writeGroups();
-                    writer.writeBaseCalls();
-                    writer.writeZWM();
-                    writer.writeRegions();
-                    writer.close();
+                    writer.write(pass_args[0]+".bax.h5",pass_args[0]);
                 } catch (Exception e) {
                     log.info(e, e);
                 }

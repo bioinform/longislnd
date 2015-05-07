@@ -8,6 +8,12 @@ enum EnumTypeIdx {
     TypeInsert(1, "Insert"),
     TypeHQRegion(2, "HQRegion");
 
+    static String[] getDescriptionArray() {
+        return new String[]{ TypeAdapter.description()
+                           , TypeInsert.description()
+                           , TypeHQRegion.description()};
+    }
+
     public int value() {
         return value_;
     }

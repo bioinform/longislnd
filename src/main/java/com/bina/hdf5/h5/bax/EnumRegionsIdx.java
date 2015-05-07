@@ -10,6 +10,14 @@ enum EnumRegionsIdx {
     RegionEnd  (3, "Region end in bases"),
     RegionScore(4, "Region score");
 
+    static String[] getDescriptionArray() {
+        return new String[]{HoleNumber.description()
+                           ,RegionType.description()
+                           ,RegionStart.description()
+                           ,RegionEnd.description()
+                           ,RegionScore.description()};
+    }
+
     public int value() {
         return value_;
     }

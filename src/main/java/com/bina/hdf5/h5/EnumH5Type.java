@@ -41,9 +41,10 @@ public enum EnumH5Type {
     }
 
 
-    public H5Datatype getH5Datatype(Object obj) {
+    public H5Datatype getH5Datatype(Object obj, long[] dims) {
         int numBytes = this.bytes();
-        if (obj instanceof String[]) {
+        int sign = this.sign();
+        if (obj instanceof String[] && null != dims && dims.length > 1) {
             for (String entry : (String[]) obj) {
                 if (numBytes < entry.length()) {
                     numBytes = entry.length();
@@ -51,7 +52,20 @@ public enum EnumH5Type {
             }
             ++numBytes;
         }
-        return new H5Datatype(this.type(), numBytes, this.order(), this.sign());
+        //ugly hack
+        else if(obj instanceof int[]){
+            boolean hasNegative = false;
+            for (int entry : (int[]) obj) {
+                if (entry < 0){
+                    hasNegative = true;
+                    break;
+                }
+            }
+            if(hasNegative) {
+                sign = Datatype.SIGN_2;
+            }
+        }
+        return new H5Datatype(this.type(), numBytes, this.order(), sign);
     }
 
 

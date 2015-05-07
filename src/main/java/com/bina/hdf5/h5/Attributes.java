@@ -15,21 +15,8 @@ public class Attributes {
         for (Map.Entry<String, Value> entry : name_value_.entrySet()) {
             final Object raw_buffer = entry.getValue().buffer();
             final EnumH5Type type = EnumH5Type.getEnum(raw_buffer.getClass());
-            /*
-            ncsa.hdf.object.Attribute h5Attribute = null;
-            int num_bytes = type.bytes();
-            if (raw_buffer instanceof String[] && entry.getValue().dims().length != 1) {
-                for (String s : (String[]) entry.getValue().buffer()) {
-                    if (num_bytes < s.length()) {
-                        num_bytes = s.length();
-                    }
-                }
-                ++num_bytes;
-            }
-            */
             ncsa.hdf.object.Attribute h5Attribute = new ncsa.hdf.object.Attribute(entry.getKey(),
-                    type.getH5Datatype(raw_buffer),
-//                    new H5Datatype(type.type(), num_bytes, type.order(), type.sign()),
+                    type.getH5Datatype(raw_buffer,entry.getValue().dims()),
                     entry.getValue().dims(),
                     entry.getValue().buffer());
             try {
@@ -42,7 +29,7 @@ public class Attributes {
         }
     }
 
-    public <T> void add(ncsa.hdf.object.Attribute in) {
+    public void add(ncsa.hdf.object.Attribute in) {
         long[] sizes = in.getDataDims();
         StringBuilder sb = new StringBuilder();
         sb.append(in.getName());
@@ -63,6 +50,7 @@ public class Attributes {
         sb.append(in.getType().getDatatypeOrder());
         sb.append(" ");
         sb.append(in.getType().getDatatypeSign());
+        /*
         sb.append("(");
         sb.append(in.getPropertyKeys().size());
         sb.append(")");
@@ -71,6 +59,7 @@ public class Attributes {
             Object ooo = in.getProperty(pkey);
             sb.append("p|" + ooo.getClass().getName());
         }
+        */
         log.info(sb.toString());
         add(in.getName(), in.getValue(), in.getDataDims());
     }

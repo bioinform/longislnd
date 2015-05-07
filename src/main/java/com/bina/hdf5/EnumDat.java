@@ -17,6 +17,13 @@ public enum EnumDat {
     SubstitutionQV (6, "/SubstitutionQV"),
     SubstitutionTag(7, "/SubstitutionTag");
 
+    static public String[] getContentDescription(){
+        return new String[]
+                {"Basecall","DeletionQV","DeletionTag","InsertionQV","MergeQV","QualityValue","SubstitutionQV","SubstitutionTag"
+                ,"uint8",   "uint8",     "uint8",      "uint8",      "uint8",  "uint8",       "uint8",         "uint8"};
+
+    }
+
     static public EnumSet<EnumDat> getBaxSet() {
         return EnumSet.complementOf(EnumSet.of(AlnArray));
     }

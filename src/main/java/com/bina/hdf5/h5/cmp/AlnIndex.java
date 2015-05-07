@@ -35,6 +35,7 @@ class AlnIndex {
             obj.init();
 
             long[] dims = obj.getDims();
+            log.debug("/AlnInfo/AlnIndex dimensions: "+dims[0]+" "+dims[1]);
             if (dims.length != 2) throw new Exception("bad AlnIndex dimension");
             final int nr = (int) dims[0];
             final int nc = (int) dims[1];

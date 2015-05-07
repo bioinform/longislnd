@@ -11,6 +11,10 @@ enum EnumGroups {
     ScanData("/ScanData"),
     AcqParams("/ScanData/AcqParams"),
     DyeSet("/ScanData/DyeSet"),
+    A0("/ScanData/DyeSet/Analog[0]"),
+    A1("/ScanData/DyeSet/Analog[1]"),
+    A2("/ScanData/DyeSet/Analog[2]"),
+    A3("/ScanData/DyeSet/Analog[3]"),
     RunInfo("/ScanData/RunInfo");
 
     EnumGroups(String path) {

@@ -8,10 +8,15 @@ package com.bina.hdf5.h5.cmp;
 import com.bina.hdf5.Alignment;
 import com.bina.hdf5.EnumDat;
 import com.bina.hdf5.H5Test;
+import com.bina.hdf5.util.WeightedReference;
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.reference.FastaSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequence;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +26,7 @@ public class CmpH5Reader {
     }
 
     public Alignment getAlignment(int index) throws Exception {
-        String path = AlnGroup_.path(index);
+        String path = AlnGroup_.path(AlnIndex_.get(index,EnumIdx.AlnGroupID));
         if(path == null) return null;
         /*
         AlnData data = path_data_.get(path);
@@ -31,15 +36,45 @@ public class CmpH5Reader {
         }
         */
         if(last_path_ == null || !path.equals(last_path_)){
+            log.info("loading alignment group "+path);
             last_data_ = new AlnData(h5_,path);
             last_path_ = path;
         }
+        /*
+        Alignment aa = new Alignment(AlnIndex_.get(index), last_data_);
+        byte[] a2r = aa.toRefRead().get(EnumDat.BaseCall).data();
+        byte[] r2r = Arrays.copyOfRange(wr_.get(22-(AlnIndex_.get(index, EnumIdx.RefGroupID)-1))
+                                       ,AlnIndex_.get(index, EnumIdx.tStart)
+                                       ,AlnIndex_.get(index, EnumIdx.tEnd) );
+        log.info(a2r.length + " " + r2r.length);
+        log.info(22-(AlnIndex_.get(index, EnumIdx.RefGroupID)-1));
+        log.info(AlnIndex_.get(index, EnumIdx.tStart));
+        log.info(AlnIndex_.get(index, EnumIdx.tEnd));
+        log.info(AlnIndex_.get(index, EnumIdx.RCRefStrand));
+        StringBuilder sb= new StringBuilder();
+        for( int ii = 0 ; ii < r2r.length ; ii+=200){
+            sb.append("-\n");
+            int end = 200;
+            int diff = r2r.length - ii;
+            if(diff < end) end = diff;
+            for( int jj = 0 ; jj < end; ++jj){
+                sb.append((char)(a2r[ii+jj]&0xFF));
+            }
+            sb.append("\n");
+            for( int jj = 0 ; jj < end; ++jj){
+                sb.append((char)(r2r[ii+jj]&0xFF));
+            }
+            sb.append("\n");
+        }
+        log.info(sb.toString());
+        */
         return new Alignment(AlnIndex_.get(index), last_data_);
     }
 
 
     public CmpH5Reader(String filename) {
         load(filename);
+        wr_ = new WeightedReference("/Users/bayo/Downloads/CHM1htert.fasta");
     }
 
     public void load(String filename) {
@@ -89,6 +124,8 @@ public class CmpH5Reader {
     private AlnIndex AlnIndex_ = null;
     private AlnGroup AlnGroup_ = null;
     private Map<String, AlnData> path_data_ = null;
+
+    private WeightedReference wr_;
 
     private String last_path_;
     private AlnData last_data_;
