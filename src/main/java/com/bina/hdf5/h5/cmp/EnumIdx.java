@@ -30,8 +30,13 @@ public enum EnumIdx {
     nBackOverlap(21),
     num_columns (22);
 
-    public int value() {return value_;}
+    public int value() {
+        return value_;
+    }
 
-    EnumIdx(int value){ value_=value; }
+    EnumIdx(int value) {
+        value_ = value;
+    }
+
     private final int value_;
 }

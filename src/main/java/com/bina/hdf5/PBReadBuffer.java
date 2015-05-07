@@ -4,36 +4,58 @@ package com.bina.hdf5;
  * Created by bayo on 5/4/15.
  */
 
-import java.util.EnumSet;
 import com.bina.hdf5.util.ByteBuffer;
+import org.apache.log4j.Logger;
 
 public class PBReadBuffer {
+    private static final int INITIAL_SIZE = 100000;
+    private final static Logger log = Logger.getLogger(PBReadBuffer.class.getName());
 
-    public int size(){
+    public PBReadBuffer() {
+        this(INITIAL_SIZE);
+    }
+
+    public PBReadBuffer(int reserveSize) {
+        for (int ii = 0; ii < EnumDat.NumFields.value(); ++ii) {
+            data_[ii] = new ByteBuffer(reserveSize);
+        }
+        reserve(reserveSize);
+    }
+
+    public int size() {
         return data_[0].size();
     }
 
-    public void reserve(int size){
-        for(ByteBuffer entry: data_) {
+    public void reserve(int size) {
+        for (ByteBuffer entry : data_) {
             entry.reserve(size);
         }
     }
 
     public void clear() {
-        for(ByteBuffer entry: data_) {
+        for (ByteBuffer entry : data_) {
             entry.clear();
         }
     }
 
-    public void push_back(PBBaseCall bc){
-        for(EnumDat e : EnumSet.allOf(EnumDat.class)){
-            data_[e.value()].push_back(bc.get(e));
+
+    // should "templatize" when have time
+
+    public void addLast(PBBaseCall bc) {
+        for (EnumDat e : EnumDat.getBaxSet()) {
+            data_[e.value()].addLast(bc.get(e));
         }
     }
 
-    public byte[] get(EnumDat e){
-        return data_[e.value()].data();
+    public void addLast(PBReadBuffer other) {
+        for (EnumDat e : EnumDat.getBaxSet()) {
+            data_[e.value()].addLast(other.get(e));
+        }
     }
 
-    private final ByteBuffer[] data_ = new ByteBuffer[EnumDat.num_fields.value()];
+    public ByteBuffer get(EnumDat e) {
+        return data_[e.value()];
+    }
+
+    private final ByteBuffer[] data_ = new ByteBuffer[EnumDat.NumFields.value()];
 }

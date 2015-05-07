@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 
-public class AlnIndex {
+class AlnIndex {
 
     public AlnIndex(H5File h5) {
         load(h5);

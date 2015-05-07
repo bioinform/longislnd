@@ -5,19 +5,19 @@ package com.bina.hdf5.h5.cmp;
  * Created by bayo on 5/1/15.
  */
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.bina.hdf5.Alignment;
 import com.bina.hdf5.EnumDat;
 import com.bina.hdf5.H5Test;
-import org.apache.log4j.Logger;
-import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.FileFormat;
+import ncsa.hdf.object.h5.H5File;
+import org.apache.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CmpH5Reader {
 
-    Alignment getAlignment(int index) throws Exception {
+    public Alignment getAlignment(int index) throws Exception {
         String path = AlnGroup_.path(index);
         AlnData data = path_data_.get(path);
         if (null == data) {

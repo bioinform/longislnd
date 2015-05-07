@@ -4,11 +4,11 @@ package com.bina.hdf5.h5.cmp;
  * Created by bayo on 5/1/15.
  */
 
-import com.bina.hdf5.h5.H5ScalarDSReader;
+import com.bina.hdf5.h5.H5ScalarDSIO;
 import ncsa.hdf.object.h5.H5File;
 import org.apache.log4j.Logger;
 
-public class AlnGroup {
+class AlnGroup {
 
     public String path(int id) {
         if (id < 0 || id >= id2path_.length) return null;
@@ -25,8 +25,8 @@ public class AlnGroup {
 
     public boolean load(H5File h5) {
         try {
-            final int[] d = H5ScalarDSReader.<int[]>Read(h5, "/AlnGroup/ID");
-            final String[] s = H5ScalarDSReader.<String[]>Read(h5, "/AlnGroup/Path");
+            final int[] d = H5ScalarDSIO.<int[]>Read(h5, "/AlnGroup/ID");
+            final String[] s = H5ScalarDSIO.<String[]>Read(h5, "/AlnGroup/Path");
 
             if (d.length != s.length) throw new Exception("inconsistent AlnGroup");
 

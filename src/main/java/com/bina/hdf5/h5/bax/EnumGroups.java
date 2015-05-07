@@ -3,7 +3,7 @@ package com.bina.hdf5.h5.bax;
 /**
  * Created by bayo on 5/3/15.
  */
-public enum EnumGroups {
+enum EnumGroups {
     PulseData("/PulseData"),
     BaseCalls("/PulseData/BaseCalls"),
     ZMW("/PulseData/BaseCalls/ZMW"),

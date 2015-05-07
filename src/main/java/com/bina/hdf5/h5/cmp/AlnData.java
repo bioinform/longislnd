@@ -5,7 +5,7 @@ package com.bina.hdf5.h5.cmp;
  */
 
 import com.bina.hdf5.EnumDat;
-import com.bina.hdf5.h5.H5ScalarDSReader;
+import com.bina.hdf5.h5.H5ScalarDSIO;
 import ncsa.hdf.object.h5.H5File;
 
 public class AlnData {
@@ -18,7 +18,7 @@ public class AlnData {
     // still trying to figure out how to do associate class type with enum then cast and generic
     public byte[] get(EnumDat f) throws Exception {
         if (null == data_[f.value()]) {
-            data_[f.value()] = H5ScalarDSReader.<byte[]>Read(h5_, path_ + f.path());
+            data_[f.value()] = H5ScalarDSIO.<byte[]>Read(h5_, path_ + f.path());
         }
         return (byte[]) data_[f.value()];
     }
@@ -26,7 +26,7 @@ public class AlnData {
     public void load(H5File h5, String path) {
         h5_ = h5;
         path_ = path;
-        data_ = new Object[EnumDat.num_fields.value()];
+        data_ = new Object[EnumDat.NumFields.value()];
     }
 
     private H5File h5_ = null;

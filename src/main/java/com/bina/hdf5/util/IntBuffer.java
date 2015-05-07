@@ -1,52 +1,52 @@
 package com.bina.hdf5.util;
 
+
 /**
- * Created by bayo on 5/5/15.
+ * Created by bayo on 5/6/15.
  */
 
 import java.util.Arrays;
 
-public class ByteBuffer {
-    private byte[] data_;
+public class IntBuffer {
+    private int[] data_;
     private int size_;
 
-
-    public ByteBuffer() {
-        this(64);
+    public IntBuffer() {
+        this(64 / 4);
     }
 
-    public ByteBuffer(int reserve) {
-        data_ = new byte[Math.abs(reserve) + 1];
+    public IntBuffer(int reserve) {
+        data_ = new int[Math.abs(reserve) + 1];
         size_ = 0;
     }
 
-    public void addLast(byte b) {
+    public void addLast(int i) {
         if (size_ >= data_.length) {
             reserve(size_ * 2 + 1000);
         }
-        data_[size_] = b;
+        data_[size_] = i;
         ++size_;
     }
 
-    public void addLast(ByteBuffer other) {
-        final int newSize = size_ + other.size();
+    public void addLast(int[] other) {
+        final int newSize = size_ + other.length;
         if (newSize >= data_.length) {
             reserve(newSize * 2 + 1000);
         }
         // there's probably something like std::copy in java?
-        for (int ii = 0; ii < other.size(); ++ii, ++size_) {
-            data_[size_] = other.data()[ii];
+        for (int ii = 0; ii < other.length; ++ii, ++size_) {
+            data_[size_] = other[ii];
         }
     }
 
     public void reserve(int new_size) {
         if (new_size > data_.length) {
-            byte[] new_data = Arrays.copyOf(data_, new_size);
+            int[] new_data = Arrays.copyOf(data_, new_size);
             data_ = new_data;
         }
     }
 
-    public byte[] data() {
+    public int[] data() {
         return data_;
     }
 
