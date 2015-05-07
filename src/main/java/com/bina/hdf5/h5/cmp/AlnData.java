@@ -26,7 +26,7 @@ public class AlnData {
     public void load(H5File h5, String path) {
         h5_ = h5;
         path_ = path;
-        data_ = new Object[EnumDat.NumFields.value()];
+        data_ = new Object[EnumDat.values().length];
     }
 
     private H5File h5_ = null;

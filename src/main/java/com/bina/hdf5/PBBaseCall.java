@@ -13,5 +13,5 @@ public class PBBaseCall {
         return data_[e.value()];
     }
 
-    private final byte[] data_ = new byte[EnumDat.NumFields.value()];
+    private final byte[] data_ = new byte[EnumDat.values().length];
 }

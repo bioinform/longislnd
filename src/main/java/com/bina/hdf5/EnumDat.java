@@ -15,19 +15,18 @@ public enum EnumDat {
     MergeQV        (4, "/MergeQV"),
     QualityValue   (5, "/QualityValue"),
     SubstitutionQV (6, "/SubstitutionQV"),
-    SubstitutionTag(7, "/SubstitutionTag"),
-    NumFields      (8, "");
+    SubstitutionTag(7, "/SubstitutionTag");
 
     static public EnumSet<EnumDat> getBaxSet() {
-        return EnumSet.complementOf(EnumSet.of(AlnArray, NumFields));
+        return EnumSet.complementOf(EnumSet.of(AlnArray));
     }
 
     static public EnumSet<EnumDat> getCmpSet() {
-        return EnumSet.complementOf(EnumSet.of(BaseCall, NumFields));
+        return EnumSet.complementOf(EnumSet.of(BaseCall));
     }
 
     static public EnumSet<EnumDat> getNonBaseSet() {
-        return EnumSet.complementOf(EnumSet.of(BaseCall, AlnArray, NumFields));
+        return EnumSet.complementOf(EnumSet.of(BaseCall, AlnArray));
     }
 
     public int value() {

@@ -27,8 +27,7 @@ public enum EnumIdx {
     offset_begin(18),
     offset_end  (19),
     nBackRead   (20),
-    nBackOverlap(21),
-    num_columns (22);
+    nBackOverlap(21);
 
     public int value() {
         return value_;

@@ -52,7 +52,7 @@ public class BaxH5Writer {
 
     public void writeRegions() throws Exception {
         final EnumSet<EnumTypeIdx> typeSet = EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
-        int[] buffer = new int[size() * EnumRegionsIdx.NumFields.value() * typeSet.size()];
+        int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
         final int[] length_score = buffer_.length_score().data();
         int shift = 0;
         for (int rr = 0; rr < size(); ++rr) {
@@ -62,10 +62,10 @@ public class BaxH5Writer {
                 buffer[shift + EnumRegionsIdx.RegionStart.value()] = 0;
                 buffer[shift + EnumRegionsIdx.RegionEnd.value()] = length_score[2 * rr];
                 buffer[shift + EnumRegionsIdx.RegionScore.value()] = length_score[2 * rr + 1];
-                shift += EnumRegionsIdx.NumFields.value();
+                shift += EnumRegionsIdx.values().length;
             }
         }
-        long[] dims = new long[]{buffer.length / EnumRegionsIdx.NumFields.value(), EnumRegionsIdx.NumFields.value()};
+        long[] dims = new long[]{buffer.length / EnumRegionsIdx.values().length, EnumRegionsIdx.values().length};
         H5ScalarDSIO.Write(h5_, EnumGroups.PulseData.path() + "/Regions", buffer, dims);
     }
 

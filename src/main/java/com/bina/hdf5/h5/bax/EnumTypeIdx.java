@@ -6,8 +6,7 @@ package com.bina.hdf5.h5.bax;
 enum EnumTypeIdx {
     TypeAdapter (0,"Adapter"),
     TypeInsert(1, "Insert"),
-    TypeHQRegion(2, "HQRegion"),
-    NumFields(3, "");
+    TypeHQRegion(2, "HQRegion");
 
     public int value() {
         return value_;

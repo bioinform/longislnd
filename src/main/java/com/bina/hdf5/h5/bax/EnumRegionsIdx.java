@@ -8,8 +8,7 @@ enum EnumRegionsIdx {
     RegionType (1, "Region type index"),
     RegionStart(2, "Region start in bases"),
     RegionEnd  (3, "Region end in bases"),
-    RegionScore(4, "Region score"),
-    NumFields  (5, "");
+    RegionScore(4, "Region score");
 
     public int value() {
         return value_;
