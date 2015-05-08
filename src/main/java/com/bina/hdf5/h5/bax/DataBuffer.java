@@ -1,6 +1,6 @@
 package com.bina.hdf5.h5.bax;
 
-import com.bina.hdf5.PBReadBuffer;
+import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.util.IntBuffer;
 
 /**

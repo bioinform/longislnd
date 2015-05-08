@@ -5,27 +5,26 @@ package com.bina.hdf5.h5.cmp;
  * Created by bayo on 5/1/15.
  */
 
-import com.bina.hdf5.Alignment;
-import com.bina.hdf5.EnumDat;
+import com.bina.hdf5.h5.pb.EnumDat;
 import com.bina.hdf5.H5Test;
+import com.bina.hdf5.interfaces.EventGroupFactory;
+import com.bina.hdf5.util.EnumBP;
 import com.bina.hdf5.util.WeightedReference;
-import htsjdk.samtools.SAMSequenceDictionary;
-import htsjdk.samtools.reference.FastaSequenceFile;
-import htsjdk.samtools.reference.ReferenceSequence;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CmpH5Reader {
+public class CmpH5Reader implements EventGroupFactory {
+    @Override
     public int size() {
         return AlnIndex_.size();
     }
 
-    public Alignment getAlignment(int index) throws Exception {
+    @Override
+    public CmpH5Alignment getEventGroup(int index) throws Exception {
         String path = AlnGroup_.path(AlnIndex_.get(index,EnumIdx.AlnGroupID));
         if(path == null) return null;
         /*
@@ -41,7 +40,7 @@ public class CmpH5Reader {
             last_path_ = path;
         }
         /*
-        Alignment aa = new Alignment(AlnIndex_.get(index), last_data_);
+        CmpH5Alignment aa = new CmpH5Alignment(AlnIndex_.get(index), last_data_);
         byte[] a2r = aa.toRefRead().get(EnumDat.BaseCall).data();
         byte[] r2r = Arrays.copyOfRange(wr_.get(22-(AlnIndex_.get(index, EnumIdx.RefGroupID)-1))
                                        ,AlnIndex_.get(index, EnumIdx.tStart)
@@ -68,13 +67,13 @@ public class CmpH5Reader {
         }
         log.info(sb.toString());
         */
-        return new Alignment(AlnIndex_.get(index), last_data_);
+        return new CmpH5Alignment(AlnIndex_.get(index), last_data_);
     }
 
 
     public CmpH5Reader(String filename) {
         load(filename);
-        wr_ = new WeightedReference("/Users/bayo/Downloads/CHM1htert.fasta");
+//        wr_ = new WeightedReference("/Users/bayo/Downloads/CHM1htert.fasta");
     }
 
     public void load(String filename) {
@@ -103,7 +102,7 @@ public class CmpH5Reader {
             }
             sb.append("\n");
 
-            Alignment aa = getAlignment(2);
+            CmpH5Alignment aa = getEventGroup(2);
             sb.append(aa.toString());
             int[] aln = aa.aln();
             sb.append(aln.length + " " + aa.aln_begin() + " " + aa.aln_end() + "\n");

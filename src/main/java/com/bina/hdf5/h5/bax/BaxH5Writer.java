@@ -4,27 +4,28 @@ package com.bina.hdf5.h5.bax;
  * Created by bayo on 5/4/15.
  */
 
-import com.bina.hdf5.EnumDat;
-import com.bina.hdf5.PBReadBuffer;
+import com.bina.hdf5.h5.pb.EnumDat;
+import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.h5.Attributes;
 import com.bina.hdf5.h5.H5ScalarDSIO;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5File;
-import ncsa.hdf.object.h5.H5Group;
 import org.apache.log4j.Logger;
 
 import java.util.EnumSet;
 
 public class BaxH5Writer {
 
-    public void write(String filename,String moviename) throws Exception {
+    public void write(String filename, String moviename, int firsthole) throws Exception {
+        log.info("Writing to " + filename + " as movie " + moviename);
         H5File h5 = new H5File(filename, FileFormat.CREATE);
+        h5.open();
         AttributesFactory af = new AttributesFactory(size(),moviename);
         writeGroups(h5,af);
         writeBaseCalls(h5,af);
-        writeZWM(h5);
-        writeRegions(h5);
+        writeZWM(h5,firsthole);
+        writeRegions(h5,firsthole);
         h5.close();
     }
 
@@ -54,14 +55,14 @@ public class BaxH5Writer {
     private final DataBuffer buffer_ = new DataBuffer(100000);
     private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
 
-    private void writeRegions(H5File h5) throws Exception {
+    private void writeRegions(H5File h5, int firsthole) throws Exception {
         final EnumSet<EnumTypeIdx> typeSet = EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
         int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
         final int[] length_score = buffer_.length_score().data();
         int shift = 0;
         for (int rr = 0; rr < size(); ++rr) {
             for (EnumTypeIdx e : typeSet) {
-                buffer[shift + EnumRegionsIdx.HoleNumber.value()] = rr;
+                buffer[shift + EnumRegionsIdx.HoleNumber.value()] = firsthole + rr;
                 buffer[shift + EnumRegionsIdx.RegionType.value()] = e.value();
                 buffer[shift + EnumRegionsIdx.RegionStart.value()] = 0;
                 buffer[shift + EnumRegionsIdx.RegionEnd.value()] = length_score[2 * rr];
@@ -80,7 +81,7 @@ public class BaxH5Writer {
     }
 
 
-    public void writeZWM(H5File h5) throws Exception {
+    public void writeZWM(H5File h5, int firsthole) throws Exception {
         final int[] length_score = buffer_.length_score().data();
         final long[] dims_1 = new long[]{(long) size()};
         final long[] dims_2 = new long[]{(long) size(), (long) 2};
@@ -89,7 +90,7 @@ public class BaxH5Writer {
         {
             //HoleNumber
             for (int ii = 0; ii < size(); ++ii) {
-                int_buffer[ii] = ii;
+                int_buffer[ii] = firsthole + ii;
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleNumber", int_buffer, dims_1);
             Attributes att = new Attributes();
@@ -114,8 +115,9 @@ public class BaxH5Writer {
             //NumXY
             short[] short_buffer = new short[size() * 2];
             for (int ii = 0; ii < size(); ++ii) {
-                short_buffer[2 * ii] = (short)(ii%2);
-                short_buffer[2 * ii + 1] = (short) ii;
+                int holenumber = ii + firsthole;
+                short_buffer[2 * ii] = (short)(holenumber%2);
+                short_buffer[2 * ii + 1] = (short) holenumber;
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleXY", short_buffer, dims_2);
             Attributes att = new Attributes();
@@ -136,7 +138,7 @@ public class BaxH5Writer {
             //ReadScore
             float[] float_buffer = new float[size()];
             for (int ii = 0; ii < size(); ++ii) {
-                float_buffer[ii] = (float) (length_score[2 * ii + 1]) / (float) 1000;
+                float_buffer[ii] = (float) (length_score[2 * ii + 1]) / (float) 1001;
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path() + "/ReadScore", float_buffer, dims_1);
             Attributes att = new Attributes();

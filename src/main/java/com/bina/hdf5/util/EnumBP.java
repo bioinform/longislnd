@@ -1,4 +1,4 @@
-package com.bina.hdf5.h5.cmp;
+package com.bina.hdf5.util;
 
 /**
  * Created by bayo on 5/2/15.
@@ -58,11 +58,18 @@ public enum EnumBP {
     private final char c_;
 
     public static final byte[] value2ascii_ = new byte[Invalid.value() + 1];
+    public static final byte[] ascii2value_ = new byte[256];
+    static byte ascii2value(byte a){ return ascii2value_[a];}
 
     public static final EnumBP[] cmp2ref_ = new EnumBP[256];
     public static final EnumBP[] cmp2seq_ = new EnumBP[256];
 
     static {
+        Arrays.fill(ascii2value_, Invalid.value());
+        for(EnumBP e: EnumSet.of(EnumBP.A,EnumBP.G,EnumBP.C,EnumBP.T)){
+            ascii2value_[e.ascii()] = e.value();
+        }
+
         Arrays.fill(cmp2ref_, Invalid);
         Arrays.fill(cmp2seq_, Invalid);
         for (EnumBP seq : EnumSet.allOf(EnumBP.class)) {

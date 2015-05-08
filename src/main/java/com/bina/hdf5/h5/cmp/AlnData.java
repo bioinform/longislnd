@@ -4,11 +4,11 @@ package com.bina.hdf5.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
-import com.bina.hdf5.EnumDat;
+import com.bina.hdf5.h5.pb.EnumDat;
 import com.bina.hdf5.h5.H5ScalarDSIO;
 import ncsa.hdf.object.h5.H5File;
 
-public class AlnData {
+class AlnData {
 
     public AlnData(H5File h5, String path) {
         load(h5, path);

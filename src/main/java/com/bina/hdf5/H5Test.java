@@ -3,7 +3,11 @@ package com.bina.hdf5;
 import com.bina.hdf5.h5.H5CloneGroups;
 import com.bina.hdf5.h5.H5Summary;
 import com.bina.hdf5.h5.bax.BaxH5Writer;
+import com.bina.hdf5.h5.cmp.CmpH5Alignment;
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
+import com.bina.hdf5.simulator.EnumEvent;
+import com.bina.hdf5.simulator.Event;
+import com.bina.hdf5.simulator.Sampler;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -30,6 +34,21 @@ public class H5Test {
         String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
 
         switch (args[0]) {
+            case "sample":
+                Sampler sampler = null;
+                try {
+                    sampler = new Sampler(pass_args[0],2,2);
+                    sampler.process(new CmpH5Reader(pass_args[1]));
+                } catch (Exception e) {
+                    log.info(e, e);
+                }
+                finally{
+                    if(sampler != null){
+                        log.info(sampler.toString());
+                        sampler.close();
+                    }
+                }
+                break;
             case "cmp":
                 log.info("cmp");
             {
@@ -50,13 +69,14 @@ public class H5Test {
                 try {
                     BaxH5Writer writer = new BaxH5Writer();
                     CmpH5Reader ch5 = new CmpH5Reader(pass_args[1]);
-                    for(int ii = 0 ; ii < 1000/*ch5.size()*/ ; ++ii){
-                        Alignment aln = ch5.getAlignment(ii);
-                        log.info("alignment "+ii+" of length "+aln.aln_length());
-                        if( null == aln ) continue;
+                    for (int ii = 0; ii < 1000/*ch5.size()*/ ; ++ii) {
+                        CmpH5Alignment aln = ch5.getEventGroup(ii);
+                        log.info("alignment " + ii + " of length " + aln.aln_length());
+                        if (null == aln) continue;
                         writer.addLast(aln.toSeqRead(), 1000);
                     }
-                    writer.write(pass_args[0]+".bax.h5",pass_args[0]);
+                    String prefix = "m000000_000000_00001_cSIMULATED_s0_p0";
+                    writer.write(pass_args[0] + prefix + ".bax.h5", prefix, 0);
                 } catch (Exception e) {
                     log.info(e, e);
                 }

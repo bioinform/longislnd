@@ -1,6 +1,6 @@
 package com.bina.hdf5.h5.bax;
 
-import com.bina.hdf5.EnumDat;
+import com.bina.hdf5.h5.pb.EnumDat;
 import com.bina.hdf5.h5.Attributes;
 
 import java.text.DateFormat;

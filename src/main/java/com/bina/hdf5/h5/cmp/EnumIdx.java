@@ -5,7 +5,7 @@ package com.bina.hdf5.h5.cmp;
  */
 
 // named according to pacbio's online spec
-public enum EnumIdx {
+enum EnumIdx {
     AlnID       (0),
     AlnGroupID  (1),
     MovieId     (2),
