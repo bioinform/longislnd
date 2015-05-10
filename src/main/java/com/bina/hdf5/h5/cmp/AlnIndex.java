@@ -52,6 +52,15 @@ class AlnIndex {
             log.info(e.toString());
             return true;
         }
+        long nIns = 0;
+        long nDel = 0;
+        long nRef = 0;
+        for(int ii = 0 ; ii < size() ;++ii){
+            nIns += get(ii,EnumIdx.nIns);
+            nDel += get(ii,EnumIdx.nDel);
+            nRef += get(ii,EnumIdx.tEnd) - get(ii,EnumIdx.tStart);
+        }
+        log.info("alignment with " + nIns + "(" + (double)nIns / (double)nRef+ ") ins and " + nDel + "(" +(double)nDel/(double)nRef +") del " + nRef + " ref");
         return false;
     }
 

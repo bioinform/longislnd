@@ -51,16 +51,19 @@ public class Sampler implements Closeable{
     public void process(EventGroupFactory groups) throws Exception{
         long count = 0;
         for(int ii = 0 ; ii < groups.size() ; ++ii){
-            EventGroup aln = groups.getEventGroup(ii);
+            EventGroup group = groups.getEventGroup(ii);
             if(ii%5000 == 0){
                 log.info("processing group " + ii + "/" + groups.size());
                 log.info(toString());
             }
-            if( null == aln ){
+            if( null == group ){
                 log.info("failed to retrieve group " + ii);
                 continue;
             }
-            process(aln.getEventIterator(leftFlank_, rightFlank_));
+            if(group.seq_length() < 1000){
+                continue;
+            }
+            process(group.getEventIterator(leftFlank_, rightFlank_));
             ++count;
         }
         log.info("processed " + count + " groups");
