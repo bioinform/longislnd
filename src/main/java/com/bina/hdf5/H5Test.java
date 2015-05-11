@@ -5,9 +5,7 @@ import com.bina.hdf5.h5.H5Summary;
 import com.bina.hdf5.h5.bax.BaxH5Writer;
 import com.bina.hdf5.h5.cmp.CmpH5Alignment;
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
-import com.bina.hdf5.simulator.EnumEvent;
-import com.bina.hdf5.simulator.Event;
-import com.bina.hdf5.simulator.Sampler;
+import com.bina.hdf5.simulator.SampleCollector;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -35,17 +33,17 @@ public class H5Test {
 
         switch (args[0]) {
             case "sample":
-                Sampler sampler = null;
+                SampleCollector collector = null;
                 try {
-                    sampler = new Sampler(pass_args[0],2,2);
-                    sampler.process(new CmpH5Reader(pass_args[1]));
+                    collector = new SampleCollector(pass_args[0],2,2);
+                    collector.process(new CmpH5Reader(pass_args[1]));
                 } catch (Exception e) {
                     log.info(e, e);
                 }
                 finally{
-                    if(sampler != null){
-                        log.info(sampler.toString());
-                        sampler.close();
+                    if(collector != null){
+                        log.info(collector.toString());
+                        collector.close();
                     }
                 }
                 break;

@@ -43,7 +43,7 @@ public class BaxH5Writer {
     private void writeBaseCalls(H5File h5, AttributesFactory af) throws Exception {
         long[] dims = new long[]{buffer_.reads().size()};
         for (EnumDat e : EnumDat.getBaxSet()) {
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path() + e.path(), buffer_.reads().get(e).data(), dims);
+            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path() + e.path(), buffer_.reads().get(e).data_ref(), dims);
             af.get(e).writeTo(obj);
         }
     }
@@ -105,7 +105,7 @@ public class BaxH5Writer {
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleStatus", byte_buffer, dims_1);
             Attributes att = new Attributes();
-            att.add(AttributesFactory.DESCRIPTION, new String[]{"Type of ZMW that produced the data"}, null);
+            att.add(AttributesFactory.DESCRIPTION, new String[]{"Type of ZMW that produced the data_ref"}, null);
             att.add( "LookupTable"
                    , new String[]{"SEQUENCING","ANTIHOLE","FIDUCIAL","SUSPECT","ANTIMIRROR","FDZMW","FBZMW","ANTIBEAMLET","OUTSIDEFOV"}
                    , new long[]{9});

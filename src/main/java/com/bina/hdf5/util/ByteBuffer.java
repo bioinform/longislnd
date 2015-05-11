@@ -4,7 +4,6 @@ package com.bina.hdf5.util;
  * Created by bayo on 5/5/15.
  */
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,6 +21,15 @@ public class ByteBuffer {
     public ByteBuffer(int reserve) {
         data_ = new byte[Math.abs(reserve) + 1];
         size_ = 0;
+    }
+
+    public void addLast(byte other) {
+        final int newSize = size_ + 1;
+        if (newSize >= data_.length) {
+            reserve(newSize * 2 + 1000);
+        }
+        data_[size_] = other;
+        ++size_;
     }
 
     public void addLast(byte[] other) {
@@ -42,7 +50,7 @@ public class ByteBuffer {
         }
         // there's probably something like std::copy in java?
         for (int ii = 0; ii < other.size(); ++ii, ++size_) {
-            data_[size_] = other.data()[ii];
+            data_[size_] = other.data_ref()[ii];
         }
     }
 
@@ -61,8 +69,12 @@ public class ByteBuffer {
         size_=new_size;
     }
 
-    public byte[] data() {
+    public byte[] data_ref() {
         return data_;
+    }
+
+    public byte[] data_cpy() {
+        return Arrays.copyOf(data_,size_);
     }
 
     public int size() {
@@ -81,6 +93,6 @@ public class ByteBuffer {
     public void read(DataInputStream dis) throws IOException {
         size_ = dis.readInt();
         resize(size_);
-        dis.read(data_,0,size_);
+        dis.read(data_, 0, size_);
     }
 }

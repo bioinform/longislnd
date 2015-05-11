@@ -1,5 +1,7 @@
 package com.bina.hdf5.simulator;
 
+import com.bina.hdf5.h5.pb.EnumDat;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
@@ -8,9 +10,10 @@ import java.io.DataOutputStream;
  */
 
 public class Event {
-    public Event(DataInputStream dis) throws Exception {
+    public Event() {
+        kmer_= -1;
+        event_ = null;
         bc_ = new BaseCalls();
-        read(dis);
     }
 
     public Event(int k, EnumEvent e, BaseCalls b) {
@@ -38,6 +41,14 @@ public class Event {
         return sb.toString();
     }
 
+    public final byte get(int pos, EnumDat e) {
+        return bc_.get(pos,e);
+    }
+
+    public byte[] data_cpy() {
+        return bc_.data_cpy();
+    }
+
 
     private int kmer_;
     private EnumEvent event_;
@@ -53,6 +64,7 @@ public class Event {
         int tmp = dis.readInt();
         kmer_ = tmp / EnumEvent.values().length;
         event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
+        if(null == bc_) bc_ = new BaseCalls();
         bc_.read(dis);
     }
 }

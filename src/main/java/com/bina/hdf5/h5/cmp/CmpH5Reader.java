@@ -28,10 +28,10 @@ public class CmpH5Reader implements EventGroupFactory {
         String path = AlnGroup_.path(AlnIndex_.get(index,EnumIdx.AlnGroupID));
         if(path == null) return null;
         /*
-        AlnData data = path_data_.get(path);
-        if (null == data) {
-            data = new AlnData(h5_, path);
-            path_data_.put(path, data);
+        AlnData data_ref = path_data_.get(path);
+        if (null == data_ref) {
+            data_ref = new AlnData(h5_, path);
+            path_data_.put(path, data_ref);
         }
         */
         if(last_path_ == null || !path.equals(last_path_)){
@@ -41,7 +41,7 @@ public class CmpH5Reader implements EventGroupFactory {
         }
         /*
         CmpH5Alignment aa = new CmpH5Alignment(AlnIndex_.get(index), last_data_);
-        byte[] a2r = aa.toRefRead().get(EnumDat.BaseCall).data();
+        byte[] a2r = aa.toRefRead().get(EnumDat.BaseCall).data_ref();
         byte[] r2r = Arrays.copyOfRange(wr_.get(22-(AlnIndex_.get(index, EnumIdx.RefGroupID)-1))
                                        ,AlnIndex_.get(index, EnumIdx.tStart)
                                        ,AlnIndex_.get(index, EnumIdx.tEnd) );
@@ -90,7 +90,7 @@ public class CmpH5Reader implements EventGroupFactory {
         sb.append(AlnGroup_.toString());
         sb.append("cmp conversion table:\n");
         sb.append(EnumBP.tableToString());
-        sb.append("last data alnarray:\n");
+        sb.append("last data_ref alnarray:\n");
         AlnData tmp = new AlnData(h5_, AlnGroup_.path(2));
         sb.append(AlnGroup_.path(2) + "\n");
         try {

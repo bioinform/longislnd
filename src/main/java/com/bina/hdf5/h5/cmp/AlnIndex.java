@@ -42,7 +42,7 @@ class AlnIndex {
             if (nc != 22) throw new Exception("bad AlinIndex num_col");
 
             int[] d = (int[]) obj.getData();
-            if (d.length != nr * nc) throw new Exception("bad AlnIndex data");
+            if (d.length != nr * nc) throw new Exception("bad AlnIndex data_ref");
 
             data_ = d;
             num_rows_ = nr;

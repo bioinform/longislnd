@@ -1,0 +1,24 @@
+package com.bina.hdf5.simulator.pool;
+
+import com.bina.hdf5.h5.pb.EnumDat;
+import com.bina.hdf5.h5.pb.PBReadBuffer;
+import com.bina.hdf5.simulator.Event;
+
+/**
+ * Created by bayo on 5/10/15.
+ */
+public abstract class BaseCallsPool {
+
+    protected static final int BYTE_PER_BC = EnumDat.getBaxSet().size();
+    protected int entryPerKmer_;
+    protected int numKmers_;
+
+    protected BaseCallsPool(int numKmers, int entryPerKmer) {
+        numKmers_ = numKmers;
+        entryPerKmer_ = entryPerKmer;
+    }
+
+    public abstract void appendTo(PBReadBuffer pb, int kmer) throws Exception;
+
+    public abstract void add(Event ev) throws Exception;
+}

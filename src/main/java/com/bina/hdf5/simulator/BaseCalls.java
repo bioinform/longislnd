@@ -38,11 +38,15 @@ public class BaseCalls {
     }
 
     public final void set(int pos, EnumDat e, byte b) {
-        data_.data()[pos*bytePerBase+e.value()] = b;
+        data_.data_ref()[pos*bytePerBase+e.value()] = b;
     }
 
     public final byte get(int pos, EnumDat e) {
-        return data_.data()[pos*bytePerBase+e.value()];
+        return data_.data_ref()[pos*bytePerBase+e.value()];
+    }
+
+    public final byte[] data_cpy() {
+        return data_.data_cpy();
     }
 
     public String toString() {
