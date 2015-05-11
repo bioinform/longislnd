@@ -1,5 +1,8 @@
 package com.bina.hdf5.simulator;
 
+import com.bina.hdf5.util.IntBuffer;
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -8,9 +11,11 @@ import java.nio.channels.FileChannel;
  * Created by bayo on 5/10/15.
  */
 public abstract class Sampler {
+    private final static Logger log = Logger.getLogger(Sampler.class.getName());
     protected final long[] event_base_count_ = new long[EnumEvent.values().length];
     protected final long[] event_count_ = new long[EnumEvent.values().length];
     protected long[] kmer_event_count_;
+    protected IntBuffer lengths_;
     protected int leftFlank_;
     protected int rightFlank_;
     protected int k_;
@@ -20,6 +25,7 @@ public abstract class Sampler {
         loadIdx(prefix);
         kmer_event_count_ = new long[numKmer_ * EnumEvent.values().length];
         loadStats(prefix);
+        loadLengths(prefix);
     }
 
     public Sampler(int leftFlank, int rightFlank) {
@@ -28,6 +34,7 @@ public abstract class Sampler {
         k_ = leftFlank_ + 1 + rightFlank_;
         numKmer_ = 1 << ( 2*k_ );
         kmer_event_count_ = new long[numKmer_ * EnumEvent.values().length];
+        lengths_ = new IntBuffer(1000);
     }
 
     public String toString() {
@@ -77,6 +84,7 @@ public abstract class Sampler {
             event_count_[ii] = dis.readLong();
         }
         dis.close();
+        log.info(this.toString());
     }
 
     protected final void writeStats(String prefix) throws IOException {
@@ -91,6 +99,7 @@ public abstract class Sampler {
         fos.close();
     }
 
+
     private final void loadStats(String prefix) throws IOException {
         RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix),"r");
         FileChannel file = fos.getChannel();
@@ -102,10 +111,31 @@ public abstract class Sampler {
         fos.close();
     }
 
+    protected final void writeLengths(String prefix) throws IOException {
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.LENGTH.filename(prefix))));
+        dos.writeInt(lengths_.size());
+        for(int ii = 0 ; ii < lengths_.size() ;++ii) {
+            dos.writeInt(lengths_.get(ii));
+        }
+        dos.close();
+    }
+
+    protected final void loadLengths(String prefix) throws IOException {
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
+        int new_size = dis.readInt();
+        lengths_ = new IntBuffer(new_size);
+        for(int ii = 0 ; ii < new_size ; ++ii) {
+            lengths_.addLast(dis.readInt());
+        }
+        dis.close();
+        log.info("loaded " + lengths_.size() + " length");
+    }
+
     protected enum Suffixes{
         EVENTS(".events"),
         STATS(".stats"),
-        IDX(".idx");
+        IDX(".idx"),
+        LENGTH(".len");
         private String suffix_;
         Suffixes(String s){
             suffix_ = s;

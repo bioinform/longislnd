@@ -4,6 +4,8 @@ import com.bina.hdf5.h5.pb.EnumDat;
 import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.simulator.Event;
 
+import java.util.Random;
+
 /**
  * Created by bayo on 5/10/15.
  */
@@ -18,7 +20,7 @@ public abstract class BaseCallsPool {
         entryPerKmer_ = entryPerKmer;
     }
 
-    public abstract void appendTo(PBReadBuffer pb, int kmer) throws Exception;
+    public abstract void appendTo(PBReadBuffer pb, int kmer, Random gen) throws Exception;
 
     public abstract void add(Event ev) throws Exception;
 }

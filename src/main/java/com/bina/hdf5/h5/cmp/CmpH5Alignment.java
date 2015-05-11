@@ -11,11 +11,10 @@ import com.bina.hdf5.interfaces.EventGroup;
 import com.bina.hdf5.simulator.BaseCalls;
 import com.bina.hdf5.simulator.EnumEvent;
 import com.bina.hdf5.simulator.Event;
-import com.bina.hdf5.util.EnumBP;
-import com.bina.hdf5.util.Kmerizer;
+import com.bina.hdf5.bioinfo.EnumBP;
+import com.bina.hdf5.bioinfo.Kmerizer;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class CmpH5Alignment implements EventGroup {

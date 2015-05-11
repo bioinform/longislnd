@@ -45,7 +45,7 @@ public class SampleCollector extends Sampler implements Closeable{
 
     public void process(EventGroupFactory groups) throws Exception{
         long count = 0;
-        for(int ii = 0 ; ii < groups.size() ; ++ii){
+        for(int ii = 0 ; ii < /*groups.size()*/ 1000 ; ++ii){
             EventGroup group = groups.getEventGroup(ii);
             if(ii%5000 == 0){
                 log.info("processing group " + ii + "/" + groups.size());
@@ -58,6 +58,7 @@ public class SampleCollector extends Sampler implements Closeable{
             if(group.seq_length() < 1000){
                 continue;
             }
+            lengths_.addLast(group.seq_length());
             process(group.getEventIterator(leftFlank_, rightFlank_));
             ++count;
         }
@@ -73,6 +74,7 @@ public class SampleCollector extends Sampler implements Closeable{
 
             writeStats(outPrefix_);
             writeIdx(outPrefix_);
+            writeLengths(outPrefix_);
 
         }
         catch (IOException e){

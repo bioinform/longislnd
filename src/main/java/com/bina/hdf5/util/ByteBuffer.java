@@ -91,8 +91,9 @@ public class ByteBuffer {
     }
 
     public void read(DataInputStream dis) throws IOException {
-        size_ = dis.readInt();
-        resize(size_);
+        int new_size = dis.readInt();
+        resize(new_size);
+        size_ = new_size;
         dis.read(data_, 0, size_);
     }
 }

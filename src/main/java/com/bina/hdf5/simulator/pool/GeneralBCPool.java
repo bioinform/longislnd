@@ -5,6 +5,7 @@ import com.bina.hdf5.simulator.Event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by bayo on 5/10/15.
@@ -25,12 +26,13 @@ public class GeneralBCPool extends BaseCallsPool {
 
     @Override
     public void add(Event ev) throws Exception {
-        data_.get(ev.kmer()).add(ev.data_cpy());
+        if(data_.get(ev.kmer()).size() < entryPerKmer_)
+            data_.get(ev.kmer()).add(ev.data_cpy());
     }
 
     @Override
-    public void appendTo(PBReadBuffer buffer, int kmer) throws Exception {
-        int draw = 0;
+    public void appendTo(PBReadBuffer buffer, int kmer, Random gen) throws Exception {
+        int draw = gen.nextInt(data_.get(kmer).size());
         final byte[] b = data_.get(kmer).get(draw);
         buffer.addLast(b, 0, b.length);
     }

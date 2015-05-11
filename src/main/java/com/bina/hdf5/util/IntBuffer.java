@@ -28,6 +28,11 @@ public class IntBuffer {
         ++size_;
     }
 
+    public int get(int idx) throws ArrayIndexOutOfBoundsException {
+        if(idx >= size_) throw new ArrayIndexOutOfBoundsException(idx);
+        return data_[idx];
+    }
+
     public void addLast(int[] other) {
         final int newSize = size_ + other.length;
         if (newSize >= data_.length) {
@@ -49,7 +54,7 @@ public class IntBuffer {
         }
     }
 
-    public int[] data() {
+    public int[] data_ref() {
         return data_;
     }
 

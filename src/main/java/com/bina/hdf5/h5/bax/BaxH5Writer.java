@@ -30,6 +30,7 @@ public class BaxH5Writer {
     }
 
     public void addLast(PBReadBuffer read, int score) {
+        log.info("adding read of length " + read.size());
         buffer_.addLast(read, score);
     }
 
@@ -58,7 +59,7 @@ public class BaxH5Writer {
     private void writeRegions(H5File h5, int firsthole) throws Exception {
         final EnumSet<EnumTypeIdx> typeSet = EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
         int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
-        final int[] length_score = buffer_.length_score().data();
+        final int[] length_score = buffer_.length_score().data_ref();
         int shift = 0;
         for (int rr = 0; rr < size(); ++rr) {
             for (EnumTypeIdx e : typeSet) {
@@ -82,7 +83,7 @@ public class BaxH5Writer {
 
 
     public void writeZWM(H5File h5, int firsthole) throws Exception {
-        final int[] length_score = buffer_.length_score().data();
+        final int[] length_score = buffer_.length_score().data_ref();
         final long[] dims_1 = new long[]{(long) size()};
         final long[] dims_2 = new long[]{(long) size(), (long) 2};
 

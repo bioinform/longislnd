@@ -6,9 +6,13 @@ import com.bina.hdf5.h5.bax.BaxH5Writer;
 import com.bina.hdf5.h5.cmp.CmpH5Alignment;
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
 import com.bina.hdf5.simulator.SampleCollector;
+import com.bina.hdf5.simulator.SampleDrawer;
+import com.bina.hdf5.simulator.Simulator;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Created by bayo on 4/30/15.
@@ -32,6 +36,18 @@ public class H5Test {
         String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
 
         switch (args[0]) {
+            case "simulate": {
+                try {
+                    SampleDrawer samples = new SampleDrawer(pass_args[2],100);
+                    Simulator sim = new Simulator(pass_args[1]);
+                    Random gen = new Random(51);
+                    String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
+                    sim.simulate(pass_args[0],movie_name,0,samples,10000,gen);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+                break;
             case "sample":
                 SampleCollector collector = null;
                 try {

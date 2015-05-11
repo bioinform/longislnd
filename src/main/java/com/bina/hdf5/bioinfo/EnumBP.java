@@ -1,4 +1,4 @@
-package com.bina.hdf5.util;
+package com.bina.hdf5.bioinfo;
 
 /**
  * Created by bayo on 5/2/15.
@@ -23,10 +23,6 @@ public enum EnumBP {
 
     public static EnumBP cmp2seq(byte cmp) {
         return cmp2seq_[cmp & 0xff];
-    }
-
-    public static byte value2ascii(byte cmp) {
-        return value2ascii_[cmp];
     }
 
     public byte value() {
@@ -57,15 +53,35 @@ public enum EnumBP {
     private final byte ascii_;
     private final char c_;
 
-    public static final byte[] value2ascii_ = new byte[Invalid.value() + 1];
-    public static final byte[] ascii2value_ = new byte[256];
+
+    public static byte value2ascii(byte cmp) { return value2ascii_[cmp]; }
+    private static final byte[] value2ascii_ = new byte[Invalid.value() + 1];
+
     static byte ascii2value(byte a){ return ascii2value_[a];}
+    private static final byte[] ascii2value_ = new byte[256];
+
+    static byte ascii_rc(byte a) { return ascii_rc_[a]; }
+    private static final byte[] ascii_rc_ = new byte[256];
 
     public static final EnumBP[] cmp2ref_ = new EnumBP[256];
     public static final EnumBP[] cmp2seq_ = new EnumBP[256];
 
     static {
         Arrays.fill(ascii2value_, Invalid.value());
+        for(EnumBP e: EnumSet.of(EnumBP.A,EnumBP.G,EnumBP.C,EnumBP.T)){
+            ascii2value_[e.ascii()] = e.value();
+        }
+
+        Arrays.fill(ascii_rc_, Invalid.value());
+        ascii_rc_[A.ascii()] = T.ascii();
+        ascii_rc_['a'] = T.ascii();
+        ascii_rc_[T.ascii()] = A.ascii();
+        ascii_rc_['t'] = A.ascii();
+        ascii_rc_[C.ascii()] = G.ascii();
+        ascii_rc_['c'] = G.ascii();
+        ascii_rc_[G.ascii()] = C.ascii();
+        ascii_rc_['g'] = C.ascii();
+
         for(EnumBP e: EnumSet.of(EnumBP.A,EnumBP.G,EnumBP.C,EnumBP.T)){
             ascii2value_[e.ascii()] = e.value();
         }
