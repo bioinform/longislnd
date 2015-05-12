@@ -5,12 +5,11 @@ import com.bina.hdf5.h5.H5Summary;
 import com.bina.hdf5.h5.bax.BaxH5Writer;
 import com.bina.hdf5.h5.cmp.CmpH5Alignment;
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
-import com.bina.hdf5.simulator.SampleCollector;
-import com.bina.hdf5.simulator.SampleDrawer;
+import com.bina.hdf5.simulator.Sampler;
+import com.bina.hdf5.simulator.samples.SamplesDrawer;
 import com.bina.hdf5.simulator.Simulator;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -38,30 +37,18 @@ public class H5Test {
         switch (args[0]) {
             case "simulate": {
                 try {
-                    SampleDrawer samples = new SampleDrawer(pass_args[2],100);
+                    SamplesDrawer samples = new SamplesDrawer(pass_args[2],100);
                     Simulator sim = new Simulator(pass_args[1]);
                     Random gen = new Random(51);
                     String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
-                    sim.simulate(pass_args[0],movie_name,0,samples,10000,gen);
+                    sim.simulate(pass_args[0],movie_name,0,samples,Integer.getInteger(pass_args[3]),gen);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
                 break;
             case "sample":
-                SampleCollector collector = null;
-                try {
-                    collector = new SampleCollector(pass_args[0],2,2);
-                    collector.process(new CmpH5Reader(pass_args[1]));
-                } catch (Exception e) {
-                    log.info(e, e);
-                }
-                finally{
-                    if(collector != null){
-                        log.info(collector.toString());
-                        collector.close();
-                    }
-                }
+                Sampler.run(pass_args);
                 break;
             case "cmp":
                 log.info("cmp");

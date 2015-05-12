@@ -1,12 +1,13 @@
-package com.bina.hdf5.simulator;
+package com.bina.hdf5.simulator.samples;
 
 import com.bina.hdf5.h5.pb.PBReadBuffer;
+import com.bina.hdf5.simulator.EnumEvent;
+import com.bina.hdf5.simulator.Event;
 import com.bina.hdf5.simulator.pool.BaseCallsPool;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Random;
@@ -15,23 +16,21 @@ import java.util.logging.Logger;
 /**
  * Created by bayo on 5/10/15.
  */
-public class SampleDrawer extends Sampler {
-    private final static Logger log = Logger.getLogger(SampleDrawer.class.getName());
-    public SampleDrawer(String prefix,int max_sample) throws Exception {
+public class SamplesDrawer extends Samples {
+    private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
+    public SamplesDrawer(String prefix, int max_sample) throws Exception {
         super(prefix);
         log.info("initializing enummap");
-        try {
-            for(EnumEvent event: EnumSet.allOf(EnumEvent.class)){
+        for(EnumEvent event: EnumSet.allOf(EnumEvent.class)){
+            try {
                 event_drawer_.put(
                         event,
-                        (BaseCallsPool)event.pool().getDeclaredConstructor(new Class[]{int.class,int.class})
-                                                   .newInstance(super.numKmer_, max_sample));
+                        (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
+                                                    .newInstance(super.numKmer_, max_sample));
+            } catch (ReflectiveOperationException e) {
+                log.info(e.getMessage());
             }
         }
-        catch(NoSuchMethodException e) { log.info(e.getMessage()); }
-        catch(IllegalAccessException e) { log.info(e.getMessage()); }
-        catch(InstantiationException e) { log.info(e.getMessage()); }
-        catch (InvocationTargetException e) { log.info(e.getMessage()); }
         log.info("done");
         loadEvents(prefix);
     }

@@ -1,7 +1,9 @@
-package com.bina.hdf5.simulator;
+package com.bina.hdf5.simulator.samples;
 
 import com.bina.hdf5.interfaces.EventGroup;
 import com.bina.hdf5.interfaces.EventGroupFactory;
+import com.bina.hdf5.simulator.EnumEvent;
+import com.bina.hdf5.simulator.Event;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -11,12 +13,12 @@ import java.util.Iterator;
 /**
  * Created by bayo on 5/8/15.
  */
-public class SampleCollector extends Sampler implements Closeable{
-    private final static Logger log = Logger.getLogger(SampleCollector.class.getName());
+public class SamplesCollector extends Samples implements Closeable{
+    private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
     private String outPrefix_;
     private DataOutputStream eventOut_;
 
-    public SampleCollector(String outPrefix, int leftFlank, int rightFlank) throws IOException {
+    public SamplesCollector(String outPrefix, int leftFlank, int rightFlank) throws IOException {
         super(leftFlank, rightFlank);
         outPrefix_ = outPrefix;
         eventOut_ = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_)))) ;
@@ -45,7 +47,7 @@ public class SampleCollector extends Sampler implements Closeable{
 
     public void process(EventGroupFactory groups) throws Exception{
         long count = 0;
-        for(int ii = 0 ; ii < /*groups.size()*/ 1000 ; ++ii){
+        for(int ii = 0 ; ii < groups.size() ; ++ii){
             EventGroup group = groups.getEventGroup(ii);
             if(ii%5000 == 0){
                 log.info("processing group " + ii + "/" + groups.size());
