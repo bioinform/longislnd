@@ -3,6 +3,7 @@ package com.bina.hdf5.simulator.samples.pool;
 import com.bina.hdf5.h5.pb.EnumDat;
 import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.simulator.Event;
+import org.apache.log4j.Logger;
 
 import java.util.Random;
 
@@ -10,21 +11,26 @@ import java.util.Random;
  * Created by bayo on 5/10/15.
  */
 public class SingleBCPool extends BaseCallsPool {
+    private final static Logger log = Logger.getLogger(SingleBCPool.class.getName());
     private byte[] data_;
     private int[] end_;
 
+    private int begin(int kmer) {
+        return kmer*entryPerKmer_*BYTE_PER_BC;
+    }
+
     public SingleBCPool(int numKmers, int entryPerKmer) {
         super(numKmers, entryPerKmer);
-        data_ = new byte[numKmers_ * entryPerKmer_ * BYTE_PER_BC];
+        data_ = new byte[begin(numKmers)];
         end_ = new int[numKmers_];
         for (int kk = 0; kk < numKmers_; ++kk) {
-            end_[kk] = kk * entryPerKmer_ * BYTE_PER_BC;
+            end_[kk] = begin(kk);
         }
     }
 
     @Override
     public void add(Event ev) throws Exception {
-        if(end_[ev.kmer()] - ev.kmer() * entryPerKmer_ * BYTE_PER_BC < entryPerKmer_*BYTE_PER_BC ) {
+        if(end_[ev.kmer()] - begin(ev.kmer()) < entryPerKmer_*BYTE_PER_BC ) {
             int shift = end_[ev.kmer()];
             if (ev.size() != 1) {
                 throw new Exception("event is too large");
@@ -38,10 +44,9 @@ public class SingleBCPool extends BaseCallsPool {
 
     @Override
     public void appendTo(PBReadBuffer buffer, int kmer, Random gen) throws Exception {
-        final int base = kmer * entryPerKmer_ * BYTE_PER_BC;
-        int shift = gen.nextInt(entryPerKmer_) * BYTE_PER_BC;
-        for( ; data_[base+shift] == 0; shift = gen.nextInt(entryPerKmer_)*BYTE_PER_BC) {
-        }
+        final int base = begin(kmer);
+        if(base == end_[kmer]) throw new Exception("no sample");
+        final int shift = base + gen.nextInt((end_[kmer]-base)/BYTE_PER_BC) * BYTE_PER_BC;
         buffer.addLast(data_, shift, shift + BYTE_PER_BC);
     }
 }

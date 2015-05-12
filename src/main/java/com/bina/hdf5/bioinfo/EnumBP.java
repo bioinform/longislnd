@@ -54,10 +54,10 @@ public enum EnumBP {
     private final char c_;
 
 
-    public static byte value2ascii(byte cmp) { return value2ascii_[cmp]; }
+    public static byte value2ascii(byte v) { return value2ascii_[v]; }
     private static final byte[] value2ascii_ = new byte[Invalid.value() + 1];
 
-    static byte ascii2value(byte a){ return ascii2value_[a];}
+    public static byte ascii2value(byte a){ return ascii2value_[a];}
     private static final byte[] ascii2value_ = new byte[256];
 
     static byte ascii_rc(byte a) { return ascii_rc_[a]; }

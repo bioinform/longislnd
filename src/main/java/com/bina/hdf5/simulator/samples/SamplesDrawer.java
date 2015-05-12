@@ -103,13 +103,16 @@ public class SamplesDrawer extends Samples {
      * @param gen
      * @return
      */
-    private EnumEvent randomEvent(int kmer, Random gen) {
+    private EnumEvent randomEvent(int kmer, Random gen) throws Exception {
         final int shift = EnumEvent.values().length * kmer;
         long sum = 0;
         for(int ii = 0; ii < EnumEvent.values().length; ++ii){
             sum += kmer_event_count_[shift + ii];
         }
         final double p = gen.nextDouble();
+        if(p<0 || p > 1) {
+            throw new Exception("bad p="+p);
+        }
         double cdf = 0;
         for(int ii = 0; ii < EnumEvent.values().length; ++ii){
             cdf += (double)(kmer_event_count_[shift+ii])/(sum) ;

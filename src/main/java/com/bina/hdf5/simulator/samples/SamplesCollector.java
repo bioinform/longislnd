@@ -82,7 +82,7 @@ public class SamplesCollector extends Samples implements Closeable{
                 continue;
             }
             lengths_.addLast(group.seq_length());
-            process(group.getEventIterator(leftFlank_, rightFlank_));
+            process(group.getEventIterator(leftFlank_, rightFlank_,100,100));
             ++count;
         }
         log.info("processed " + count + " groups");

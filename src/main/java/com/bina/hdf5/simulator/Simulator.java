@@ -1,12 +1,15 @@
 package com.bina.hdf5.simulator;
 
 import com.bina.hdf5.bioinfo.Context;
+import com.bina.hdf5.bioinfo.EnumBP;
 import com.bina.hdf5.h5.bax.BaxH5Writer;
+import com.bina.hdf5.h5.pb.EnumDat;
 import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.interfaces.RandomSequenceGenerator;
 import com.bina.hdf5.simulator.samples.SamplesDrawer;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Random;
@@ -44,9 +47,10 @@ public class Simulator {
         log.info("generating reads");
 
         int num_bases = 0;
+        long count = 0;
         for(;num_bases <= total_bases;) {
             read.clear();
-            for(Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen),gen) ; itr.hasNext() ; ) {
+            for(Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen),drawer.leftFlank(),drawer.rightFlank(),gen) ; itr.hasNext() ; ) {
                 Context c = itr.next();
                 final int old_length = read.size();
                 EnumEvent ev = drawer.appendTo(read,c.kmer(),gen);
@@ -56,8 +60,28 @@ public class Simulator {
                     base_counter_[ev.value()] += (read.size()-old_length) - 2;
                 }
             }
+
+            /*
+            {
+                {
+                    byte[] simulated = read.get(EnumDat.BaseCall).data_ref();
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("\n");
+                    for(int loc_pos = 0 ; loc_pos < simulated.length; ++loc_pos){
+                        sb.append(EnumBP.ascii2value(simulated[loc_pos]));
+                    }
+                    log.info(sb.toString());
+                    log.info(Arrays.toString(simulated));
+                }
+
+            }
+            */
+
             writer.addLast(read, 1000);
             num_bases += read.size();
+            if(++count % 10000 == 0) {
+                log.info(toString());
+            }
         }
         log.info(toString());
         log.info("generated "+writer.size() + " reads.");

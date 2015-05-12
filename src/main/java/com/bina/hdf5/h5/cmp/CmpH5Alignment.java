@@ -15,35 +15,61 @@ import com.bina.hdf5.bioinfo.EnumBP;
 import com.bina.hdf5.bioinfo.Kmerizer;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class CmpH5Alignment implements EventGroup {
 
-    public Iterator<Event> getEventIterator(int left_flank, int right_flank) {
-        return new EventIterator(left_flank, right_flank);
+    public Iterator<Event> getEventIterator(int left_flank, int right_flank, int left_mask, int right_mask) {
+        return new EventIterator(left_flank, right_flank, left_mask, right_mask);
     }
 
     private class EventIterator implements Iterator<Event> {
-        public EventIterator(int left_flank, int right_flank) {
+        public EventIterator(int left_flank, int right_flank, int left_mask, int right_mask) {
             rf_ = right_flank;
-            key_ = new byte[left_flank + rf_ + 1];
 
-            int key_idx = key_.length - 1;
+            //mask out right flank
             end_ = ref_.length - 1;
+            for(int count = 0 ; end_ >= 0; --end_){
+                if (EnumBP.Gap.ascii() != seq_[end_]) {
+                    if (++count == right_mask) break;
+                }
+            }
+            --end_;
+            //end_ is now one before the position at which right_mask bp appeared on seq_
             for (int count = 0; end_ >= 0; --end_) {
                 if (EnumBP.Gap.ascii() != ref_[end_]) {
-                    key_[key_idx--] = ref_[end_];
-                    if (++count == rf_ + 1) break;
+                    if (++count == right_flank + 1) break;
                 }
             }
             ++end_;
 
-            key_idx = 0;
+            //mask out left flank
             next_ = 0;
-            for (int count = 0; next_ < end_; ++next_) {
+            for(int count = 0 ; next_ < ref_.length ; ++next_){
+                if (EnumBP.Gap.ascii() != seq_[next_]) {
+                    if (++count == left_mask) break;
+                }
+            }
+            ++next_;
+            for(int count = 0 ; next_ < ref_.length ; ++next_){
                 if (EnumBP.Gap.ascii() != ref_[next_]) {
-                    key_[key_idx++] = ref_[next_];
-                    if (++count == left_flank + 1) break;
+                    if (++count == left_flank+1) break;
+                }
+            }
+
+            //build key around the next_ position
+            key_ = new byte[left_flank + rf_ + 1];
+            key_[left_flank] = ref_[next_];
+            for(int pos = next_+1, k = left_flank+1; k < key_.length ; ++pos){
+                if (EnumBP.Gap.ascii() != ref_[pos]) {
+                    key_[k++] = ref_[pos];
+                }
+            }
+
+            for(int pos = next_-1, k = left_flank-1; k >=0 ; --pos){
+                if (EnumBP.Gap.ascii() != ref_[pos]) {
+                    key_[k--] = ref_[pos];
                 }
             }
         }
@@ -86,6 +112,38 @@ public class CmpH5Alignment implements EventGroup {
             //kmer to return
             int kmer = -1;
             boolean valid = true;
+/*
+            {
+                int lf = key_.length-1-rf_;
+                byte[] tmp_key = new byte[key_.length];
+                tmp_key[lf] = ref_[next_];
+                for(int pos = next_ - 1,k=lf-1;k >=0;--pos){
+                    if(ref_[pos] != EnumBP.Gap.ascii()){
+                        tmp_key[k--] = ref_[pos];
+                    }
+                }
+                for(int pos=next_+1,k=lf+1;k<key_.length;++pos){
+                    if(ref_[pos] != EnumBP.Gap.ascii()){
+                        tmp_key[k++] = ref_[pos];
+                    }
+                }
+                boolean same = true;
+                for(int ii = 0 ; ii < key_.length;++ii){
+                    if(tmp_key[ii] != key_[ii]){
+                        same = false;
+                    }
+                }
+                if(!same){
+                    log.info("oh shit");
+                    log.info(Arrays.toString(tmp_key));
+                    log.info(Arrays.toString(key_));
+
+                }
+
+            }
+            */
+
+
 
             try {
                 kmer = Kmerizer.fromASCII(key_);

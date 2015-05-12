@@ -36,4 +36,20 @@ public class Kmerizer {
     public static int fromASCII(byte[] ascii) throws Exception {
         return fromASCII(ascii, 0, ascii.length);
     }
+
+    public static String toString(int kmer, int length) {
+        StringBuilder sb = new StringBuilder();
+        for(byte entry: toByteArray(kmer,length))  {
+            sb.append((char)entry);
+        }
+        return sb.toString();
+    }
+    public static byte[] toByteArray(int kmer, int length) {
+        byte[] tmp = new byte[length];
+        for(int ii = length-1 ; ii>=0 ; --ii) {
+            tmp[ii] = EnumBP.value2ascii((byte)(kmer%4));
+            kmer/=4;
+        }
+        return tmp;
+    }
 }

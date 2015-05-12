@@ -12,17 +12,15 @@ import java.util.*;
  */
 public class WeightedReference implements RandomSequenceGenerator {
     @Override
-    public Iterator<Context> getSequence( int length, Random gen ) {
+    public Iterator<Context> getSequence( int length, int left_flank, int right_flank, Random gen ) {
         Iterator<Context> itr = null;
         while(null == itr){
-            itr = getSequenceImpl(length,gen);
+            itr = getSequenceImpl(length,left_flank,right_flank,gen);
         }
         return itr;
     }
 
-    private Iterator<Context> getSequenceImpl(int length, Random gen) {
-        int left_flank = 2;
-        int right_flank = 2;
+    private Iterator<Context> getSequenceImpl(int length, int left_flank, int right_flank, Random gen) {
         final boolean rc = gen.nextBoolean();
         final long num_bases = ref_cdf_.get(ref_cdf_.size()-1);
         final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int)num_bases) : gen.nextLong() % num_bases;

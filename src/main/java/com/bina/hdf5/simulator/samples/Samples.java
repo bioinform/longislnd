@@ -1,5 +1,6 @@
 package com.bina.hdf5.simulator.samples;
 
+import com.bina.hdf5.bioinfo.Kmerizer;
 import com.bina.hdf5.simulator.EnumEvent;
 import com.bina.hdf5.util.IntBuffer;
 import org.apache.log4j.Logger;
@@ -23,6 +24,14 @@ public abstract class Samples {
     protected int rightFlank_;
     protected int k_;
     protected int numKmer_;
+
+    public int leftFlank() {
+        return leftFlank_;
+    }
+
+    public int rightFlank() {
+        return rightFlank_;
+    }
 
     /**
      * Constructor for reading from a set of files storing sampled data
@@ -116,10 +125,21 @@ public abstract class Samples {
     private final void loadStats(String prefix) throws IOException {
         RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix),"r");
         FileChannel file = fos.getChannel();
-        MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE/8 * kmer_event_count_.length);
+        MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE / 8 * kmer_event_count_.length);
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ");
         for(int ii = 0 ; ii < kmer_event_count_.length ; ++ii){
+            if(ii%EnumEvent.values().length == 0){
+                sb.append(Kmerizer.toString(ii/EnumEvent.values().length,1+leftFlank_+rightFlank_)
+                         );
+            }
             kmer_event_count_[ii] = buf.getLong();
+            sb.append(" "+kmer_event_count_[ii]);
+            if( ii % EnumEvent.values().length == 3){
+                sb.append("\n");
+            }
         }
+        base_log.info(sb.toString());
         file.close();
         fos.close();
     }
