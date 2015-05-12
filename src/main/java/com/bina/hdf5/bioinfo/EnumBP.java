@@ -68,9 +68,14 @@ public enum EnumBP {
 
     static {
         Arrays.fill(ascii2value_, Invalid.value());
-        for(EnumBP e: EnumSet.of(EnumBP.A,EnumBP.G,EnumBP.C,EnumBP.T)){
+        for(EnumBP e: EnumSet.of(A,G,C,T,N)){
             ascii2value_[e.ascii()] = e.value();
         }
+        ascii2value_['a'] = A.value();
+        ascii2value_['c'] = C.value();
+        ascii2value_['g'] = G.value();
+        ascii2value_['t'] = T.value();
+        ascii2value_['n'] = N.value();
 
         Arrays.fill(ascii_rc_, Invalid.value());
         ascii_rc_[A.ascii()] = T.ascii();

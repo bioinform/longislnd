@@ -32,10 +32,16 @@ public class ContextIterator implements Iterator<Context> {
 
     @Override
     public Context next() {
-
+        Context c = null;
+        try {
+            c = new Context(seq_,curr_,leftFlank_,rightFlank_,rc_);
+        } catch (Exception e) {
+            e.printStackTrace();
+            c = null;
+        }
         ++curr_;
         // there can be a running sum optimization but let's wait for homopolymer
-        return new Context(seq_,curr_-1,leftFlank_,rightFlank_,rc_);
+        return c;
     }
 
     @Override

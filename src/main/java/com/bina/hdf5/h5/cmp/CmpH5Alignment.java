@@ -84,22 +84,31 @@ public class CmpH5Alignment implements EventGroup {
             }
 
             //kmer to return
-            final int kmer = Kmerizer.fromASCII(key_);
-            boolean hasN = false;
+            int kmer = -1;
+            boolean valid = true;
+
+            try {
+                kmer = Kmerizer.fromASCII(key_);
+            }
+            catch(Exception e){
+                e.printStackTrace();
+                valid = false;
+            }
+
             for(byte entry: key_){
                 if(EnumBP.N.ascii() == entry){
-                    hasN = true;
+                    valid = false;
                     break;
                 }
             }
 
             step();
 
-            if(hasN){
-                return null;
+            if(valid){
+                return new Event(kmer, event, bc);
             }
             else{
-                return new Event(kmer, event, bc);
+                return null;
             }
 
         }
