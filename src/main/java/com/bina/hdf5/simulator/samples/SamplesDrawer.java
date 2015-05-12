@@ -3,7 +3,7 @@ package com.bina.hdf5.simulator.samples;
 import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.simulator.EnumEvent;
 import com.bina.hdf5.simulator.Event;
-import com.bina.hdf5.simulator.pool.BaseCallsPool;
+import com.bina.hdf5.simulator.samples.pool.BaseCallsPool;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -17,10 +17,10 @@ import java.util.logging.Logger;
  * Created by bayo on 5/10/15.
  */
 public class SamplesDrawer extends Samples {
-    private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
+    private final static Logger base_log = Logger.getLogger(SamplesDrawer.class.getName());
     public SamplesDrawer(String prefix, int max_sample) throws Exception {
         super(prefix);
-        log.info("initializing enummap");
+        base_log.info("initializing enummap");
         for(EnumEvent event: EnumSet.allOf(EnumEvent.class)){
             try {
                 event_drawer_.put(
@@ -28,10 +28,10 @@ public class SamplesDrawer extends Samples {
                         (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
                                                     .newInstance(super.numKmer_, max_sample));
             } catch (ReflectiveOperationException e) {
-                log.info(e.getMessage());
+                base_log.info(e.getMessage());
             }
         }
-        log.info("done");
+        base_log.info("done");
         loadEvents(prefix);
     }
 
@@ -46,8 +46,8 @@ public class SamplesDrawer extends Samples {
     }
 
     private void loadEvents(String prefix) throws Exception {
-        log.info("loading events");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.EVENTS.filename(prefix)))) ;
+        base_log.info("loading events");
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.EVENTS.filename(prefix)),1000000000)) ;
         Event buffer = new Event();
         long count = 0;
         while(dis.available() > 0) {
@@ -55,10 +55,11 @@ public class SamplesDrawer extends Samples {
             event_drawer_.get(buffer.event()).add(buffer);
             ++count;
             if(count % 10000000 == 1) {
-                log.info("loaded " + count + "events");
+                base_log.info("loaded " + count + " events");
             }
         }
-        log.info("loaded " + count + "events");
+        base_log.info("loaded " + count + " events");
+        dis.close();
     }
 
     private EnumEvent randomEvent(int kmer, Random gen) {

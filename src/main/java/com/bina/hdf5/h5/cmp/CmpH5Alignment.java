@@ -55,7 +55,7 @@ public class CmpH5Alignment implements EventGroup {
 
         @Override
         public Event next() {
-            BaseCalls bc = new BaseCalls();
+            BaseCalls bc = new BaseCalls(); // this is probably a memory bound block killer
             EnumEvent event = null;
             try {
                 if (seq_[next_] == EnumBP.Gap.ascii()) {

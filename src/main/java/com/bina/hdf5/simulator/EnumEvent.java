@@ -1,8 +1,8 @@
 package com.bina.hdf5.simulator;
 
-import com.bina.hdf5.simulator.pool.EmptyBCPool;
-import com.bina.hdf5.simulator.pool.GeneralBCPool;
-import com.bina.hdf5.simulator.pool.SingleBCPool;
+import com.bina.hdf5.simulator.samples.pool.EmptyBCPool;
+import com.bina.hdf5.simulator.samples.pool.GeneralBCPool;
+import com.bina.hdf5.simulator.samples.pool.SingleBCPool;
 
 /**
  * Created by bayo on 5/8/15.

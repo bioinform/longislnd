@@ -1,4 +1,4 @@
-package com.bina.hdf5.simulator.pool;
+package com.bina.hdf5.simulator.samples.pool;
 
 import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.simulator.Event;

@@ -33,7 +33,9 @@ public class SamplesCollector extends Samples implements Closeable{
             if(null == event){
                 continue;
             }
-            event.write(eventOut_);
+            if (kmer_event_count_[EnumEvent.values().length*event.kmer()+event.event().value()] < 1000) {
+                event.write(eventOut_);
+            }
             final int idx = event.event().value();
 
             ++event_count_[idx];
