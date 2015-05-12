@@ -13,7 +13,7 @@ public class IntBuffer {
     private int size_;
 
     public IntBuffer() {
-        this(64 / 4);
+        this(64 / 4 - 1);
     }
 
     public IntBuffer(int reserve) {
@@ -48,9 +48,6 @@ public class IntBuffer {
     public void reserve(int new_size) {
         if (new_size > data_.length) {
             int[] new_data = Arrays.copyOf(data_, new_size);
-            for(int ii = 0 ; ii < size_ ; ++ii){
-                new_data[ii] = data_[ii];
-            }
             data_ = new_data;
         }
     }

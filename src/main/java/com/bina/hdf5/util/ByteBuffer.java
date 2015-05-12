@@ -17,7 +17,7 @@ public class ByteBuffer {
 
 
     public ByteBuffer() {
-        this(64);
+        this(64 - 1);
     }
 
     public ByteBuffer(int reserve) {
@@ -59,9 +59,6 @@ public class ByteBuffer {
     public void reserve(int new_size) {
         if (new_size > data_.length) {
             byte[] new_data = Arrays.copyOf(data_, new_size);
-            for(int ii = 0 ; ii < size_ ; ++ii){
-                new_data[ii] = data_[ii];
-            }
             data_ = new_data;
         }
     }
