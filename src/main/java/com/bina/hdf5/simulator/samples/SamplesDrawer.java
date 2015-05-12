@@ -4,6 +4,7 @@ import com.bina.hdf5.h5.pb.PBReadBuffer;
 import com.bina.hdf5.simulator.EnumEvent;
 import com.bina.hdf5.simulator.Event;
 import com.bina.hdf5.simulator.samples.pool.BaseCallsPool;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -11,7 +12,6 @@ import java.io.FileInputStream;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Random;
-import java.util.logging.Logger;
 
 /**
  * Created by bayo on 5/10/15.
@@ -19,29 +19,30 @@ import java.util.logging.Logger;
  * Class for drawing sequence samples based on sequencing context
  */
 public class SamplesDrawer extends Samples {
-    private final static Logger base_log = Logger.getLogger(SamplesDrawer.class.getName());
+    private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
     final EnumMap<EnumEvent,BaseCallsPool> event_drawer_ = new EnumMap<EnumEvent,BaseCallsPool> (EnumEvent.class);
 
     /**
      * Constructor
      * @param prefix     prefix of files storing sampled data
-     * @param max_sample limit the number of samples per sequencing context
+     * @param max_sample for match events, limit the number of samples per sequencing context
      * @throws Exception
      */
     public SamplesDrawer(String prefix, int max_sample) throws Exception {
         super(prefix);
-        base_log.info("initializing enummap");
+        log.info("initializing sample pools");
         for(EnumEvent event: EnumSet.allOf(EnumEvent.class)){
+            final int cap = (event.equals(EnumEvent.MATCH) ) ? max_sample : -1;
             try {
                 event_drawer_.put(
                         event,
                         (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
-                                                    .newInstance(super.numKmer_, max_sample));
+                                                    .newInstance(super.numKmer_, cap));
             } catch (ReflectiveOperationException e) {
-                base_log.info(e.getMessage());
+                log.info(e,e);
             }
         }
-        base_log.info("done");
+        log.info("done");
         loadEvents(prefix);
     }
 
@@ -74,7 +75,7 @@ public class SamplesDrawer extends Samples {
      * @throws Exception
      */
     private void loadEvents(String prefix) throws Exception {
-        base_log.info("loading events");
+        log.info("loading events");
         DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.EVENTS.filename(prefix)),1000000000)) ;
         Event buffer = new Event();
         long count = 0;
@@ -83,10 +84,10 @@ public class SamplesDrawer extends Samples {
             event_drawer_.get(buffer.event()).add(buffer);
             ++count;
             if(count % 10000000 == 1) {
-                base_log.info("loaded " + count + " events");
+                log.info("loaded " + count + " events");
             }
         }
-        base_log.info("loaded " + count + " events");
+        log.info("loaded " + count + " events");
         dis.close();
     }
 

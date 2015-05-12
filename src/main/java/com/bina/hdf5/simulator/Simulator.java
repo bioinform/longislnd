@@ -45,6 +45,7 @@ public class Simulator {
     private final static Logger log = Logger.getLogger(Simulator.class.getName());
     private WeightedReference references_;
     private final long[] base_counter_ = new long[EnumEvent.values().length];
+    private final long[] event_counter_ = new long[EnumEvent.values().length];
 
     /**
      * Constructor
@@ -70,12 +71,13 @@ public class Simulator {
 
         int num_bases = 0;
         for(;num_bases <= total_bases;) {
-            log.info("simulating an extra read at " + writer.size() + "/" + total_bases);
+            log.info("simulating an extra read at " + num_bases + "/" + total_bases);
             read.clear();
             for(Iterator<Context> itr = references_.getSequence(drawer.drawLength(gen),gen) ; itr.hasNext() ; ) {
                 Context c = itr.next();
                 final int old_length = read.size();
                 EnumEvent ev = drawer.appendTo(read,c.kmer(),gen);
+                ++event_counter_[ev.value()];
                 ++base_counter_[ev.value()];
                 if(ev.equals(EnumEvent.INSERTION)) {
                     base_counter_[ev.value()] += (read.size()-old_length) - 2;
@@ -85,18 +87,33 @@ public class Simulator {
             num_bases += read.size();
         }
         log.info(toString());
-        writer.write(path+"/"+movie_name+".bax.h5", movie_name, firsthole);
+        log.info("generated "+writer.size() + " reads.");
+        writer.write(path + "/" + movie_name + ".bax.h5", movie_name, firsthole);
     }
 
     public String toString() {
-        long sum = 0;
-        for(long entry: base_counter_) {
-            sum+=entry;
-        }
         StringBuilder sb = new StringBuilder();
-        for(EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
-            long count = base_counter_[ev.value()];
-            sb.append(" " + ev.toString() + " " + count + " " + (double)(count)/sum);
+        sb.append("cummulated statistics\n");
+        {
+            long sum = 0;
+            for (long entry : base_counter_) {
+                sum += entry;
+            }
+            for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
+                long count = base_counter_[ev.value()];
+                sb.append(" " + ev.toString() + " " + count + " " + (double) (count) / sum);
+            }
+        }
+        sb.append("\n");
+        {
+            long sum = 0;
+            for (long entry : event_counter_) {
+                sum += entry;
+            }
+            for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
+                long count = event_counter_[ev.value()];
+                sb.append(" " + ev.toString() + " " + count + " " + (double) (count) / sum);
+            }
         }
         return sb.toString();
 

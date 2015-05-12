@@ -20,13 +20,13 @@ public class GeneralBCPool extends BaseCallsPool {
         super(numKmers, entryPerKmer);
         data_ = new ArrayList<List<byte[]>>(numKmers_);
         for (int ii = 0; ii < numKmers_; ++ii) {
-            data_.add(new ArrayList<byte[]>(entryPerKmer));
+            data_.add(new ArrayList<byte[]>((entryPerKmer>0)?entryPerKmer:100));
         }
     }
 
     @Override
     public void add(Event ev) throws Exception {
-        if(data_.get(ev.kmer()).size() < entryPerKmer_)
+        if(entryPerKmer_ < 0 || data_.get(ev.kmer()).size() < entryPerKmer_)
             data_.get(ev.kmer()).add(ev.data_cpy());
     }
 

@@ -11,10 +11,10 @@ import com.bina.hdf5.simulator.samples.pool.SingleBCPool;
  * Also associate memory-efficient implementations of storing those samples
  */
 public enum EnumEvent {
-    INSERTION   (0,"i", GeneralBCPool.class),
-    DELETION    (1,"d", EmptyBCPool.class),
-    SUBSTITUTION(2,"s", SingleBCPool.class),
-    MATCH       (3,"m", SingleBCPool.class);
+    INSERTION   (0,"i", GeneralBCPool.class), // ~10% insertion, but can be multi-bp, so let's suck it up for now
+    DELETION    (1,"d", EmptyBCPool.class),   // emptybcpool has no memory overhead
+    SUBSTITUTION(2,"s", GeneralBCPool.class), // ~1% mismatch so memory is not too bad
+    MATCH       (3,"m", SingleBCPool.class);  // 85% matches, must use SingleBCPoolCompression
     static private EnumEvent[] value2enum_ ={INSERTION,DELETION,SUBSTITUTION,MATCH};
 
     private int value_;

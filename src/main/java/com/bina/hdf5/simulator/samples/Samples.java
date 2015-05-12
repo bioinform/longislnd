@@ -14,7 +14,7 @@ import java.nio.channels.FileChannel;
  * Base class which unifies I/O of sampling mechanism, see SampleCollector (write) and SampleDrawer (read)
  */
 public abstract class Samples {
-    private final static Logger log = Logger.getLogger(Samples.class.getName());
+    private final static Logger base_log = Logger.getLogger(Samples.class.getName());
     protected final long[] event_base_count_ = new long[EnumEvent.values().length];
     protected final long[] event_count_ = new long[EnumEvent.values().length];
     protected long[] kmer_event_count_;
@@ -97,7 +97,7 @@ public abstract class Samples {
             event_count_[ii] = dis.readLong();
         }
         dis.close();
-        log.info(this.toString());
+        base_log.info(this.toString());
     }
 
     protected final void writeStats(String prefix) throws IOException {
@@ -141,7 +141,7 @@ public abstract class Samples {
             lengths_.addLast(dis.readInt());
         }
         dis.close();
-        log.info("loaded " + lengths_.size() + " length");
+        base_log.info("loaded " + lengths_.size() + " length");
     }
 
     protected enum Suffixes{
