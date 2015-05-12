@@ -21,12 +21,13 @@ public class H5Simulator {
             log.info("parameters: out_dir fasta model_prefix total_bases sample_per seed");
             return;
         }
-        String out_dir = args[0];
-        String fasta = args[1];
-        String model_prefix = args[2];
-        int total_bases = Integer.parseInt(args[3]);
-        int sample_per = Integer.parseInt(args[4]);
-        int seed = Integer.parseInt(args[5]);
+        final String out_dir = args[0];
+        final String fasta = args[1];
+        final String model_prefix = args[2];
+        final int total_bases = Integer.parseInt(args[3]);
+        final int sample_per = Integer.parseInt(args[4]);
+        final int seed = Integer.parseInt(args[5]);
+
         try {
             SamplesDrawer samples = new SamplesDrawer(model_prefix,sample_per);
             Simulator sim = new Simulator(new WeightedReference(fasta));

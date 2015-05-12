@@ -66,7 +66,7 @@ public class SamplesCollector extends Samples implements Closeable{
      * @param groups a collection of event groups, eg alignments
      * @throws Exception
      */
-    public void process(EventGroupFactory groups) throws Exception{
+    public void process(EventGroupFactory groups, int min_length, int flank_mask) throws Exception{
         long count = 0;
         for(int ii = 0 ; ii < groups.size() ; ++ii){
             EventGroup group = groups.getEventGroup(ii);
@@ -78,11 +78,11 @@ public class SamplesCollector extends Samples implements Closeable{
                 log.info("failed to retrieve group " + ii);
                 continue;
             }
-            if(group.seq_length() < 1000){
+            if(group.seq_length() < min_length){
                 continue;
             }
             lengths_.addLast(group.seq_length());
-            process(group.getEventIterator(leftFlank_, rightFlank_,100,100));
+            process(group.getEventIterator(leftFlank_, rightFlank_,flank_mask,flank_mask));
             ++count;
         }
         log.info("processed " + count + " groups");

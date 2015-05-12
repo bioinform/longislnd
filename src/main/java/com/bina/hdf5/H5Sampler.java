@@ -16,20 +16,22 @@ public class H5Sampler {
      * @param args see log.info
      */
     static public void run(String[] args) {
-        if(args.length != 4){
+        if(args.length != 6){
             log.info("parameters: out_prefix in_file left_flank right_flank");
             return;
         }
-        String out_prefix = args[0];
-        String in_file = args[1];
-        int left_flank = Integer.parseInt(args[2]);
-        int right_flank = Integer.parseInt(args[3]);
+        final String out_prefix = args[0];
+        final String in_file = args[1];
+        final int left_flank = Integer.parseInt(args[2]);
+        final int right_flank = Integer.parseInt(args[3]);
+        final int min_length = Integer.parseInt(args[4]);
+        final int flank_mask = Integer.parseInt(args[5]);
 
 
         SamplesCollector collector = null;
         try {
             collector = new SamplesCollector(out_prefix,left_flank,right_flank);
-            collector.process(new CmpH5Reader(in_file));
+            collector.process(new CmpH5Reader(in_file),min_length,flank_mask);
         } catch (Exception e) {
             e.printStackTrace();
         }
