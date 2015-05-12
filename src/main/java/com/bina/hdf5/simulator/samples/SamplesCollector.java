@@ -12,12 +12,21 @@ import java.util.Iterator;
 
 /**
  * Created by bayo on 5/8/15.
+ *
+ * Class for going through, eg, alignment data to collect samples of sequence context-based output
  */
 public class SamplesCollector extends Samples implements Closeable{
     private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
     private String outPrefix_;
     private DataOutputStream eventOut_;
 
+    /**
+     * Constructor
+     * @param outPrefix  prefix of output files
+     * @param leftFlank  number of bp preceding the base of interest in the construction of sequencing context
+     * @param rightFlank number of bp after the base of interest in the construction of sequencing context
+     * @throws IOException
+     */
     public SamplesCollector(String outPrefix, int leftFlank, int rightFlank) throws IOException {
         super(leftFlank, rightFlank);
         outPrefix_ = outPrefix;
@@ -27,6 +36,11 @@ public class SamplesCollector extends Samples implements Closeable{
         log.info("flanks=("+leftFlank_+","+rightFlank_+") k="+k_+" num_kmers="+numKmer_);
     }
 
+    /**
+     * Collect events based on sequencing context
+     * @param itr iterator of a group of events, eg an alignment
+     * @throws Exception
+     */
     public void process(Iterator<Event> itr) throws Exception{
         while(itr.hasNext()){
             Event event = itr.next();
@@ -47,6 +61,11 @@ public class SamplesCollector extends Samples implements Closeable{
         }
     }
 
+    /**
+     * Collect events based on sequencing context
+     * @param groups a collection of event groups, eg alignments
+     * @throws Exception
+     */
     public void process(EventGroupFactory groups) throws Exception{
         long count = 0;
         for(int ii = 0 ; ii < groups.size() ; ++ii){
@@ -69,9 +88,11 @@ public class SamplesCollector extends Samples implements Closeable{
         log.info("processed " + count + " groups");
     }
 
+    /**
+     * finish sampling and write to file
+     */
     @Override
     public void close() {
-
         try {
             eventOut_.flush();
             eventOut_.close();

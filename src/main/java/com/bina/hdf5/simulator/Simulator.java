@@ -15,6 +15,10 @@ import java.util.Random;
  * Created by bayo on 5/11/15.
  */
 public class Simulator {
+    /**
+     * create a file of simulated reads based on the given FASTA and model
+     * @param args see log.info
+     */
     static public void run(String[] args) {
         if(args.length != 6){
             log.info("parameters: out_dir fasta model_prefix total_bases sample_per seed");
@@ -23,9 +27,9 @@ public class Simulator {
         String out_dir = args[0];
         String fasta = args[1];
         String model_prefix = args[2];
-        int total_bases = Integer.getInteger(args[3]);
-        int sample_per = Integer.getInteger(args[4]);
-        int seed = Integer.getInteger(args[5]);
+        int total_bases = Integer.parseInt(args[3]);
+        int sample_per = Integer.parseInt(args[4]);
+        int seed = Integer.parseInt(args[5]);
         try {
             SamplesDrawer samples = new SamplesDrawer(model_prefix,sample_per);
             Simulator sim = new Simulator(fasta);
@@ -42,10 +46,24 @@ public class Simulator {
     private WeightedReference references_;
     private final long[] base_counter_ = new long[EnumEvent.values().length];
 
+    /**
+     * Constructor
+     * @param fasta initiate the instance with the references provided by the fasta file
+     */
     public Simulator(String fasta) {
         references_ = new WeightedReference(fasta);
     }
 
+    /**
+     * Generate a pacbio h5 file containing reads simulated according to the sampler and reference
+     * @param path         output path
+     * @param movie_name   movie name
+     * @param firsthole    first hole producing sequence
+     * @param drawer       an instance from which samples can be drawn
+     * @param total_bases  minimum number of bp to generate
+     * @param gen          random number generator
+     * @throws Exception
+     */
     public void simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception{
         BaxH5Writer writer = new BaxH5Writer();
         PBReadBuffer read = new PBReadBuffer();

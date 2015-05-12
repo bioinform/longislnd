@@ -10,6 +10,11 @@ import java.util.logging.Logger;
  */
 public class Sampler {
     private final static Logger log = Logger.getLogger(Sampler.class.getName());
+
+    /**
+     * collect context-specific samples of reference->read edits from an alignment file
+     * @param args see log.info
+     */
     static public void run(String[] args) {
         if(args.length != 4){
             log.info("parameters: out_prefix in_file left_flank right_flank");
@@ -17,8 +22,8 @@ public class Sampler {
         }
         String out_prefix = args[0];
         String in_file = args[1];
-        int left_flank = Integer.valueOf(args[2]);
-        int right_flank = Integer.valueOf(args[3]);
+        int left_flank = Integer.parseInt(args[2]);
+        int right_flank = Integer.parseInt(args[3]);
 
 
         SamplesCollector collector = null;

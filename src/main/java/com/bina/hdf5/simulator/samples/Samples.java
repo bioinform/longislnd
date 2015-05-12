@@ -10,6 +10,8 @@ import java.nio.channels.FileChannel;
 
 /**
  * Created by bayo on 5/10/15.
+ *
+ * Base class which unifies I/O of sampling mechanism, see SampleCollector (write) and SampleDrawer (read)
  */
 public abstract class Samples {
     private final static Logger log = Logger.getLogger(Samples.class.getName());
@@ -22,6 +24,11 @@ public abstract class Samples {
     protected int k_;
     protected int numKmer_;
 
+    /**
+     * Constructor for reading from a set of files storing sampled data
+     * @param prefix prefix of the set of files
+     * @throws IOException
+     */
     public Samples(String prefix) throws IOException {
         loadIdx(prefix);
         kmer_event_count_ = new long[numKmer_ * EnumEvent.values().length];
@@ -29,6 +36,11 @@ public abstract class Samples {
         loadLengths(prefix);
     }
 
+    /**
+     * Constructor for setting internal variables
+     * @param leftFlank number of bp preceeding the base of interest
+     * @param rightFlank number of bp trailing the base of interest
+     */
     public Samples(int leftFlank, int rightFlank) {
         leftFlank_ = leftFlank;
         rightFlank_ = rightFlank;

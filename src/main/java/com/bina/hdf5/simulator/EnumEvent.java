@@ -6,12 +6,15 @@ import com.bina.hdf5.simulator.samples.pool.SingleBCPool;
 
 /**
  * Created by bayo on 5/8/15.
+ *
+ * Set of editing events relative to a given reference
+ * Also associate memory-efficient implementations of storing those samples
  */
 public enum EnumEvent {
-    INSERTION(0,"i", GeneralBCPool.class),
-    DELETION(1,"d", EmptyBCPool.class),
+    INSERTION   (0,"i", GeneralBCPool.class),
+    DELETION    (1,"d", EmptyBCPool.class),
     SUBSTITUTION(2,"s", SingleBCPool.class),
-    MATCH(3,"m", SingleBCPool.class);
+    MATCH       (3,"m", SingleBCPool.class);
     static private EnumEvent[] value2enum_ ={INSERTION,DELETION,SUBSTITUTION,MATCH};
 
     private int value_;

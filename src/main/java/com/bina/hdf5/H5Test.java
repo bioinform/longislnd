@@ -35,17 +35,8 @@ public class H5Test {
         String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
 
         switch (args[0]) {
-            case "simulate": {
-                try {
-                    SamplesDrawer samples = new SamplesDrawer(pass_args[2],100);
-                    Simulator sim = new Simulator(pass_args[1]);
-                    Random gen = new Random(51);
-                    String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
-                    sim.simulate(pass_args[0],movie_name,0,samples,Integer.getInteger(pass_args[3]),gen);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            case "simulate":
+                Simulator.run(pass_args);
                 break;
             case "sample":
                 Sampler.run(pass_args);
