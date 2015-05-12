@@ -41,10 +41,10 @@ public class Simulator {
     public void simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception{
         BaxH5Writer writer = new BaxH5Writer();
         PBReadBuffer read = new PBReadBuffer();
+        log.info("generating reads");
 
         int num_bases = 0;
         for(;num_bases <= total_bases;) {
-            log.info("simulating an extra read at " + num_bases + "/" + total_bases);
             read.clear();
             for(Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen),gen) ; itr.hasNext() ; ) {
                 Context c = itr.next();

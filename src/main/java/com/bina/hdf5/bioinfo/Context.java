@@ -1,12 +1,10 @@
 package com.bina.hdf5.bioinfo;
 
-import java.util.logging.Logger;
 
 /**
  * Created by bayo on 5/11/15.
  */
 public class Context {
-    private final static Logger log = Logger.getLogger(Context.class.getName());
     Context(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws Exception{
         if(rc){
             //obvious not the smartest, should use running sum, but let's refactor after homopolymer is in
@@ -14,7 +12,7 @@ public class Context {
 
             int curr = ascii.length - 1 - (middle - left_flank);
             for(int idx = 0 ; idx < tmp.length ; ++idx, --curr) {
-                tmp[idx] = ascii[curr];
+                tmp[idx] = EnumBP.ascii_rc(ascii[curr]);
             }
             kmer_ = Kmerizer.fromASCII(tmp);
         }

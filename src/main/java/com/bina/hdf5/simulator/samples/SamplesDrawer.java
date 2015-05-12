@@ -81,6 +81,12 @@ public class SamplesDrawer extends Samples {
         long count = 0;
         while(dis.available() > 0) {
             buffer.read(dis);
+            if(buffer.event().equals(EnumEvent.DELETION) && buffer.size() !=0)
+                throw new Exception("del with length " + buffer.size());
+            else if(buffer.event().equals(EnumEvent.SUBSTITUTION) && buffer.size() !=1)
+                throw new Exception("sub with length " + buffer.size());
+            else if(buffer.event().equals(EnumEvent.MATCH) && buffer.size() !=1)
+                throw new Exception("match with length " + buffer.size());
             event_drawer_.get(buffer.event()).add(buffer);
             ++count;
             if(count % 10000000 == 1) {
@@ -99,7 +105,7 @@ public class SamplesDrawer extends Samples {
      */
     private EnumEvent randomEvent(int kmer, Random gen) {
         final int shift = EnumEvent.values().length * kmer;
-        double sum = 0;
+        long sum = 0;
         for(int ii = 0; ii < EnumEvent.values().length; ++ii){
             sum += kmer_event_count_[shift + ii];
         }

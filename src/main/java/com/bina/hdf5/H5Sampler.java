@@ -3,7 +3,7 @@ package com.bina.hdf5;
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
 import com.bina.hdf5.simulator.samples.SamplesCollector;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * Created by bayo on 5/11/15.

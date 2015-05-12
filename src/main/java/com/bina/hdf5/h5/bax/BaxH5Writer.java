@@ -30,7 +30,6 @@ public class BaxH5Writer {
     }
 
     public void addLast(PBReadBuffer read, int score) {
-        log.info("adding read of length " + read.size());
         buffer_.addLast(read, score);
     }
 

@@ -55,6 +55,7 @@ public class Event {
     private BaseCalls bc_;
 
     public void write(DataOutputStream dos) throws Exception {
+        if(event_.equals(EnumEvent.DELETION)) return;
         if (event_.value() >= EnumEvent.values().length) throw new Exception("invalid i/o format");
         dos.writeInt(EnumEvent.values().length * kmer_ + event_.value());
         bc_.write(dos);
