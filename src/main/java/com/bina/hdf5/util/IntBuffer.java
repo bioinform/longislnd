@@ -1,11 +1,12 @@
 package com.bina.hdf5.util;
 
+import java.util.Arrays;
 
 /**
  * Created by bayo on 5/6/15.
+ *
+ * integer buffer that offers addLast, with logarithmic growth characteristic
  */
-
-import java.util.Arrays;
 
 public class IntBuffer {
     private int[] data_;

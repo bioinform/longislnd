@@ -1,13 +1,15 @@
 package com.bina.hdf5.util;
 
-/**
- * Created by bayo on 5/5/15.
- */
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+
+/**
+ * Created by bayo on 5/5/15.
+ *
+ * byte buffer that offers addLast, with logarithmic growth characteristic
+ */
 
 public class ByteBuffer {
     private byte[] data_;

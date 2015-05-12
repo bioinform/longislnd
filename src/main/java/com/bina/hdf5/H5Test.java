@@ -5,13 +5,9 @@ import com.bina.hdf5.h5.H5Summary;
 import com.bina.hdf5.h5.bax.BaxH5Writer;
 import com.bina.hdf5.h5.cmp.CmpH5Alignment;
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
-import com.bina.hdf5.simulator.Sampler;
-import com.bina.hdf5.simulator.samples.SamplesDrawer;
-import com.bina.hdf5.simulator.Simulator;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
-import java.util.Random;
 
 /**
  * Created by bayo on 4/30/15.
@@ -36,10 +32,10 @@ public class H5Test {
 
         switch (args[0]) {
             case "simulate":
-                Simulator.run(pass_args);
+                H5Simulator.run(pass_args);
                 break;
             case "sample":
-                Sampler.run(pass_args);
+                H5Sampler.run(pass_args);
                 break;
             case "cmp":
                 log.info("cmp");

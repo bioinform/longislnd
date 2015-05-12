@@ -1,4 +1,4 @@
-package com.bina.hdf5.simulator;
+package com.bina.hdf5;
 
 import com.bina.hdf5.h5.cmp.CmpH5Reader;
 import com.bina.hdf5.simulator.samples.SamplesCollector;
@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 /**
  * Created by bayo on 5/11/15.
  */
-public class Sampler {
-    private final static Logger log = Logger.getLogger(Sampler.class.getName());
+public class H5Sampler {
+    private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
 
     /**
      * collect context-specific samples of reference->read edits from an alignment file
