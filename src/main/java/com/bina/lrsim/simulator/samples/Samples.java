@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.EnumSet;
 
 /**
  * Created by bayo on 5/10/15.
@@ -61,21 +62,13 @@ public abstract class Samples {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Samples\n");
-        long sum = 0;
-        for(long entry : event_base_count_) sum+=entry;
-        sb.append("base  count:");
-        for(long entry : event_base_count_) sb.append(" "+entry+"("+100*(double)entry/(double)sum+")");
+        sb.append("samples statistics\n");
+        sb.append(EnumEvent.getPrettyStats(event_base_count_));
         sb.append("\n");
-
-        sum = 0;
-        for(long entry : event_count_) sum+=entry;
-        sb.append("event count:");
-        for(long entry : event_count_) sb.append(" "+entry+"("+100*(double)entry/(double)sum+")");
-        sb.append("\n");
-
+        sb.append(EnumEvent.getPrettyStats(event_count_));
         return sb.toString();
     }
+
 
     protected final void writeIdx(String prefix) throws IOException {
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(Suffixes.IDX.filename(prefix)));

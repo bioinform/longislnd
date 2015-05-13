@@ -38,14 +38,12 @@ public class Simulator {
      * @param gen          random number generator
      * @throws Exception
      */
-    public void simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception{
+    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception{
         BaxH5Writer writer = new BaxH5Writer();
         PBReadBuffer read = new PBReadBuffer();
         log.info("generating reads");
 
-        int num_bases = 0;
-        long count = 0;
-        for(;num_bases <= total_bases;) {
+        for(int num_bases = 0; num_bases <= total_bases;) {
             read.clear();
             for(Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen),drawer.leftFlank(),drawer.rightFlank(),gen) ; itr.hasNext() ; ) {
                 Context c = itr.next();
@@ -58,58 +56,24 @@ public class Simulator {
                 }
             }
 
-            /*
-            {
-                {
-                    byte[] simulated = read.get(EnumDat.BaseCall).data_ref();
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("\n");
-                    for(int loc_pos = 0 ; loc_pos < simulated.length; ++loc_pos){
-                        sb.append(EnumBP.ascii2value(simulated[loc_pos]));
-                    }
-                    log.info(sb.toString());
-                    log.info(Arrays.toString(simulated));
-                }
-
-            }
-            */
-
             writer.addLast(read, 1000);
             num_bases += read.size();
-            if(++count % 10000 == 0) {
+            if(writer.size() % 10000 == 1) {
                 log.info(toString());
             }
         }
         log.info(toString());
         log.info("generated "+writer.size() + " reads.");
         writer.write(path + "/" + movie_name + ".bax.h5", movie_name, firsthole);
+        return writer.size();
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("cummulated statistics\n");
-        {
-            long sum = 0;
-            for (long entry : base_counter_) {
-                sum += entry;
-            }
-            for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
-                long count = base_counter_[ev.value()];
-                sb.append(" " + ev.toString() + " " + count + " " + (double) (count) / sum);
-            }
-        }
+        sb.append("simulated statistics\n");
+        sb.append(EnumEvent.getPrettyStats(base_counter_));
         sb.append("\n");
-        {
-            long sum = 0;
-            for (long entry : event_counter_) {
-                sum += entry;
-            }
-            for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
-                long count = event_counter_[ev.value()];
-                sb.append(" " + ev.toString() + " " + count + " " + (double) (count) / sum);
-            }
-        }
+        sb.append(EnumEvent.getPrettyStats(event_counter_));
         return sb.toString();
-
     }
 }

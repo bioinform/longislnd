@@ -35,7 +35,7 @@ public class CmpH5Reader implements EventGroupFactory {
         }
         */
         if(last_path_ == null || !path.equals(last_path_)){
-            log.info("loading alignment group "+path);
+            log.debug("loading alignment group "+path);
             last_data_ = new AlnData(h5_,path);
             last_path_ = path;
         }

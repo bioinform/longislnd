@@ -47,7 +47,8 @@ public class SamplesCollector extends Samples implements Closeable{
             if(null == event){
                 continue;
             }
-            if (kmer_event_count_[EnumEvent.values().length*event.kmer()+event.event().value()] < 100) {
+            if (event.event().record_every() > 0 &&
+                    kmer_event_count_[EnumEvent.values().length*event.kmer()+event.event().value()] % event.event().record_every() == 0) {
                 event.write(eventOut_);
             }
             final int idx = event.event().value();
@@ -67,10 +68,10 @@ public class SamplesCollector extends Samples implements Closeable{
      * @throws Exception
      */
     public void process(EventGroupFactory groups, int min_length, int flank_mask) throws Exception{
-        long count = 0;
-        for(int ii = 0 ; ii < groups.size() ; ++ii){
+        int ii = 0;
+        for( ; ii < groups.size() ; ++ii){
             EventGroup group = groups.getEventGroup(ii);
-            if(ii%5000 == 0){
+            if(ii%10000 == 1001){
                 log.info("processing group " + ii + "/" + groups.size());
                 log.info(toString());
             }
@@ -83,9 +84,8 @@ public class SamplesCollector extends Samples implements Closeable{
             }
             lengths_.addLast(group.seq_length());
             process(group.getEventIterator(leftFlank_, rightFlank_,flank_mask,flank_mask));
-            ++count;
         }
-        log.info("processed " + count + " groups");
+        log.info("processed " + ii + " groups");
     }
 
     /**
