@@ -1,5 +1,6 @@
 package com.bina.lrsim.bioinfo;
 
+import com.bina.lrsim.interfaces.Context;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import htsjdk.samtools.reference.FastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;
@@ -31,7 +32,7 @@ public class WeightedReference implements RandomSequenceGenerator {
         final int ref_pos = (0 == ref_idx) ? (int)pos : (int)(pos - ref_cdf_.get(ref_idx-1));
 
         if(ref_pos+length <= get(ref_idx).length){
-            return new ContextIterator(get(ref_idx),ref_pos,ref_pos+length,left_flank,right_flank, rc);
+            return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,left_flank,right_flank, rc);
         }
         return null;
     }

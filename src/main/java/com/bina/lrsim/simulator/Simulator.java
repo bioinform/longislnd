@@ -1,13 +1,13 @@
 package com.bina.lrsim.simulator;
 
-import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.bioinfo.KmerContext;
 import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.interfaces.Context;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import org.apache.log4j.Logger;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Random;
 

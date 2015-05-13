@@ -1,13 +1,26 @@
 package com.bina.lrsim.bioinfo;
 
 
+import com.bina.lrsim.interfaces.Context;
+
 /**
  * Created by bayo on 5/11/15.
  */
-public class Context {
-    Context(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws Exception{
+public class KmerContext implements Context{
+    private int kmer_;
+
+    @Override
+    public int kmer() {
+        return kmer_;
+    }
+
+    @Override
+    public int hpLen() {
+        return 1;
+    }
+
+    KmerContext(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws Exception{
         if(rc){
-            //obvious not the smartest, should use running sum, but let's refactor after homopolymer is in
             final byte[] tmp = new byte[left_flank+right_flank+1];
 
             int curr = ascii.length - 1 - (middle - left_flank);
@@ -21,9 +34,6 @@ public class Context {
         }
     }
 
-    private int kmer_;
 
-    public int kmer() {
-        return kmer_;
-    }
+
 }

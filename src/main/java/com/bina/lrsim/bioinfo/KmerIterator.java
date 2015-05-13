@@ -1,5 +1,6 @@
 package com.bina.lrsim.bioinfo;
 
+import com.bina.lrsim.interfaces.Context;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
@@ -7,8 +8,8 @@ import java.util.Iterator;
 /**
  * Created by bayo on 5/11/15.
  */
-public class ContextIterator implements Iterator<Context> {
-    private final static Logger log = Logger.getLogger(ContextIterator.class.getName());
+public class KmerIterator implements Iterator<Context> {
+    private final static Logger log = Logger.getLogger(KmerIterator.class.getName());
     private byte[] seq_;
     private int curr_;
     private int end_;
@@ -16,8 +17,16 @@ public class ContextIterator implements Iterator<Context> {
     private int rightFlank_;
     private boolean rc_;
 
-
-    ContextIterator(byte[] ascii, int begin, int end, int left_flank, int right_flank, boolean rc) {
+    /**
+     * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
+     * @param ascii       ascii file
+     * @param begin       0-base begin
+     * @param end         0-base end, exclusive
+     * @param left_flank  number of bp before the position of interest
+     * @param right_flank number of bp after the position of interest
+     * @param rc          if we are doing reverse complement
+     */
+    KmerIterator(byte[] ascii, int begin, int end, int left_flank, int right_flank, boolean rc) {
         leftFlank_ = left_flank;
         rightFlank_ = right_flank;
         rc_ = rc;
@@ -32,9 +41,9 @@ public class ContextIterator implements Iterator<Context> {
 
     @Override
     public Context next() {
-        Context c = null;
+        KmerContext c = null;
         try {
-            c = new Context(seq_,curr_,leftFlank_,rightFlank_,rc_);
+            c = new KmerContext(seq_,curr_,leftFlank_,rightFlank_,rc_);
         } catch (Exception e) {
             e.printStackTrace();
             c = null;
