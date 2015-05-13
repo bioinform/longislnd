@@ -18,7 +18,8 @@ public class EmptyBCPool extends BaseCallsPool {
     }
 
     @Override
-    public void add(Event ev) throws Exception {
+    public boolean add(Event ev) throws Exception {
+        return false;
     }
 
 }

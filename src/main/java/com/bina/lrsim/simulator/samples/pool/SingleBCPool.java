@@ -29,7 +29,7 @@ public class SingleBCPool extends BaseCallsPool {
     }
 
     @Override
-    public void add(Event ev) throws Exception {
+    public boolean add(Event ev) throws Exception {
         if(end_[ev.kmer()] - begin(ev.kmer()) < entryPerKmer_*BYTE_PER_BC ) {
             int shift = end_[ev.kmer()];
             if (ev.size() != 1) {
@@ -39,7 +39,9 @@ public class SingleBCPool extends BaseCallsPool {
                 data_[shift + e.value()] = ev.get(0, e);
             }
             end_[ev.kmer()] += BYTE_PER_BC;
+            return true;
         }
+        return false;
     }
 
     @Override

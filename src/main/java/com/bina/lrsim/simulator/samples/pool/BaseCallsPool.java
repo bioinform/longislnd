@@ -22,5 +22,5 @@ public abstract class BaseCallsPool {
 
     public abstract void appendTo(PBReadBuffer pb, int kmer, Random gen) throws Exception;
 
-    public abstract void add(Event ev) throws Exception;
+    public abstract boolean add(Event ev) throws Exception;
 }

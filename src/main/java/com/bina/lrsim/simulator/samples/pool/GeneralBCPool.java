@@ -25,9 +25,12 @@ public class GeneralBCPool extends BaseCallsPool {
     }
 
     @Override
-    public void add(Event ev) throws Exception {
-        if(entryPerKmer_ < 0 || data_.get(ev.kmer()).size() < entryPerKmer_)
+    public boolean add(Event ev) throws Exception {
+        if(entryPerKmer_ < 0 || data_.get(ev.kmer()).size() < entryPerKmer_) {
             data_.get(ev.kmer()).add(ev.data_cpy());
+            return true;
+        }
+        return false;
     }
 
     @Override

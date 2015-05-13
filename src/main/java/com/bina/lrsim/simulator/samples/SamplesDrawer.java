@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Random;
@@ -79,6 +80,9 @@ public class SamplesDrawer extends Samples {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.EVENTS.filename(prefix)),1000000000)) ;
         Event buffer = new Event();
         long count = 0;
+
+        long[] event_count = new long[EnumEvent.values().length];
+        long[] logged_event_count = new long[EnumEvent.values().length];
         while(dis.available() > 0) {
             buffer.read(dis);
             if(buffer.event().equals(EnumEvent.DELETION) && buffer.size() !=0)
@@ -87,10 +91,14 @@ public class SamplesDrawer extends Samples {
                 throw new Exception("sub with length " + buffer.size());
             else if(buffer.event().equals(EnumEvent.MATCH) && buffer.size() !=1)
                 throw new Exception("match with length " + buffer.size());
-            event_drawer_.get(buffer.event()).add(buffer);
+            ++event_count[buffer.event().value()];
+            if( event_drawer_.get(buffer.event()).add(buffer)) {
+                ++logged_event_count[buffer.event().value()];
+
+            }
             ++count;
             if(count % 10000000 == 1) {
-                log.info("loaded " + count + " events");
+                log.info("loaded " + count + " events" + Arrays.toString(logged_event_count) + "/" + Arrays.toString(event_count));
             }
         }
         log.info("loaded " + count + " events");
