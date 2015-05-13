@@ -2,6 +2,7 @@ package com.bina.lrsim.simulator.samples;
 
 import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.simulator.EnumEvent;
+import com.bina.lrsim.util.ArrayUtils;
 import com.bina.lrsim.util.IntBuffer;
 import org.apache.log4j.Logger;
 
@@ -32,6 +33,19 @@ public abstract class Samples {
 
     public int rightFlank() {
         return rightFlank_;
+    }
+
+    public final void accumulateStats(Samples other) {
+        if(leftFlank_ != other.leftFlank_) throw new RuntimeException("inconsistent left flank");
+        if(rightFlank_ != other.rightFlank_) throw new RuntimeException("inconsistent right flank");
+        if(k_ != other.k_) throw new RuntimeException("inconsistent k");
+        if(numKmer_ != other.numKmer_) throw new RuntimeException("inconsistent numKmer");
+
+        ArrayUtils.axpy(1,other.event_base_count_,event_base_count_);
+        ArrayUtils.axpy(1,other.event_count_,event_count_);
+        ArrayUtils.axpy(1,other.kmer_event_count_,kmer_event_count_);
+        lengths_.addLast(other.lengths_);
+        base_log.info("after accumulation "+this.toString());
     }
 
     /**
@@ -132,7 +146,7 @@ public abstract class Samples {
                 sb.append("\n");
             }
         }
-        base_log.info(sb.toString());
+        base_log.debug(sb.toString());
         file.close();
         fos.close();
     }

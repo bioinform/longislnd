@@ -36,6 +36,16 @@ public enum EnumEvent {
         pool_ = pool;
     }
 
+    static public int num_logged_events() {
+        int out = 0;
+        for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
+            if( ev.record_every() > 0) {
+                ++out;
+            }
+        }
+        return out;
+    }
+
     public int value() {
         return value_;
     }

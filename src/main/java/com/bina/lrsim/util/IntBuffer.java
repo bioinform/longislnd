@@ -34,6 +34,10 @@ public class IntBuffer {
         return data_[idx];
     }
 
+    public void addLast(IntBuffer other) {
+        addLast(other.data_ref());
+    }
+
     public void addLast(int[] other) {
         final int newSize = size_ + other.length;
         if (newSize >= data_.length) {

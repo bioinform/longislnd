@@ -23,13 +23,13 @@ public class H5Simulator {
         }
         final String out_dir = args[0];
         final String fasta = args[1];
-        final String model_prefix = args[2];
+        final String model_prefixes = args[2];
         final int total_bases = Integer.parseInt(args[3]);
         final int sample_per = Integer.parseInt(args[4]);
         final int seed = Integer.parseInt(args[5]);
 
         try {
-            SamplesDrawer samples = new SamplesDrawer(model_prefix,sample_per);
+            SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","),sample_per);
             Simulator sim = new Simulator(new WeightedReference(fasta));
             Random gen = new Random(seed);
             String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
