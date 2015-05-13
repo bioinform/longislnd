@@ -28,6 +28,7 @@ public class SamplesDrawer extends Samples {
         for(int ii = 1; ii < prefixes.length; ++ii) {
             accumulateStats(new SamplesDrawer(prefixes[ii],0/*must use 0 here*/));
         }
+        allocateEventDrawer(max_sample);
         loadEvents(prefixes, max_sample);
     }
 
@@ -40,19 +41,23 @@ public class SamplesDrawer extends Samples {
     public SamplesDrawer(String prefix, int max_sample) throws Exception {
         super(prefix);
         log.info("loaded bulk statistics from "+prefix);
-        for(EnumEvent event: EnumSet.allOf(EnumEvent.class)){
+        allocateEventDrawer(max_sample);
+        loadEvents(prefix, max_sample);
+    }
+
+    private void allocateEventDrawer(int max_sample) {
+        for(EnumEvent event: EnumSet.allOf(EnumEvent.class)) {
 //            final int cap = (event.equals(EnumEvent.MATCH) ) ? max_sample : -1;
             final int cap = max_sample;
             try {
                 event_drawer_.put(
                         event,
                         (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
-                                                    .newInstance(super.numKmer_, cap));
+                                .newInstance(super.numKmer_, cap));
             } catch (ReflectiveOperationException e) {
-                log.info(e,e);
+                log.info(e, e);
             }
         }
-        loadEvents(prefix, max_sample);
     }
 
     /**
