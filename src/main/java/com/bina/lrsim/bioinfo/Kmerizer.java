@@ -15,10 +15,10 @@ public class Kmerizer {
      * @param begin begin position
      * @param end   ending position
      * @return
-     * @throws Exception
+     * @throws RuntimeException
      */
-    public static int fromASCII(byte[] ascii, int begin, int end) throws Exception {
-        if(end-begin > 16) throw new Exception("stream too big for 16-mer");
+    public static int fromASCII(byte[] ascii, int begin, int end) throws RuntimeException {
+        if(end-begin > 16) throw new RuntimeException("stream too big for 16-mer");
         int out = 0;
         for(int ii = begin ; ii < end; ++ii){
             out *= 4;
@@ -26,14 +26,14 @@ public class Kmerizer {
             if(val == EnumBP.N.value()) {
                 val = gen_.nextInt(4);
             }
-            if(val >=4) throw new Exception("bad ascii stream");
+            if(val >=4) throw new RuntimeException("bad ascii stream");
             out += EnumBP.ascii2value(ascii[ii]);
         }
         return out;
     }
 
 
-    public static int fromASCII(byte[] ascii) throws Exception {
+    public static int fromASCII(byte[] ascii) throws RuntimeException {
         return fromASCII(ascii, 0, ascii.length);
     }
 

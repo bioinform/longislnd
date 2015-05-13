@@ -6,7 +6,7 @@ import com.bina.lrsim.interfaces.Context;
 /**
  * Created by bayo on 5/11/15.
  */
-public class KmerContext implements Context{
+public class KmerContext implements Context {
     private int kmer_;
 
     @Override
@@ -19,7 +19,7 @@ public class KmerContext implements Context{
         return 1;
     }
 
-    KmerContext(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws Exception{
+    KmerContext(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws RuntimeException{
         if(rc){
             final byte[] tmp = new byte[left_flank+right_flank+1];
 
@@ -33,7 +33,5 @@ public class KmerContext implements Context{
             kmer_ = Kmerizer.fromASCII(ascii, middle-left_flank, middle+right_flank+1);
         }
     }
-
-
 
 }

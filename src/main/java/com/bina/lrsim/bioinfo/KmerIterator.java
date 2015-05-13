@@ -34,6 +34,7 @@ public class KmerIterator implements Iterator<Context> {
         curr_ = begin + left_flank;
         end_ = end - right_flank;
     }
+
     @Override
     public boolean hasNext() {
         return curr_ < end_;
@@ -43,13 +44,13 @@ public class KmerIterator implements Iterator<Context> {
     public Context next() {
         KmerContext c = null;
         try {
+            //there can be a running sum optimization
             c = new KmerContext(seq_,curr_,leftFlank_,rightFlank_,rc_);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
             c = null;
         }
         ++curr_;
-        // there can be a running sum optimization but let's wait for homopolymer
         return c;
     }
 

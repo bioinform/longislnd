@@ -147,7 +147,7 @@ public class CmpH5Alignment implements EventGroup {
             try {
                 kmer = Kmerizer.fromASCII(key_);
             }
-            catch(Exception e){
+            catch(RuntimeException e){
                 e.printStackTrace();
                 valid = false;
             }
