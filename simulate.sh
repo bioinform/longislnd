@@ -1,3 +1,4 @@
+set -ex
 
 HDF5_LIB=/Applications/HDFView.app/Contents/Resources/lib
 

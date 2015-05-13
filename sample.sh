@@ -1,7 +1,9 @@
 
+set -ex
+
 HDF5_LIB=/Applications/HDFView.app/Contents/Resources/lib
 
-MODEL_PREFIX=model
+MODEL_PREFIX=model.2
 
 CMP_H5=/Users/bayo/Downloads/bax9_CHM1htert.cmp.h5
 
