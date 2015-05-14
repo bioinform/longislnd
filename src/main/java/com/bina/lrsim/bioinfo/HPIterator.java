@@ -102,7 +102,7 @@ public class HPIterator implements Iterator<Context> {
         curr_ = diff_pos;
 
         if(kk == buffer_.length) {
-            return new HPContext(buffer_,(short)length);
+            return new HPContext(buffer_,length);
         }
         else {
             return null;
@@ -126,7 +126,7 @@ public class HPIterator implements Iterator<Context> {
         curr_ = diff_pos;
 
         if(kk == buffer_.length) {
-            return new HPContext(buffer_, (short)length);
+            return new HPContext(buffer_, length);
         }
         else {
             return null;

@@ -7,7 +7,7 @@ package com.bina.lrsim.bioinfo;
 public class KmerContext extends Context {
 
     KmerContext(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws RuntimeException{
-        super(-1,(short)1);
+        super(-1,1);
         if(rc){
             final byte[] tmp = new byte[left_flank+right_flank+1];
 

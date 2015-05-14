@@ -55,16 +55,23 @@ public class Event {
         return bc_.data_cpy();
     }
 
+
+    // there are 4-byte per 12-byte match event here, which is huge overhead
+    // we can save 4 byte by storing 2byte hp-length and 2byte base length if needed
+    // we can also save all 4 bytes by writing homopolymer events to a different stream
+    // this can be done down the line if we have time
     public void write(DataOutputStream dos) throws Exception {
         if(event_.equals(EnumEvent.DELETION)) return;
         if (event_.value() >= EnumEvent.values().length) throw new Exception("invalid i/o format");
-        dos.writeInt(EnumEvent.values().length * context_.kmer() + event_.value());
+        dos.writeInt(context_.kmer());
+        dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value());
         bc_.write(dos);
     }
 
     public void read(DataInputStream dis) throws Exception {
+        final int kmer = dis.readInt();
         int tmp = dis.readInt();
-        context_ = new Context( tmp / EnumEvent.values().length, (short)1 );
+        context_ = new Context( kmer, tmp / EnumEvent.values().length );
         event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
         if(null == bc_) bc_ = new BaseCalls();
         bc_.read(dis);

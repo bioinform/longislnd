@@ -132,7 +132,7 @@ public class CmpH5Alignment implements EventGroup {
             step();
 
             if(valid){
-                return new Event(new Context(kmer,(short)1), event, bc);
+                return new Event(new Context(kmer,1), event, bc);
             }
             else{
                 return null;

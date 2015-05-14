@@ -8,8 +8,7 @@ import java.util.Iterator;
  */
 public class HPContext extends Context {
 
-
-    HPContext(byte[] ascii, short len) {
+    HPContext(byte[] ascii, int len) {
         super(Kmerizer.fromASCII(ascii),len);
     }
 
