@@ -16,6 +16,7 @@ import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class CmpH5Alignment implements EventGroup {
@@ -183,12 +184,15 @@ public class CmpH5Alignment implements EventGroup {
 
             //look for the next different base
             int next_diff = start + 1;
+            int hp_length = 1;
             for (; next_diff < ref_.length && (ref_[next_diff] == ref_[start] || ref_[next_diff] == EnumBP.Gap.ascii()); ++next_diff) {
+                if(ref_[next_diff] == ref_[start]) {
+                    ++hp_length;
+                }
             }
-            final int length = next_diff - start;
 
             //homopolymer sampling is not needed if it's shorter than the flanking bases
-            if (length < left_flank && length < right_flank) {
+            if (hp_length < left_flank && hp_length < right_flank) {
                 return null;
             }
 
@@ -217,9 +221,9 @@ public class CmpH5Alignment implements EventGroup {
             }
 
             EnumEvent ev;
-            if (bc.size() < length) {
+            if (bc.size() < hp_length) {
                 ev = EnumEvent.DELETION;
-            } else if (bc.size() > length) {
+            } else if (bc.size() > hp_length) {
                 ev = EnumEvent.INSERTION;
             } else {
                 boolean same = true;
@@ -236,7 +240,29 @@ public class CmpH5Alignment implements EventGroup {
 
             }
 
-            return new Event(new Context(Kmerizer.fromASCII(tmp), length), ev, bc);
+            /*
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("homopolymer " +start + " " + next_diff+" " + anchor+"\n");
+                for(int pos = start - anchor ; pos < next_diff+anchor; ++pos) {
+                    sb.append((char)seq_[pos]);
+                }
+                sb.append("\n");
+                for(int pos = start - anchor ; pos < next_diff+anchor; ++pos) {
+                    sb.append((char)ref_[pos]);
+                }
+                sb.append("\n");
+                for(int pos = 0; pos<bc.size(); ++pos){
+                    sb.append((char)bc.get(pos,EnumDat.BaseCall));
+                }
+                sb.append("\n");
+                sb.append(Arrays.toString(tmp)+" "+ hp_length);
+                log.info(sb.toString());
+
+            }
+            */
+
+            return new Event(new Context(Kmerizer.fromASCII(tmp), hp_length), ev, bc);
         }
 
         @Override
