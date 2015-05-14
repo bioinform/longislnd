@@ -5,8 +5,8 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/1/15.
  */
 
+import com.bina.lrsim.LRSim;
 import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.H5Test;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.bioinfo.WeightedReference;
@@ -128,5 +128,5 @@ public class CmpH5Reader implements EventGroupFactory {
 
     private String last_path_;
     private AlnData last_data_;
-    private final static Logger log = Logger.getLogger(H5Test.class.getName());
+    private final static Logger log = Logger.getLogger(LRSim.class.getName());
 }

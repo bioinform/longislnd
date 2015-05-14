@@ -12,18 +12,18 @@ import java.util.Arrays;
 /**
  * Created by bayo on 4/30/15.
  */
-public class H5Test {
+public class LRSim {
 
-    private final static Logger log = Logger.getLogger(H5Test.class.getName());
+    private final static Logger log = Logger.getLogger(LRSim.class.getName());
 
-    String VERSION = "H5Test " + getClass().getPackage().getImplementationVersion();
+    private static String VERSION = "LRSim " + LRSim.class.getPackage().getImplementationVersion();
 
-    public void run(String[] args) {
-        String usage = "java -jar H5test.jar <mode> <h5file> \n"
-                + "       mode    -- cmp/read/clonegroups \n"
-                + "       h5file    -- h5 file to be read "
+    public static void run(String[] args) {
+        String usage = "java -jar LRSim.jar <mode> [parameters] \n"
+                + "       mode    -- simulate/sample\n"
+                + "       parameters -- see mode description by not specifying parameters"
                 + "\n";
-        if (args.length < 2) {
+        if (args.length < 1) {
             System.err.println(VERSION);
             System.err.println(usage);
             System.exit(1);
@@ -31,12 +31,15 @@ public class H5Test {
         String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
 
         switch (args[0]) {
-            case "simulate":
+            case "simulate": // run simulator
                 H5Simulator.run(pass_args);
                 break;
-            case "sample":
+            case "sample": //run sampling
                 H5Sampler.run(pass_args);
                 break;
+
+
+            // the following are backdoor tests
             case "cmp":
                 log.info("cmp");
             {
@@ -69,12 +72,13 @@ public class H5Test {
                     log.info(e, e);
                 }
                 break;
+            // end of backdoor tests
             default:
                 System.err.println(usage);
         }
     }
 
     public static void main(String[] args) {
-        new H5Test().run(args);
+        LRSim.run(args);
     }
 }

@@ -58,11 +58,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputFile>H5Test.jar</outputFile>
+                            <outputFile>LRSim.jar</outputFile>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.bina.lrsim.H5Test
+                                    <mainClass>com.bina.lrsim.LRSim
                                     </mainClass>
                                 </transformer>
                             </transformers>

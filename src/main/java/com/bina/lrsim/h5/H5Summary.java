@@ -4,7 +4,7 @@ package com.bina.lrsim.h5;
  * Created by bayo on 4/30/15.
  */
 
-import com.bina.lrsim.H5Test;
+import com.bina.lrsim.LRSim;
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import ncsa.hdf.object.FileFormat;
@@ -77,5 +77,5 @@ public class H5Summary {
         }
     }
 
-    private final static Logger log = Logger.getLogger(H5Test.class.getName());
+    private final static Logger log = Logger.getLogger(LRSim.class.getName());
 }

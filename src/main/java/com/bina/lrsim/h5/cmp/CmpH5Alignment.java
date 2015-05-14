@@ -4,7 +4,7 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
-import com.bina.lrsim.H5Test;
+import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.bioinfo.Kmerizer;
@@ -377,5 +377,5 @@ public class CmpH5Alignment implements EventGroup {
     private int[] aln_ = null; // for diagnostic
     private byte[] ref_ = null;
     private byte[] seq_ = null;
-    private final static Logger log = Logger.getLogger(H5Test.class.getName());
+    private final static Logger log = Logger.getLogger(LRSim.class.getName());
 }

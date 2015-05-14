@@ -14,4 +14,4 @@ SAMPLE_PER=100
 
 SEED=1351
 
-java -Djava.library.path=${HDF5_LIB} -jar H5Test.jar simulate ${OUTPUT_DIR} ${FASTA} ${MODEL_PREFIX} ${NUM_BASES} ${SAMPLE_PER} ${SEED}
+java -Djava.library.path=${HDF5_LIB} -jar LRSim.jar simulate ${OUTPUT_DIR} ${FASTA} ${MODEL_PREFIX} ${NUM_BASES} ${SAMPLE_PER} ${SEED}
