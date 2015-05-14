@@ -46,7 +46,7 @@ public class Simulator {
 
         for (int num_bases = 0; num_bases <= total_bases; ) {
             read.clear();
-            for (Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen), drawer.leftFlank(), drawer.rightFlank(), gen); itr.hasNext(); ) {
+            for (Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen), drawer.left_flank(), drawer.right_flank(), gen); itr.hasNext(); ) {
                 Context c = itr.next();
                 final int old_length = read.size();
                 EnumEvent ev = drawer.appendTo(read, c.kmer(), gen);

@@ -53,7 +53,7 @@ public class SamplesDrawer extends Samples {
                 event_drawer_.put(
                         event,
                         (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
-                                .newInstance(super.numKmer_, cap));
+                                .newInstance(num_kmer(), cap));
             } catch (ReflectiveOperationException e) {
                 log.info(e, e);
             }
@@ -66,7 +66,7 @@ public class SamplesDrawer extends Samples {
      * @return    read length
      */
     public int drawLength(Random gen) {
-        return lengths_.get(gen.nextInt(lengths_.size()));
+        return lengths_ref().get(gen.nextInt(lengths_ref().size()));
     }
 
     /**
@@ -112,7 +112,7 @@ public class SamplesDrawer extends Samples {
         long[] event_count = new long[EnumEvent.values().length];
         long[] logged_event_count = new long[EnumEvent.values().length];
         long num_logged_event = 0;
-        final long max_logged_event = EnumEvent.num_logged_events() * numKmer_ * (long)max_sample;
+        final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long)max_sample;
 
         final boolean[] src_done = new boolean[num_src];
 
@@ -158,7 +158,7 @@ public class SamplesDrawer extends Samples {
         final int shift = EnumEvent.values().length * kmer;
         long sum = 0;
         for(int ii = 0; ii < EnumEvent.values().length; ++ii){
-            sum += kmer_event_count_[shift + ii];
+            sum += kmer_event_count_ref()[shift + ii];
         }
         final double p = gen.nextDouble();
         if(p<0 || p > 1) {
@@ -166,7 +166,7 @@ public class SamplesDrawer extends Samples {
         }
         double cdf = 0;
         for(int ii = 0; ii < EnumEvent.values().length; ++ii){
-            cdf += (double)(kmer_event_count_[shift+ii])/(sum) ;
+            cdf += (double)(kmer_event_count_ref()[shift+ii])/(sum) ;
             if( p <= cdf ) return EnumEvent.value2enum(ii);
         }
         return EnumEvent.MATCH;
