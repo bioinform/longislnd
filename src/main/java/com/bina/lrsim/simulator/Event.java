@@ -40,6 +40,10 @@ public class Event {
         return context_.kmer();
     }
 
+    public int hp_len() {
+        return context_.hp_len();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(context_.toString() + " " + event_.toString() + "\n");

@@ -53,14 +53,17 @@ public class SamplesCollector extends Samples implements Closeable {
                     kmer_event_count_[EnumEvent.values().length * event.kmer() + event.event().value()] % event.event().record_every() == 0) {
                 event.write(eventOut_);
             }
-            final int idx = event.event().value();
 
-            ++event_count_[idx];
-            ++event_base_count_[idx];
-            if (event.event().equals(EnumEvent.INSERTION)) {
-                event_base_count_[idx] += event.size() - 2;
+            if(event.hp_len() == 1) {
+                final int idx = event.event().value();
+
+                ++event_count_[idx];
+                ++event_base_count_[idx];
+                if (event.event().equals(EnumEvent.INSERTION)) {
+                    event_base_count_[idx] += event.size() - 2;
+                }
+                ++kmer_event_count_[EnumEvent.values().length * event.kmer() + event.event().value()];
             }
-            ++kmer_event_count_[EnumEvent.values().length * event.kmer() + event.event().value()];
         }
     }
 
