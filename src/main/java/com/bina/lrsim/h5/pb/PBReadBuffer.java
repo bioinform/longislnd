@@ -5,7 +5,6 @@ package com.bina.lrsim.h5.pb;
  */
 
 
-import com.bina.lrsim.simulator.BaseCalls;
 import com.bina.lrsim.util.ByteBuffer;
 import org.apache.log4j.Logger;
 

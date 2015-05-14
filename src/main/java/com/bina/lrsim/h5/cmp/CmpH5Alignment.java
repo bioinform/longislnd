@@ -4,34 +4,51 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
-import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.bioinfo.KmerContext;
-import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.H5Test;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.interfaces.EventGroup;
-import com.bina.lrsim.simulator.BaseCalls;
-import com.bina.lrsim.simulator.EnumEvent;
-import com.bina.lrsim.simulator.Event;
+import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.bioinfo.Kmerizer;
+import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.interfaces.EventGroup;
+import com.bina.lrsim.h5.pb.BaseCalls;
+import com.bina.lrsim.simulator.EnumEvent;
+import com.bina.lrsim.simulator.Event;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
 
 public class CmpH5Alignment implements EventGroup {
 
+    /**
+     * @param left_flank  number of bp before the position of interest
+     * @param right_flank number of bp after the position of interest
+     * @param left_mask   omit this number of bases in the begining
+     * @param right_mask  omit this number of bases in the end
+     * @return an iterator of events associated with this alignment instance
+     */
+    @Override
     public Iterator<Event> getEventIterator(int left_flank, int right_flank, int left_mask, int right_mask) {
         return new EventIterator(left_flank, right_flank, left_mask, right_mask);
     }
 
     private class EventIterator implements Iterator<Event> {
+        // sometimes two events (kmer and homopolymer) would be generated at a location next_, this pointer stores
+        // the event not returned by the first call of next();
+        private Event extra_ = null;
+        private int lf_; //left flank
+        private int rf_; //right flank
+        private int next_;
+        private int end_;
+        private byte[] key_;
+
         public EventIterator(int left_flank, int right_flank, int left_mask, int right_mask) {
+            lf_ = left_flank;
             rf_ = right_flank;
 
             //mask out right flank
             end_ = ref_.length - 1;
-            for(int count = 0 ; end_ >= 0; --end_){
+            for (int count = 0; end_ >= 0; --end_) {
                 if (EnumBP.Gap.ascii() != seq_[end_]) {
                     if (++count == right_mask) break;
                 }
@@ -47,28 +64,28 @@ public class CmpH5Alignment implements EventGroup {
 
             //mask out left flank
             next_ = 0;
-            for(int count = 0 ; next_ < ref_.length ; ++next_){
+            for (int count = 0; next_ < ref_.length; ++next_) {
                 if (EnumBP.Gap.ascii() != seq_[next_]) {
                     if (++count == left_mask) break;
                 }
             }
             ++next_;
-            for(int count = 0 ; next_ < ref_.length ; ++next_){
+            for (int count = 0; next_ < ref_.length; ++next_) {
                 if (EnumBP.Gap.ascii() != ref_[next_]) {
-                    if (++count == left_flank+1) break;
+                    if (++count == left_flank + 1) break;
                 }
             }
 
             //build key around the next_ position
             key_ = new byte[left_flank + rf_ + 1];
             key_[left_flank] = ref_[next_];
-            for(int pos = next_+1, k = left_flank+1; k < key_.length ; ++pos){
+            for (int pos = next_ + 1, k = left_flank + 1; k < key_.length; ++pos) {
                 if (EnumBP.Gap.ascii() != ref_[pos]) {
                     key_[k++] = ref_[pos];
                 }
             }
 
-            for(int pos = next_-1, k = left_flank-1; k >=0 ; --pos){
+            for (int pos = next_ - 1, k = left_flank - 1; k >= 0; --pos) {
                 if (EnumBP.Gap.ascii() != ref_[pos]) {
                     key_[k--] = ref_[pos];
                 }
@@ -77,11 +94,16 @@ public class CmpH5Alignment implements EventGroup {
 
         @Override
         public boolean hasNext() {
-            return next_ < end_;
+            return (null != extra_) || (next_ < end_);
         }
 
         @Override
         public Event next() {
+            if (null != extra_) {
+                Event ret = extra_;
+                extra_ = null;
+                return ret;
+            }
             BaseCalls bc = new BaseCalls(); // this is probably a memory bound block killer
             EnumEvent event = null;
             try {
@@ -106,7 +128,7 @@ public class CmpH5Alignment implements EventGroup {
                     throw new Exception("parsing error");
                 }
             } catch (Exception e) {
-                log.info("failed");
+                log.info(e,e);
                 return null;
             }
 
@@ -116,28 +138,106 @@ public class CmpH5Alignment implements EventGroup {
 
             try {
                 kmer = Kmerizer.fromASCII(key_);
-            }
-            catch(RuntimeException e){
+            } catch (RuntimeException e) {
                 e.printStackTrace();
                 valid = false;
             }
 
-            for(byte entry: key_){
-                if(EnumBP.N.ascii() == entry){
+            for (byte entry : key_) {
+                if (EnumBP.N.ascii() == entry) {
                     valid = false;
                     break;
                 }
             }
 
+            if (valid) {
+                extra_ = constructHPEvent(next_,lf_,rf_);
+            }
+
             step();
 
-            if(valid){
-                return new Event(new Context(kmer,1), event, bc);
-            }
-            else{
+            if (valid) {
+                return new Event(new Context(kmer, 1), event, bc);
+            } else {
                 return null;
             }
 
+        }
+
+        private Event constructHPEvent(int start, int left_flank, int right_flank) {
+            //we don't look at the middle of homopolymer
+            if (ref_[start] == ref_[start - 1]) return null;
+            byte[] tmp = new byte[left_flank + 1 + right_flank];
+            int kk = 0;
+
+            //make sure the left flank is "intact"
+            for (int pos = start - left_flank; pos <= start; ++pos) {
+                if (ref_[pos] != EnumBP.N.ascii() && ref_[pos] != EnumBP.Gap.ascii() && seq_[pos] == ref_[pos]) {
+                    tmp[kk++] = ref_[pos];
+                } else {
+                    return null;
+                }
+            }
+
+            //look for the next different base
+            int next_diff = start + 1;
+            for (; next_diff < ref_.length && (ref_[next_diff] == ref_[start] || ref_[next_diff] == EnumBP.Gap.ascii()); ++next_diff) {
+            }
+            final int length = next_diff - start;
+
+            //homopolymer sampling is not needed if it's shorter than the flanking bases
+            if (length < left_flank && length < right_flank) {
+                return null;
+            }
+
+            //make sure the right flank is "intact"
+            for (int pos = next_diff; kk < tmp.length && pos < ref_.length; ++pos) {
+                if (ref_[pos] != EnumBP.N.ascii() && ref_[pos] != EnumBP.Gap.ascii() && seq_[pos] == ref_[pos]) {
+                    tmp[kk++] = ref_[pos];
+                } else {
+                    return null;
+                }
+            }
+            if (kk != tmp.length) {
+                return null;
+            }
+
+            BaseCalls bc = new BaseCalls();
+            try {
+                for (int pos = start; pos < next_diff; ++pos) {
+                    if (seq_[pos] != EnumBP.Gap.ascii()) {
+                        fillbase(bc, pos);
+                    }
+                }
+            } catch (Exception e) {
+                log.info(e,e);
+                return null;
+            }
+
+            EnumEvent ev;
+            if(bc.size() < length) {
+                ev = EnumEvent.DELETION;
+            }
+            else if( bc.size() > length) {
+                ev = EnumEvent.INSERTION;
+            }
+            else {
+                boolean same = true;
+                for(int ii = 0; ii <bc.size(); ++ii){
+                    if(bc.get(ii,EnumDat.BaseCall) != ref_[start]) {
+                        same = false;
+                    }
+                }
+                if(same) {
+                    ev = EnumEvent.MATCH;
+                }
+                else {
+                    ev = EnumEvent.SUBSTITUTION;
+                }
+
+            }
+
+            return new Event(new Context(Kmerizer.fromASCII(tmp), length), ev, bc);
         }
 
         @Override
@@ -163,7 +263,7 @@ public class CmpH5Alignment implements EventGroup {
                 }
             }
 
-            if(next_ < end_){
+            if (next_ < end_) {
                 //update key
                 for (int ii = 0; ii < key_.length - 1; ++ii) {
                     key_[ii] = key_[ii + 1];
@@ -177,12 +277,6 @@ public class CmpH5Alignment implements EventGroup {
                 key_[key_.length - 1] = ref_[flank];
             }
         }
-
-        private int rf_;
-
-        private int next_;
-        private int end_;
-        private byte[] key_;
     }
 
     public int[] aln() {
@@ -237,9 +331,9 @@ public class CmpH5Alignment implements EventGroup {
         BaseCalls bc = new BaseCalls(1);
         for (int ii = 0; ii < aln_length(); ++ii) {
             if (ba[ii] != EnumBP.Gap.ascii()) {
-                bc.set(0,EnumDat.BaseCall, ba[ii]);
+                bc.set(0, EnumDat.BaseCall, ba[ii]);
                 for (EnumDat e : EnumDat.getNonBaseSet()) {
-                    bc.set(0,e, data_.get(e)[begin + ii]);
+                    bc.set(0, e, data_.get(e)[begin + ii]);
                 }
                 buffer.addLast(bc);
             }

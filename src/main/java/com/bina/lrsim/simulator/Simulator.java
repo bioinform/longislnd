@@ -1,8 +1,8 @@
 package com.bina.lrsim.simulator;
 
+import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import org.apache.log4j.Logger;
@@ -21,6 +21,7 @@ public class Simulator {
 
     /**
      * Constructor
+     *
      * @param seqGen a random sequence generator
      */
     public Simulator(RandomSequenceGenerator seqGen) {
@@ -29,40 +30,41 @@ public class Simulator {
 
     /**
      * Generate a pacbio h5 file containing reads simulated according to the sampler and reference
-     * @param path         output path
-     * @param movie_name   movie name
-     * @param firsthole    first hole producing sequence
-     * @param drawer       an instance from which samples can be drawn
-     * @param total_bases  minimum number of bp to generate
-     * @param gen          random number generator
+     *
+     * @param path        output path
+     * @param movie_name  movie name
+     * @param firsthole   first hole producing sequence
+     * @param drawer      an instance from which samples can be drawn
+     * @param total_bases minimum number of bp to generate
+     * @param gen         random number generator
      * @throws Exception
      */
-    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception{
+    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception {
         BaxH5Writer writer = new BaxH5Writer();
         PBReadBuffer read = new PBReadBuffer();
         log.info("generating reads");
 
-        for(int num_bases = 0; num_bases <= total_bases;) {
+        for (int num_bases = 0; num_bases <= total_bases; ) {
             read.clear();
-            for(Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen),drawer.leftFlank(),drawer.rightFlank(),gen) ; itr.hasNext() ; ) {
+            for (Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen), drawer.leftFlank(), drawer.rightFlank(), gen); itr.hasNext(); ) {
                 Context c = itr.next();
                 final int old_length = read.size();
-                EnumEvent ev = drawer.appendTo(read,c.kmer(),gen);
+                EnumEvent ev = drawer.appendTo(read, c.kmer(), gen);
                 ++event_counter_[ev.value()];
                 ++base_counter_[ev.value()];
-                if(ev.equals(EnumEvent.INSERTION)) {
-                    base_counter_[ev.value()] += (read.size()-old_length) - 2;
+                if (ev.equals(EnumEvent.INSERTION)) {
+                    base_counter_[ev.value()] += (read.size() - old_length) - 2;
                 }
             }
 
             writer.addLast(read, 1000);
             num_bases += read.size();
-            if(writer.size() % 10000 == 1) {
+            if (writer.size() % 10000 == 1) {
                 log.info(toString());
             }
         }
         log.info(toString());
-        log.info("generated "+writer.size() + " reads.");
+        log.info("generated " + writer.size() + " reads.");
         writer.write(path + "/" + movie_name + ".bax.h5", movie_name, firsthole);
         return writer.size();
     }

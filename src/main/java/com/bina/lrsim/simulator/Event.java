@@ -1,8 +1,8 @@
 package com.bina.lrsim.simulator;
 
-import com.bina.lrsim.bioinfo.KmerContext;
-import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.h5.pb.BaseCalls;
+import com.bina.lrsim.h5.pb.EnumDat;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -43,12 +43,12 @@ public class Event {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(context_.toString() + " " + event_.toString() + "\n");
-        if(null!=bc_) sb.append(bc_.toString());
+        if (null != bc_) sb.append(bc_.toString());
         return sb.toString();
     }
 
     public final byte get(int pos, EnumDat e) {
-        return bc_.get(pos,e);
+        return bc_.get(pos, e);
     }
 
     public byte[] data_cpy() {
@@ -61,7 +61,7 @@ public class Event {
     // we can also save all 4 bytes by writing homopolymer events to a different stream
     // this can be done down the line if we have time
     public void write(DataOutputStream dos) throws Exception {
-        if(event_.equals(EnumEvent.DELETION)) return;
+        if (event_.equals(EnumEvent.DELETION)) return;
         if (event_.value() >= EnumEvent.values().length) throw new Exception("invalid i/o format");
         dos.writeInt(context_.kmer());
         dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value());
@@ -71,9 +71,9 @@ public class Event {
     public void read(DataInputStream dis) throws Exception {
         final int kmer = dis.readInt();
         int tmp = dis.readInt();
-        context_ = new Context( kmer, tmp / EnumEvent.values().length );
+        context_ = new Context(kmer, tmp / EnumEvent.values().length);
         event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
-        if(null == bc_) bc_ = new BaseCalls();
+        if (null == bc_) bc_ = new BaseCalls();
         bc_.read(dis);
     }
 }

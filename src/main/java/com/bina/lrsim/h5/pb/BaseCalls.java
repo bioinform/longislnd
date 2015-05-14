@@ -1,4 +1,4 @@
-package com.bina.lrsim.simulator;
+package com.bina.lrsim.h5.pb;
 
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.util.ByteBuffer;
