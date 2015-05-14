@@ -1,6 +1,6 @@
 package com.bina.lrsim.interfaces;
 
-import com.bina.lrsim.bioinfo.KmerContext;
+import com.bina.lrsim.bioinfo.Context;
 
 import java.util.Iterator;
 import java.util.Random;

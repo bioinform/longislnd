@@ -1,6 +1,5 @@
 package com.bina.lrsim.bioinfo;
 
-import com.bina.lrsim.interfaces.Context;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
@@ -103,7 +102,7 @@ public class HPIterator implements Iterator<Context> {
         curr_ = diff_pos;
 
         if(kk == buffer_.length) {
-            return new HPContext(buffer_,length,leftFlank_,rightFlank_);
+            return new HPContext(buffer_,(short)length);
         }
         else {
             return null;
@@ -127,7 +126,7 @@ public class HPIterator implements Iterator<Context> {
         curr_ = diff_pos;
 
         if(kk == buffer_.length) {
-            return new HPContext(buffer_, length,leftFlank_,rightFlank_);
+            return new HPContext(buffer_, (short)length);
         }
         else {
             return null;

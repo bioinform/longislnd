@@ -1,6 +1,5 @@
 package com.bina.lrsim.bioinfo;
 
-import com.bina.lrsim.interfaces.Context;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import htsjdk.samtools.reference.FastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;

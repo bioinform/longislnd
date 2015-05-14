@@ -1,6 +1,5 @@
 package com.bina.lrsim.bioinfo;
 
-import com.bina.lrsim.interfaces.Context;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;

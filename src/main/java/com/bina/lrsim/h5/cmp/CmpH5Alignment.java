@@ -4,6 +4,8 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
+import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.bioinfo.KmerContext;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.H5Test;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
@@ -111,38 +113,6 @@ public class CmpH5Alignment implements EventGroup {
             //kmer to return
             int kmer = -1;
             boolean valid = true;
-/*
-            {
-                int lf = key_.length-1-rf_;
-                byte[] tmp_key = new byte[key_.length];
-                tmp_key[lf] = ref_[next_];
-                for(int pos = next_ - 1,k=lf-1;k >=0;--pos){
-                    if(ref_[pos] != EnumBP.Gap.ascii()){
-                        tmp_key[k--] = ref_[pos];
-                    }
-                }
-                for(int pos=next_+1,k=lf+1;k<key_.length;++pos){
-                    if(ref_[pos] != EnumBP.Gap.ascii()){
-                        tmp_key[k++] = ref_[pos];
-                    }
-                }
-                boolean same = true;
-                for(int ii = 0 ; ii < key_.length;++ii){
-                    if(tmp_key[ii] != key_[ii]){
-                        same = false;
-                    }
-                }
-                if(!same){
-                    log.info("oh shit");
-                    log.info(Arrays.toString(tmp_key));
-                    log.info(Arrays.toString(key_));
-
-                }
-
-            }
-            */
-
-
 
             try {
                 kmer = Kmerizer.fromASCII(key_);
@@ -162,7 +132,7 @@ public class CmpH5Alignment implements EventGroup {
             step();
 
             if(valid){
-                return new Event(kmer, event, bc);
+                return new Event(new Context(kmer,(short)1), event, bc);
             }
             else{
                 return null;

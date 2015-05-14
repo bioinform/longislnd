@@ -1,6 +1,8 @@
 package com.bina.lrsim.simulator;
 
+import com.bina.lrsim.bioinfo.KmerContext;
 import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.bioinfo.Context;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,14 +12,18 @@ import java.io.DataOutputStream;
  */
 
 public class Event {
+    private Context context_;
+    private EnumEvent event_;
+    private BaseCalls bc_;
+
     public Event() {
-        kmer_= -1;
+        context_ = null;
         event_ = null;
         bc_ = new BaseCalls();
     }
 
-    public Event(int k, EnumEvent e, BaseCalls b) {
-        kmer_ = k;
+    public Event(Context c, EnumEvent e, BaseCalls b) {
+        context_ = c;
         event_ = e;
         bc_ = b;
     }
@@ -31,12 +37,12 @@ public class Event {
     }
 
     public int kmer() {
-        return kmer_;
+        return context_.kmer();
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(kmer_ + " " + event_.toString() + "\n");
+        sb.append(context_.toString() + " " + event_.toString() + "\n");
         if(null!=bc_) sb.append(bc_.toString());
         return sb.toString();
     }
@@ -49,21 +55,16 @@ public class Event {
         return bc_.data_cpy();
     }
 
-
-    private int kmer_;
-    private EnumEvent event_;
-    private BaseCalls bc_;
-
     public void write(DataOutputStream dos) throws Exception {
         if(event_.equals(EnumEvent.DELETION)) return;
         if (event_.value() >= EnumEvent.values().length) throw new Exception("invalid i/o format");
-        dos.writeInt(EnumEvent.values().length * kmer_ + event_.value());
+        dos.writeInt(EnumEvent.values().length * context_.kmer() + event_.value());
         bc_.write(dos);
     }
 
     public void read(DataInputStream dis) throws Exception {
         int tmp = dis.readInt();
-        kmer_ = tmp / EnumEvent.values().length;
+        context_ = new Context( tmp / EnumEvent.values().length, (short)1 );
         event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
         if(null == bc_) bc_ = new BaseCalls();
         bc_.read(dis);
