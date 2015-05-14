@@ -8,10 +8,10 @@ import com.bina.lrsim.H5Test;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.bioinfo.Kmerizer;
+import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.interfaces.EventGroup;
-import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import org.apache.log4j.Logger;
@@ -28,8 +28,8 @@ public class CmpH5Alignment implements EventGroup {
      * @return an iterator of events associated with this alignment instance
      */
     @Override
-    public Iterator<Event> getEventIterator(int left_flank, int right_flank, int left_mask, int right_mask) {
-        return new EventIterator(left_flank, right_flank, left_mask, right_mask);
+    public Iterator<Event> getEventIterator(int left_flank, int right_flank, int left_mask, int right_mask, int hp_anchor) {
+        return new EventIterator(left_flank, right_flank, left_mask, right_mask, hp_anchor);
     }
 
     private class EventIterator implements Iterator<Event> {
@@ -38,13 +38,15 @@ public class CmpH5Alignment implements EventGroup {
         private Event extra_ = null;
         private int lf_; //left flank
         private int rf_; //right flank
+        private int hp_anchor_; // homopolymer anchor length
         private int next_;
         private int end_;
         private byte[] key_;
 
-        public EventIterator(int left_flank, int right_flank, int left_mask, int right_mask) {
+        public EventIterator(int left_flank, int right_flank, int left_mask, int right_mask, int hp_anchor) {
             lf_ = left_flank;
             rf_ = right_flank;
+            hp_anchor_ = hp_anchor;
 
             //mask out right flank
             end_ = ref_.length - 1;
@@ -128,7 +130,7 @@ public class CmpH5Alignment implements EventGroup {
                     throw new Exception("parsing error");
                 }
             } catch (Exception e) {
-                log.info(e,e);
+                log.info(e, e);
                 return null;
             }
 
@@ -151,7 +153,7 @@ public class CmpH5Alignment implements EventGroup {
             }
 
             if (valid) {
-                extra_ = constructHPEvent(next_,lf_,rf_);
+                extra_ = constructHPEvent(next_, lf_, rf_, hp_anchor_);
             }
 
             step();
@@ -164,14 +166,14 @@ public class CmpH5Alignment implements EventGroup {
 
         }
 
-        private Event constructHPEvent(int start, int left_flank, int right_flank) {
+        private Event constructHPEvent(int start, int left_flank, int right_flank, int anchor) {
             //we don't look at the middle of homopolymer
             if (ref_[start] == ref_[start - 1]) return null;
-            byte[] tmp = new byte[left_flank + 1 + right_flank];
+            byte[] tmp = new byte[anchor + 1 + anchor];
             int kk = 0;
 
             //make sure the left flank is "intact"
-            for (int pos = start - left_flank; pos <= start; ++pos) {
+            for (int pos = start - anchor; pos <= start; ++pos) {
                 if (ref_[pos] != EnumBP.N.ascii() && ref_[pos] != EnumBP.Gap.ascii() && seq_[pos] == ref_[pos]) {
                     tmp[kk++] = ref_[pos];
                 } else {
@@ -210,28 +212,25 @@ public class CmpH5Alignment implements EventGroup {
                     }
                 }
             } catch (Exception e) {
-                log.info(e,e);
+                log.info(e, e);
                 return null;
             }
 
             EnumEvent ev;
-            if(bc.size() < length) {
+            if (bc.size() < length) {
                 ev = EnumEvent.DELETION;
-            }
-            else if( bc.size() > length) {
+            } else if (bc.size() > length) {
                 ev = EnumEvent.INSERTION;
-            }
-            else {
+            } else {
                 boolean same = true;
-                for(int ii = 0; ii <bc.size(); ++ii){
-                    if(bc.get(ii,EnumDat.BaseCall) != ref_[start]) {
+                for (int ii = 0; ii < bc.size(); ++ii) {
+                    if (bc.get(ii, EnumDat.BaseCall) != ref_[start]) {
                         same = false;
                     }
                 }
-                if(same) {
+                if (same) {
                     ev = EnumEvent.MATCH;
-                }
-                else {
+                } else {
                     ev = EnumEvent.SUBSTITUTION;
                 }
 

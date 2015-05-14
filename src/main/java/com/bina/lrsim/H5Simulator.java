@@ -12,12 +12,14 @@ import java.util.Random;
  */
 public class H5Simulator {
     private final static Logger log = Logger.getLogger(H5Simulator.class.getName());
+
     /**
      * create a file of simulated reads based on the given FASTA and model
+     *
      * @param args see log.info
      */
     static public void run(String[] args) {
-        if(args.length != 6){
+        if (args.length != 6) {
             log.info("parameters: out_dir fasta model_prefix total_bases sample_per seed");
             return;
         }
@@ -29,11 +31,11 @@ public class H5Simulator {
         final int seed = Integer.parseInt(args[5]);
 
         try {
-            SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","),sample_per);
+            SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), sample_per);
             Simulator sim = new Simulator(new WeightedReference(fasta));
             Random gen = new Random(seed);
             String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
-            sim.simulate(out_dir,movie_name,0,samples,total_bases,gen);
+            sim.simulate(out_dir, movie_name, 0, samples, total_bases, gen);
         } catch (Exception e) {
             e.printStackTrace();
         }

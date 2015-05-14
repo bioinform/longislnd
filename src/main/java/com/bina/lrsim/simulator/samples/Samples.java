@@ -26,6 +26,7 @@ public abstract class Samples {
     protected int rightFlank_;
     protected int k_;
     protected int numKmer_;
+    protected int hp_anchor_;
 
     public int leftFlank() {
         return leftFlank_;
@@ -40,6 +41,7 @@ public abstract class Samples {
         if(rightFlank_ != other.rightFlank_) throw new RuntimeException("inconsistent right flank");
         if(k_ != other.k_) throw new RuntimeException("inconsistent k");
         if(numKmer_ != other.numKmer_) throw new RuntimeException("inconsistent numKmer");
+        if(hp_anchor_ != other.hp_anchor_) throw new RuntimeException("inconsistent left flank");
 
         ArrayUtils.axpy(1,other.event_base_count_,event_base_count_);
         ArrayUtils.axpy(1,other.event_count_,event_count_);
@@ -64,12 +66,14 @@ public abstract class Samples {
      * Constructor for setting internal variables
      * @param leftFlank number of bp preceeding the base of interest
      * @param rightFlank number of bp trailing the base of interest
+     * @param hp_anchor number of bp to anchor a homopoloymer
      */
-    public Samples(int leftFlank, int rightFlank) {
+    public Samples(int leftFlank, int rightFlank, int hp_anchor) {
         leftFlank_ = leftFlank;
         rightFlank_ = rightFlank;
         k_ = leftFlank_ + 1 + rightFlank_;
         numKmer_ = 1 << ( 2*k_ );
+        hp_anchor_ = hp_anchor;
         kmer_event_count_ = new long[numKmer_ * EnumEvent.values().length];
         lengths_ = new IntBuffer(1000);
     }
@@ -90,6 +94,7 @@ public abstract class Samples {
         dos.writeInt(rightFlank_);
         dos.writeInt(k_);
         dos.writeInt(numKmer_);
+        dos.writeInt(hp_anchor_);
         for(long entry: event_base_count_){
             dos.writeLong(entry);
         }
@@ -106,6 +111,7 @@ public abstract class Samples {
         rightFlank_ = dis.readInt();
         k_ = dis.readInt();
         numKmer_ = dis.readInt();
+        hp_anchor_ = dis.readInt();
         for(int ii = 0 ; ii < event_base_count_.length ; ++ii){
             event_base_count_[ii] = dis.readLong();
         }

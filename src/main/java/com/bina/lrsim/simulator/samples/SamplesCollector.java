@@ -12,78 +12,81 @@ import java.util.Iterator;
 
 /**
  * Created by bayo on 5/8/15.
- *
+ * <p/>
  * Class for going through, eg, alignment data to collect samples of sequence context-based output
  */
-public class SamplesCollector extends Samples implements Closeable{
+public class SamplesCollector extends Samples implements Closeable {
     private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
     private String outPrefix_;
     private DataOutputStream eventOut_;
 
     /**
      * Constructor
+     *
      * @param outPrefix  prefix of output files
      * @param leftFlank  number of bp preceding the base of interest in the construction of sequencing context
      * @param rightFlank number of bp after the base of interest in the construction of sequencing context
      * @throws IOException
      */
-    public SamplesCollector(String outPrefix, int leftFlank, int rightFlank) throws IOException {
-        super(leftFlank, rightFlank);
+    public SamplesCollector(String outPrefix, int leftFlank, int rightFlank, int hp_anchor) throws IOException {
+        super(leftFlank, rightFlank, hp_anchor);
         outPrefix_ = outPrefix;
-        eventOut_ = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_)))) ;
+        eventOut_ = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_))));
         Arrays.fill(event_base_count_, 0);
         Arrays.fill(event_count_, 0);
-        log.info("flanks=("+leftFlank_+","+rightFlank_+") k="+k_+" num_kmers="+numKmer_);
+        log.info("flanks=(" + leftFlank_ + "," + rightFlank_ + ") k=" + k_ + " num_kmers=" + numKmer_);
     }
 
     /**
      * Collect events based on sequencing context
+     *
      * @param itr iterator of a group of events, eg an alignment
      * @throws Exception
      */
-    public void process(Iterator<Event> itr) throws Exception{
-        while(itr.hasNext()){
+    public void process(Iterator<Event> itr) throws Exception {
+        while (itr.hasNext()) {
             Event event = itr.next();
-            if(null == event){
+            if (null == event) {
                 continue;
             }
             if (event.event().record_every() > 0 &&
-                    kmer_event_count_[EnumEvent.values().length*event.kmer()+event.event().value()] % event.event().record_every() == 0) {
+                    kmer_event_count_[EnumEvent.values().length * event.kmer() + event.event().value()] % event.event().record_every() == 0) {
                 event.write(eventOut_);
             }
             final int idx = event.event().value();
 
             ++event_count_[idx];
             ++event_base_count_[idx];
-            if( event.event().equals(EnumEvent.INSERTION)){
+            if (event.event().equals(EnumEvent.INSERTION)) {
                 event_base_count_[idx] += event.size() - 2;
             }
-            ++kmer_event_count_[EnumEvent.values().length*event.kmer()+event.event().value()];
+            ++kmer_event_count_[EnumEvent.values().length * event.kmer() + event.event().value()];
         }
     }
 
     /**
      * Collect events based on sequencing context
+     *
      * @param groups a collection of event groups, eg alignments
      * @throws Exception
      */
-    public void process(EventGroupFactory groups, int min_length, int flank_mask) throws Exception{
+    public void process(EventGroupFactory groups, int min_length, int flank_mask) throws Exception {
         int ii = 0;
-        for( ; ii < groups.size() ; ++ii){
+        for (; ii < groups.size(); ++ii) {
             EventGroup group = groups.getEventGroup(ii);
-            if(ii%10000 == 1001){
+            if (ii % 10000 == 1001) {
                 log.info("processing group " + ii + "/" + groups.size());
                 log.info(toString());
             }
-            if( null == group ){
+            if (null == group) {
                 log.info("failed to retrieve group " + ii);
                 continue;
             }
-            if(group.seq_length() < min_length){
+            if (group.seq_length() < min_length) {
                 continue;
             }
             lengths_.addLast(group.seq_length());
-            process(group.getEventIterator(leftFlank_, rightFlank_,flank_mask,flank_mask));
+            process(group.getEventIterator(leftFlank_, rightFlank_, flank_mask, flank_mask, hp_anchor_));
         }
         log.info("processed " + ii + " groups");
     }
@@ -101,9 +104,8 @@ public class SamplesCollector extends Samples implements Closeable{
             writeIdx(outPrefix_);
             writeLengths(outPrefix_);
 
-        }
-        catch (IOException e){
-            log.info(e,e);
+        } catch (IOException e) {
+            log.info(e, e);
         }
     }
 
