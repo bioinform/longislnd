@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
+import org.apache.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

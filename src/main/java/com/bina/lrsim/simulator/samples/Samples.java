@@ -17,10 +17,12 @@ import java.nio.channels.FileChannel;
  */
 public abstract class Samples {
     private final static Logger base_log = Logger.getLogger(Samples.class.getName());
+
     private final long[] event_base_count_ = new long[EnumEvent.values().length];
     private final long[] event_count_ = new long[EnumEvent.values().length];
     private long[] kmer_event_count_;
     private IntBuffer lengths_;
+
     private int left_flank_;
     private int right_flank_;
     private int k_;

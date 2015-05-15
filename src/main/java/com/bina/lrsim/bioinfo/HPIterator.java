@@ -2,6 +2,7 @@ package com.bina.lrsim.bioinfo;
 
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -28,8 +29,8 @@ public class HPIterator implements Iterator<Context> {
     private int end_;
     private int leftFlank_;
     private int rightFlank_;
+    private int hp_anchor_;
     private boolean rc_;
-    private byte[] buffer_;
 
     /**
      * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
@@ -38,14 +39,15 @@ public class HPIterator implements Iterator<Context> {
      * @param end         0-base end, exclusive
      * @param left_flank  number of bp before the position of interest
      * @param right_flank number of bp after the position of interest
+     * @param hp_anchor   number of bp to anchor homopolymer
      * @param rc          if we are doing reverse complement of ascii
      */
-    HPIterator(byte[] ascii, int begin, int end, int left_flank, int right_flank, boolean rc) {
+    HPIterator(byte[] ascii, int begin, int end, int left_flank, int right_flank, int hp_anchor, boolean rc) {
         leftFlank_ = left_flank;
         rightFlank_ = right_flank;
+        hp_anchor_ = hp_anchor;
         rc_ = rc;
         seq_ = ascii;
-        buffer_ = new byte[left_flank+1+right_flank];
 
         curr_ = begin + left_flank;
         end_ = end - right_flank;
@@ -85,52 +87,38 @@ public class HPIterator implements Iterator<Context> {
     }
 
     private HPContext fw_next() {
-        int kk = 0;
-        for(int ii = curr_-leftFlank_; ii <= curr_ ; ++kk, ++ii) {
-            buffer_[kk] = seq_[ii];
-        }
+        // find the next base which is different
         int diff_pos = curr_ + 1;
         for(; diff_pos < seq_.length && seq_[diff_pos] == seq_[curr_]; ++diff_pos) {
         }
 
-        for(int pos = diff_pos ;kk<buffer_.length && pos < seq_.length;++kk,++pos) {
-            buffer_[kk] = seq_[pos];
-        }
+        if ( diff_pos + rightFlank_ > seq_.length) return null;
 
-        final int length = diff_pos-curr_;
+        final byte[] buffer = Arrays.copyOfRange(seq_,curr_-leftFlank_,diff_pos+rightFlank_);
 
         curr_ = diff_pos;
 
-        if(kk == buffer_.length) {
-            return new HPContext(buffer_,length);
-        }
-        else {
-            return null;
-        }
+        return new HPContext(buffer,leftFlank_,rightFlank_,hp_anchor_);
     }
 
     private HPContext rc_next() {
-        int kk = 0;
-        for(int ii = curr_+leftFlank_; ii>=curr_; ++kk, --ii) {
-            buffer_[kk] = seq_[ii];
-        }
+        // find the next base which is different
         int diff_pos = curr_ - 1;
         for(; diff_pos >=0 && seq_[diff_pos] == seq_[curr_]; --diff_pos) {
         }
 
-        for(int pos = diff_pos; kk<buffer_.length && pos >=0; ++kk, --pos) {
-            buffer_[kk] = seq_[pos];
+        if (diff_pos - rightFlank_ < -1) return null;
+
+        final byte[] buffer = new byte[leftFlank_ + curr_ - diff_pos + rightFlank_];
+        int kk = 0;
+
+        for( int pos = curr_ + leftFlank_; kk < buffer.length; ++kk, --pos) {
+            buffer[kk] = EnumBP.ascii_rc(seq_[pos]);
         }
-        final int length = curr_ - diff_pos;
 
         curr_ = diff_pos;
 
-        if(kk == buffer_.length) {
-            return new HPContext(buffer_, length);
-        }
-        else {
-            return null;
-        }
+        return new HPContext(buffer,leftFlank_,rightFlank_,hp_anchor_);
     }
 
 

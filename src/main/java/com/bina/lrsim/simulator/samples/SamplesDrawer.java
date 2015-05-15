@@ -1,18 +1,18 @@
 package com.bina.lrsim.simulator.samples;
 
+import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.bioinfo.KmerIterator;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
+import com.bina.lrsim.simulator.samples.pool.HPBCPool;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by bayo on 5/10/15.
@@ -21,7 +21,8 @@ import java.util.Random;
  */
 public class SamplesDrawer extends Samples {
     private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
-    final EnumMap<EnumEvent,BaseCallsPool> event_drawer_ = new EnumMap<EnumEvent,BaseCallsPool> (EnumEvent.class);
+    final EnumMap<EnumEvent,BaseCallsPool> kmer_event_drawer_ = new EnumMap<EnumEvent,BaseCallsPool> (EnumEvent.class);
+    HPBCPool hp_event_drawer_;
 
     public SamplesDrawer(String[] prefixes, int max_sample) throws Exception {
         this(prefixes[0],0);
@@ -46,11 +47,12 @@ public class SamplesDrawer extends Samples {
     }
 
     private void allocateEventDrawer(int max_sample) {
+        hp_event_drawer_ = new HPBCPool(1<<(2*(1+2*hp_anchor())),-1);
         for(EnumEvent event: EnumSet.allOf(EnumEvent.class)) {
 //            final int cap = (event.equals(EnumEvent.MATCH) ) ? max_sample : -1;
             final int cap = max_sample;
             try {
-                event_drawer_.put(
+                kmer_event_drawer_.put(
                         event,
                         (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
                                 .newInstance(num_kmer(), cap));
@@ -71,16 +73,30 @@ public class SamplesDrawer extends Samples {
 
     /**
      * For the given sequencing context, append to buffer a sequence drawn from the sampled data
-     * @param buffer visitor to take the randomly generated sequence
-     * @param kmer   sequencing context
-     * @param gen    random number generator
-     * @return       type of the randomly selected event
+     * @param buffer  visitor to take the randomly generated sequence
+     * @param context sequencing context
+     * @param gen     random number generator
+     * @return        type of the randomly selected event
      * @throws Exception
      */
-    public EnumEvent appendTo(PBReadBuffer buffer, int kmer, Random gen) throws Exception{
-        EnumEvent ev = randomEvent(kmer,gen);
-        event_drawer_.get(ev).appendTo(buffer, kmer, gen);
-        return ev;
+    public EnumEvent appendTo(PBReadBuffer buffer, Context context, Random gen) throws Exception{
+        if(context.hp_len() == 1) {
+            EnumEvent ev = randomEvent(context, gen);
+            kmer_event_drawer_.get(ev).appendTo(buffer, context, gen);
+            return ev;
+        }
+        else {
+            if (hp_event_drawer_.appendTo(buffer, context, gen) ) {
+                return EnumEvent.MATCH; // obviously a hack
+
+            }
+            else {
+                for(Iterator<Context> itr = context.decompose(left_flank(),right_flank()) ; itr.hasNext(); ) {
+                    this.appendTo(buffer,context,gen);
+                }
+                return EnumEvent.MATCH; // obviously a hack
+            }
+        }
     }
 
     /**
@@ -114,25 +130,36 @@ public class SamplesDrawer extends Samples {
         long num_logged_event = 0;
         final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long)max_sample;
 
+        long num_hp_events = 0;
+
         final boolean[] src_done = new boolean[num_src];
 
         for(int src = 0, n_src_done = 0; n_src_done < num_src && num_logged_event < max_logged_event; src = (src + 1) % num_src) {
             if(dis[src].available()>0) {
                 buffer.read(dis[src]);
-                if(buffer.event().equals(EnumEvent.DELETION) && buffer.size() !=0)
-                    throw new Exception("del with length " + buffer.size());
-                else if(buffer.event().equals(EnumEvent.SUBSTITUTION) && buffer.size() !=1)
-                    throw new Exception("sub with length " + buffer.size());
-                else if(buffer.event().equals(EnumEvent.MATCH) && buffer.size() !=1)
-                    throw new Exception("match with length " + buffer.size());
-                ++event_count[buffer.event().value()];
-                if( event_drawer_.get(buffer.event()).add(buffer)) {
-                    ++logged_event_count[buffer.event().value()];
-                    ++num_logged_event;
+
+                if ( buffer.hp_len() == 1 ) {
+                    if (buffer.event().equals(EnumEvent.DELETION) && buffer.size() != 0)
+                        throw new Exception("del with length " + buffer.size());
+                    else if (buffer.event().equals(EnumEvent.SUBSTITUTION) && buffer.size() != 1)
+                        throw new Exception("sub with length " + buffer.size());
+                    else if (buffer.event().equals(EnumEvent.MATCH) && buffer.size() != 1)
+                        throw new Exception("match with length " + buffer.size());
+
+                    ++event_count[buffer.event().value()];
+                    if (kmer_event_drawer_.get(buffer.event()).add(buffer)) {
+                        ++logged_event_count[buffer.event().value()];
+                        ++num_logged_event;
+                    }
+                }
+                else {
+                    hp_event_drawer_.add(buffer);
+                    ++num_hp_events;
                 }
                 ++count;
                 if(count % 10000000 == 1) {
                     log.info("loaded " + count + " events" + Arrays.toString(logged_event_count) + "/" + Arrays.toString(event_count));
+                    log.info("loaded " + num_hp_events + " events");
                 }
 
             }
@@ -143,6 +170,7 @@ public class SamplesDrawer extends Samples {
         }
 
         log.info("loaded " + count + " events");
+        log.info("loaded " + num_hp_events + " events");
         for(int ii = 0 ; ii < num_src ; ++ii) {
             dis[ii].close();
         }
@@ -150,26 +178,31 @@ public class SamplesDrawer extends Samples {
 
     /**
      * For a given sequencing context, generate an event
-     * @param kmer
-     * @param gen
+     * @param context sequencing context
+     * @param gen     random number generator
      * @return
      */
-    private EnumEvent randomEvent(int kmer, Random gen) throws Exception {
-        final int shift = EnumEvent.values().length * kmer;
-        long sum = 0;
-        for(int ii = 0; ii < EnumEvent.values().length; ++ii){
-            sum += kmer_event_count_ref()[shift + ii];
+    private EnumEvent randomEvent(Context context, Random gen) throws Exception {
+        if(context.hp_len() == 1) {
+            final int shift = EnumEvent.values().length * context.kmer();
+            long sum = 0;
+            for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
+                sum += kmer_event_count_ref()[shift + ii];
+            }
+            final double p = gen.nextDouble();
+            if (p < 0 || p > 1) {
+                throw new Exception("bad p=" + p);
+            }
+            double cdf = 0;
+            for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
+                cdf += (double) (kmer_event_count_ref()[shift + ii]) / (sum);
+                if (p <= cdf) return EnumEvent.value2enum(ii);
+            }
+            return EnumEvent.MATCH;
         }
-        final double p = gen.nextDouble();
-        if(p<0 || p > 1) {
-            throw new Exception("bad p="+p);
+        else {
+            throw new UnsupportedOperationException("hp code path not implemented");
         }
-        double cdf = 0;
-        for(int ii = 0; ii < EnumEvent.values().length; ++ii){
-            cdf += (double)(kmer_event_count_ref()[shift+ii])/(sum) ;
-            if( p <= cdf ) return EnumEvent.value2enum(ii);
-        }
-        return EnumEvent.MATCH;
     }
 
 }

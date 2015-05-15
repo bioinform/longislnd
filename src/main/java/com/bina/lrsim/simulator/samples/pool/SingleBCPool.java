@@ -1,5 +1,6 @@
 package com.bina.lrsim.simulator.samples.pool;
 
+import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.simulator.Event;
@@ -45,10 +46,12 @@ public class SingleBCPool extends BaseCallsPool {
     }
 
     @Override
-    public void appendTo(PBReadBuffer buffer, int kmer, Random gen) throws Exception {
-        final int base = begin(kmer);
-        if(base == end_[kmer]) throw new Exception("no sample");
-        final int shift = base + gen.nextInt((end_[kmer]-base)/BYTE_PER_BC) * BYTE_PER_BC;
+    public boolean appendTo(PBReadBuffer buffer, Context context, Random gen) throws Exception {
+        if(context.hp_len() != 1) { throw new Exception("memory compression does not make sense for homopolymer"); }
+        final int base = begin(context.kmer());
+        if(base == end_[context.kmer()]) throw new Exception("no sample");
+        final int shift = base + gen.nextInt((end_[context.kmer()]-base)/BYTE_PER_BC) * BYTE_PER_BC;
         buffer.addLast(data_, shift, shift + BYTE_PER_BC);
+        return true;
     }
 }

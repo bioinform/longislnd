@@ -30,12 +30,14 @@ public class Context {
         return hp_len_;
     }
 
+
     /**
      * decompose a possibly complicated context into a series of simpler contexts
      * @return an iterator of simpler contexts
      */
-
-    Iterator<Context> decompose(int left_flank, int right_flank) {
+    public Iterator<Context> decompose(int left_flank, int right_flank) {
+        throw new UnsupportedOperationException("cannot find a simpler decomposition");
+        /*
         byte[] ascii = new byte[left_flank + hp_len()+ right_flank];
         byte[] ba = Kmerizer.toByteArray(kmer(), left_flank +1+ right_flank);
 
@@ -55,5 +57,6 @@ public class Context {
         if (kk != ascii.length) throw new RuntimeException("incorrect decompsitions");
 
         return new KmerIterator(ascii,0,ascii.length, left_flank, right_flank,false);
+        */
     }
 }

@@ -1,5 +1,6 @@
 package com.bina.lrsim.simulator.samples.pool;
 
+import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.simulator.Event;
 
@@ -10,13 +11,13 @@ import java.util.Random;
 /**
  * Created by bayo on 5/10/15.
  */
-public class GeneralBCPool extends BaseCallsPool {
+public class KmerBCPool extends BaseCallsPool {
 
     // this might have significat memory overhead
 
     private List<List<byte[]>> data_;
 
-    public GeneralBCPool(int numKmers, int entryPerKmer) {
+    public KmerBCPool(int numKmers, int entryPerKmer) {
         super(numKmers, entryPerKmer);
         data_ = new ArrayList<List<byte[]>>(numKmers_);
         for (int ii = 0; ii < numKmers_; ++ii) {
@@ -34,9 +35,11 @@ public class GeneralBCPool extends BaseCallsPool {
     }
 
     @Override
-    public void appendTo(PBReadBuffer buffer, int kmer, Random gen) throws Exception {
-        int draw = gen.nextInt(data_.get(kmer).size());
-        final byte[] b = data_.get(kmer).get(draw);
+    public boolean appendTo(PBReadBuffer buffer, Context context, Random gen) throws Exception {
+        if(context.hp_len() != 1) { throw new Exception("memory compression does not make sense for homopolymer"); }
+        int draw = gen.nextInt(data_.get(context.kmer()).size());
+        final byte[] b = data_.get(context.kmer()).get(draw);
         buffer.addLast(b, 0, b.length);
+        return true;
     }
 }

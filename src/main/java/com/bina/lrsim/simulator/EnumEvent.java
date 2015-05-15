@@ -1,7 +1,7 @@
 package com.bina.lrsim.simulator;
 
 import com.bina.lrsim.simulator.samples.pool.EmptyBCPool;
-import com.bina.lrsim.simulator.samples.pool.GeneralBCPool;
+import com.bina.lrsim.simulator.samples.pool.KmerBCPool;
 import com.bina.lrsim.simulator.samples.pool.SingleBCPool;
 
 import java.util.EnumSet;
@@ -14,9 +14,9 @@ import java.util.EnumSet;
  */
 public enum EnumEvent {
     //           value, description, recording period, sample pool implementation
-    INSERTION   (0,     "i",         1,                GeneralBCPool.class), // ~10% insertion, but can be multi-bp, so let's suck it up for now
+    INSERTION   (0,     "i",         1,                KmerBCPool.class), // ~10% insertion, but can be multi-bp, so let's suck it up for now
     DELETION    (1,     "d",         -1,               EmptyBCPool.class),   // skip all deletion samples, emptybcpool has no memory overhead
-    SUBSTITUTION(2,     "s",         1,                GeneralBCPool.class), // ~1% mismatch so memory is not too bad
+    SUBSTITUTION(2,     "s",         1,                KmerBCPool.class), // ~1% mismatch so memory is not too bad
     MATCH       (3,     "m",         10,               SingleBCPool.class);  // 85% matches, down-sample 10-fold, must use SingleBCPoolCompression
     static private EnumEvent[] value2enum_ = {INSERTION, DELETION, SUBSTITUTION, MATCH};
 
