@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class HPIteratorTest extends TestCase {
@@ -26,6 +25,17 @@ public class HPIteratorTest extends TestCase {
             rc[ii] = EnumBP.ascii_rc(fw[rc.length - 1 - ii]);
         }
         return rc;
+    }
+
+    static private void test1Decomposition(Context c, int left_flank, int right_flank) {
+        int count1 = 0;
+        for (Iterator<Context> itr1 = c.decompose(left_flank, right_flank); itr1.hasNext(); ) {
+            Context c1 = itr1.next();
+            assertEquals(c1.kmer(), c.kmer());
+            assertEquals(c1.hp_len(), c.hp_len());
+            ++count1;
+        }
+        assertEquals(1, count1);
     }
 
     @Test
@@ -88,17 +98,6 @@ public class HPIteratorTest extends TestCase {
         assertEquals(count, fw.length - flank - flank);
     }
 
-    static private void test1Decomposition(Context c, int left_flank, int right_flank) {
-        int count1 = 0;
-        for (Iterator<Context> itr1 = c.decompose(left_flank, right_flank); itr1.hasNext(); ) {
-            Context c1 = itr1.next();
-            assertEquals(c1.kmer(), c.kmer());
-            assertEquals(c1.hp_len(), c.hp_len());
-            ++count1;
-        }
-        assertEquals(1, count1);
-    }
-
     @Test
     public void testHPFW() throws Exception {
         byte[] flanking = getATCG(2);
@@ -142,6 +141,7 @@ public class HPIteratorTest extends TestCase {
                 // check decomposition
                 for (Iterator<Context> itr1 = c.decompose(flank, flank); itr1.hasNext(); ) {
                     Context c1 = itr1.next();
+                    assertEquals(1, c1.hp_len());
                     byte[] sequence = Kmerizer.toByteArray(c1.kmer(), flank + 1 + flank);
                     for (int pos = 0; pos < sequence.length; ++pos) {
                         assertEquals(fw[kmer_pos + pos], sequence[pos]);
@@ -153,7 +153,6 @@ public class HPIteratorTest extends TestCase {
         }
         assertEquals(count, 2 * (flanking.length - flank) + 1);
     }
-
 
 
     @Test
@@ -203,6 +202,7 @@ public class HPIteratorTest extends TestCase {
                 // check decomposition
                 for (Iterator<Context> itr1 = c.decompose(flank, flank); itr1.hasNext(); ) {
                     Context c1 = itr1.next();
+                    assertEquals(1, c1.hp_len());
                     byte[] sequence = Kmerizer.toByteArray(c1.kmer(), flank + 1 + flank);
                     for (int pos = 0; pos < sequence.length; ++pos) {
                         assertEquals(rc[kmer_pos + pos], sequence[pos]);
