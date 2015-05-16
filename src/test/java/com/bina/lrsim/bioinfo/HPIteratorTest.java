@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class HPIteratorTest extends TestCase {
@@ -123,11 +124,16 @@ public class HPIteratorTest extends TestCase {
 
         int count = 0;
         int kmer_pos = 0;
+        Iterator<Context> kitr = new KmerIterator(fw,0,fw.length, flank, flank, false);
         for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor, false); itr.hasNext(); ) {
             Context c = itr.next();
             if (c.hp_len() == 1) {
                 test1Decomposition(c, flank, flank);
                 ++kmer_pos;
+
+                Context kc = kitr.next();
+                assertEquals(kc.kmer(), c.kmer());
+                assertEquals(kc.hp_len(), c.hp_len());
             } else {
                 // check homopolymer shortening
                 {
@@ -147,10 +153,14 @@ public class HPIteratorTest extends TestCase {
                         assertEquals(fw[kmer_pos + pos], sequence[pos]);
                     }
                     ++kmer_pos;
+                    Context kc = kitr.next();
+                    assertEquals(kc.kmer(), c1.kmer());
+                    assertEquals(kc.hp_len(), c1.hp_len());
                 }
             }
             ++count;
         }
+        assertFalse(kitr.hasNext());
         assertEquals(count, 2 * (flanking.length - flank) + 1);
     }
 
@@ -184,11 +194,17 @@ public class HPIteratorTest extends TestCase {
 
         int count = 0;
         int kmer_pos = 0;
+
+        Iterator<Context> kitr = new KmerIterator(fw,0,fw.length, flank, flank, true);
         for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor, true); itr.hasNext(); ) {
             Context c = itr.next();
             if (c.hp_len() == 1) {
                 test1Decomposition(c, flank, flank);
                 ++kmer_pos;
+                assertTrue(kitr.hasNext());
+                Context kc = kitr.next();
+                assertEquals(kc.kmer(),c.kmer());
+                assertEquals(kc.hp_len(),c.hp_len());
             } else {
                 // check homopolymer shortening
                 {
@@ -208,10 +224,16 @@ public class HPIteratorTest extends TestCase {
                         assertEquals(rc[kmer_pos + pos], sequence[pos]);
                     }
                     ++kmer_pos;
+                    assertTrue(kitr.hasNext());
+                    Context kc = kitr.next();
+
+                    assertEquals(kc.kmer(),c1.kmer());
+                    assertEquals(kc.hp_len(),c1.hp_len());
                 }
             }
             ++count;
         }
+        assertFalse(kitr.hasNext());
         assertEquals(count, 2 * (flanking_rc.length - flank) + 1);
     }
 
