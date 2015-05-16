@@ -17,7 +17,7 @@ public class H5Sampler {
      */
     static public void run(String[] args) {
         if (args.length != 6) {
-            log.info("parameters: out_prefix in_file left_flank right_flank hp_anchor");
+            log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
             return;
         }
         final String out_prefix = args[0];
@@ -40,6 +40,6 @@ public class H5Sampler {
                 collector.close();
             }
         }
-
+        log.info("finished");
     }
 }

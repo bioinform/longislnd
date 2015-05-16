@@ -10,11 +10,26 @@ import java.util.Iterator;
 public class HPContext extends Context {
     private byte[] ascii_;
 
+    static private int constructor_kmerizer(byte[] ascii, int left_flank, int right_flank, int hp_anchor) {
+        if(ascii.length == 1 + left_flank + right_flank) {
+            return Kmerizer.fromASCII(ascii);
+        }
+        else {
+            byte[] tmp = new byte[2*hp_anchor+1];
+            int k = 0;
+            for(int pos = left_flank-hp_anchor; pos <= left_flank; ++pos,++k) {
+                tmp[k] = ascii[pos];
+            }
+            for(int pos = ascii.length - right_flank; pos < ascii.length - right_flank + hp_anchor; ++pos, ++k) {
+                tmp[k] = ascii[pos];
+            }
+            return Kmerizer.fromASCII(tmp);
+        }
+    }
+
     HPContext(byte[] ascii, int left_flank, int right_flank, int hp_anchor) {
-        super((left_flank+right_flank+1==ascii.length)
-                ? Kmerizer.fromASCII(ascii)
-                : Kmerizer.fromASCII(Arrays.copyOfRange(ascii,left_flank-hp_anchor,ascii.length-right_flank+hp_anchor))
-                ,ascii.length-left_flank-right_flank);
+        super( constructor_kmerizer(ascii,left_flank,right_flank,hp_anchor)
+             , ascii.length-left_flank-right_flank);
         ascii_ = ascii;
     }
 
