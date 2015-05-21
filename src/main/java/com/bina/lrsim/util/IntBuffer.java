@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 /**
  * Created by bayo on 5/6/15.
- *
+ * <p/>
  * integer buffer that offers addLast, with logarithmic growth characteristic
  */
 
@@ -29,8 +29,8 @@ public class IntBuffer {
         ++size_;
     }
 
-    public int get(int idx) throws ArrayIndexOutOfBoundsException {
-        if(idx >= size_) throw new ArrayIndexOutOfBoundsException(idx);
+    public int get(int idx) {
+        if (idx >= size_) throw new ArrayIndexOutOfBoundsException(idx);
         return data_[idx];
     }
 

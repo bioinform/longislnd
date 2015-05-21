@@ -30,6 +30,10 @@ public class Context {
         return hp_len_;
     }
 
+    public String toString() {
+        return String.valueOf(kmer()) + " " + String.valueOf(hp_len());
+    }
+
 
     /**
      * decompose a possibly complicated context into a series of simpler contexts

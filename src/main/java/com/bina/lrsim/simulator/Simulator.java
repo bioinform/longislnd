@@ -5,19 +5,20 @@ import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
+import com.bina.lrsim.util.Monitor;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
-import java.util.Random;
 
 /**
  * Created by bayo on 5/11/15.
  */
 public class Simulator {
     private final static Logger log = Logger.getLogger(Simulator.class.getName());
-    private RandomSequenceGenerator seqGen_;
     private final long[] base_counter_ = new long[EnumEvent.values().length];
     private final long[] event_counter_ = new long[EnumEvent.values().length];
+    private RandomSequenceGenerator seqGen_;
 
     /**
      * Constructor
@@ -39,20 +40,22 @@ public class Simulator {
      * @param gen         random number generator
      * @throws Exception
      */
-    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, Random gen) throws Exception {
+    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, RandomGenerator gen) throws Exception {
         BaxH5Writer writer = new BaxH5Writer();
         PBReadBuffer read = new PBReadBuffer();
         log.info("generating reads");
 
         for (int num_bases = 0; num_bases <= total_bases; ) {
             read.clear();
+            if (read.size() != 0) {
+                log.info("couldn't clear buffer");
+                throw new RuntimeException("different lengths!");
+            }
+
             for (Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen), drawer.left_flank(), drawer.right_flank(), drawer.hp_anchor(), gen); itr.hasNext(); ) {
-                final int old_length = read.size();
-                EnumEvent ev = drawer.appendTo(read, itr.next(), gen);
-                ++event_counter_[ev.value()];
-                ++base_counter_[ev.value()];
-                if (ev.equals(EnumEvent.INSERTION)) {
-                    base_counter_[ev.value()] += (read.size() - old_length) - 2;
+                long[] change_counters = drawer.appendTo(read, itr.next(), gen);
+                for (int ii = 0; ii < change_counters.length; ++ii) {
+                    base_counter_[ii] += change_counters[ii];
                 }
             }
 
@@ -64,7 +67,9 @@ public class Simulator {
         }
         log.info(toString());
         log.info("generated " + writer.size() + " reads.");
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
         writer.write(path + "/" + movie_name + ".bax.h5", movie_name, firsthole);
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
         return writer.size();
     }
 

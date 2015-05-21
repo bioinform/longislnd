@@ -16,7 +16,6 @@ import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class CmpH5Alignment implements EventGroup {
@@ -30,6 +29,10 @@ public class CmpH5Alignment implements EventGroup {
      */
     @Override
     public Iterator<Event> getEventIterator(int left_flank, int right_flank, int left_mask, int right_mask, int hp_anchor) {
+        if(! spanned_) {
+            this.spanHomopolymer(Math.max(left_flank, right_flank) + 1);
+            spanned_ = true;
+        }
         return new EventIterator(left_flank, right_flank, left_mask, right_mask, hp_anchor);
     }
 
@@ -109,35 +112,45 @@ public class CmpH5Alignment implements EventGroup {
             }
             BaseCalls bc = new BaseCalls(); // this is probably a memory bound block killer
             EnumEvent event = null;
-            try {
-                if (seq_[next_] == EnumBP.Gap.ascii()) {
-                    event = EnumEvent.DELETION;
-                } else if (ref_[next_ + 1] == EnumBP.Gap.ascii()) {
-                    event = EnumEvent.INSERTION;
-                    bc.reserve(10);
-                    if (seq_[next_] != EnumBP.Gap.ascii()) {
-                        fillbase(bc, next_);
-                    }
-                    for (int ins = next_ + 1; ref_[ins] == EnumBP.Gap.ascii(); ++ins) {
-                        fillbase(bc, ins);
-                    }
-                } else if (seq_[next_] == ref_[next_]) {
-                    event = EnumEvent.MATCH;
+
+            if (ref_[next_] == EnumBP.Gap.ascii()) {
+                log.info("alignment data can't be parsed properly");
+                throw new RuntimeException("alignment data can't be parsed properly");
+            }
+            if (seq_[next_] == EnumBP.Gap.ascii()) {
+                event = EnumEvent.DELETION;
+            } else if (ref_[next_ + 1] == EnumBP.Gap.ascii()) {
+                event = EnumEvent.INSERTION;
+                bc.reserve(10);
+                if (seq_[next_] != EnumBP.Gap.ascii()) {
                     fillbase(bc, next_);
-                } else if (seq_[next_] != ref_[next_]) {
-                    event = EnumEvent.SUBSTITUTION;
-                    fillbase(bc, next_);
-                } else {
-                    throw new Exception("parsing error");
                 }
-            } catch (Exception e) {
-                log.info(e, e);
-                return null;
+                for (int ins = next_ + 1; ref_[ins] == EnumBP.Gap.ascii(); ++ins) {
+                    // this is a hack to accommodate spurious gap-to-gap alignment in pbalign's output
+                    if (seq_[ins] != EnumBP.Gap.ascii()) {
+                        fillbase(bc, ins);
+                    } else {
+//                        throw new RuntimeException("gap-vs-gap alignment");
+                    }
+                }
+            } else if (seq_[next_] == ref_[next_]) {
+                event = EnumEvent.MATCH;
+                fillbase(bc, next_);
+            } else if (seq_[next_] != ref_[next_]) {
+                event = EnumEvent.SUBSTITUTION;
+                fillbase(bc, next_);
+            } else {
+                throw new RuntimeException("parsing error");
             }
 
             //kmer to return
             int kmer = -1;
             boolean valid = true;
+
+            // this is a hack to accommodate spurious gap-to-gap alignment in pbalign's output
+            if (event.equals(EnumEvent.INSERTION) && bc.size() == 0) {
+                valid = false;
+            }
 
             try {
                 kmer = Kmerizer.fromASCII(key_);
@@ -174,7 +187,7 @@ public class CmpH5Alignment implements EventGroup {
             int kk = 0;
 
             //make sure the left flank is "intact"
-            for (int pos = start - anchor; pos <= start; ++pos) {
+            for (int pos = start - anchor; pos < start; ++pos) {
                 if (ref_[pos] != EnumBP.N.ascii() && ref_[pos] != EnumBP.Gap.ascii() && seq_[pos] == ref_[pos]) {
                     tmp[kk++] = ref_[pos];
                 } else {
@@ -182,17 +195,19 @@ public class CmpH5Alignment implements EventGroup {
                 }
             }
 
+            tmp[kk++] = ref_[start];
+
             //look for the next different base
             int next_diff = start + 1;
             int hp_length = 1;
             for (; next_diff < ref_.length && (ref_[next_diff] == ref_[start] || ref_[next_diff] == EnumBP.Gap.ascii()); ++next_diff) {
-                if(ref_[next_diff] == ref_[start]) {
+                if (ref_[next_diff] == ref_[start]) {
                     ++hp_length;
                 }
             }
 
-            //homopolymer sampling is not needed if it's shorter than the flanking bases
-            if (hp_length < left_flank && hp_length < right_flank) {
+            //homopolymer sampling is not needed if it's <= the flanking bases
+            if (hp_length <= left_flank && hp_length <= right_flank) {
                 return null;
             }
 
@@ -239,7 +254,6 @@ public class CmpH5Alignment implements EventGroup {
                 }
 
             }
-
             /*
             {
                 StringBuilder sb = new StringBuilder();
@@ -254,6 +268,14 @@ public class CmpH5Alignment implements EventGroup {
                 sb.append("\n");
                 for(int pos = 0; pos<bc.size(); ++pos){
                     sb.append((char)bc.get(pos,EnumDat.BaseCall));
+                }
+                sb.append(" ");
+                for(int pos = start - anchor ; pos < start; ++pos) {
+                    sb.append((char)ref_[pos]);
+                }
+                sb.append(" ");
+                for(int pos = next_diff ; pos < next_diff+anchor; ++pos) {
+                    sb.append((char)ref_[pos]);
                 }
                 sb.append("\n");
                 sb.append(Arrays.toString(tmp)+" "+ hp_length);
@@ -270,7 +292,7 @@ public class CmpH5Alignment implements EventGroup {
             throw new UnsupportedOperationException("cannot remove elements");
         }
 
-        private void fillbase(BaseCalls bc, int index) throws Exception {
+        private void fillbase(BaseCalls bc, int index) {
             final int begin = index_[EnumIdx.offset_begin.value()];
             int loc_idx = bc.size();
             bc.push_back();
@@ -338,19 +360,19 @@ public class CmpH5Alignment implements EventGroup {
         return EnumIdx.offset_end.value();
     }
 
-    public CmpH5Alignment(int[] index, AlnData data) throws Exception {
+    public CmpH5Alignment(int[] index, AlnData data) {
         load(index, data);
     }
 
-    public PBReadBuffer toSeqRead() throws Exception {
+    public PBReadBuffer toSeqRead() {
         return toRead(seq_);
     }
 
-    public PBReadBuffer toRefRead() throws Exception {
+    public PBReadBuffer toRefRead() {
         return toRead(ref_);
     }
 
-    private PBReadBuffer toRead(byte[] ba) throws Exception {
+    private PBReadBuffer toRead(byte[] ba) {
         final int begin = index_[EnumIdx.offset_begin.value()];
         PBReadBuffer buffer = new PBReadBuffer(aln_length());
         BaseCalls bc = new BaseCalls(1);
@@ -366,39 +388,74 @@ public class CmpH5Alignment implements EventGroup {
         return buffer;
     }
 
-    public void load(int[] index, AlnData data) throws Exception {
+    public void load(int[] index, AlnData data) {
+        final int begin = index[EnumIdx.offset_begin.value()];
+        final int end = index[EnumIdx.offset_end.value()];
+        final int length = end - begin;
+        byte[] ref_loc = new byte[length];
+        byte[] seq_loc = new byte[length];
+        int[] aln_loc = new int[length];
 
-        try {
-            final int begin = index[EnumIdx.offset_begin.value()];
-            final int end = index[EnumIdx.offset_end.value()];
-            final int length = end - begin;
-            byte[] ref_loc = new byte[length];
-            byte[] seq_loc = new byte[length];
-            int[] aln_loc = new int[length];
+        byte[] aln = data.get(EnumDat.AlnArray);
 
-            byte[] aln = data.get(EnumDat.AlnArray);
+        for (int ii = 0; ii < length; ++ii) {
+            byte entry = aln[begin + ii];
+            aln_loc[ii] = entry & 0xff;
+            ref_loc[ii] = EnumBP.cmp2ref(entry).ascii();
+            if (EnumBP.Invalid.value() == ref_loc[ii]) throw new RuntimeException("bad ref char");
+            seq_loc[ii] = EnumBP.cmp2seq(entry).ascii();
+            if (EnumBP.Invalid.value() == seq_loc[ii]) throw new RuntimeException("bad seq char");
 
-            for (int ii = 0; ii < length; ++ii) {
-                byte entry = aln[begin + ii];
-                aln_loc[ii] = entry & 0xff;
-                ref_loc[ii] = EnumBP.cmp2ref(entry).ascii();
-                if (EnumBP.Invalid.value() == ref_loc[ii]) throw new Exception("bad ref char");
-                seq_loc[ii] = EnumBP.cmp2seq(entry).ascii();
-                if (EnumBP.Invalid.value() == seq_loc[ii]) throw new Exception("bad seq char");
+            /* this assert is to throw if there's a gap-to-gap alignment, which breaks
+               some down stream pacbio tools, instead, the insertion code path is modified to avoid
+               the logging of gap-to-gap alignment*/
+            if (ref_loc[ii] == seq_loc[ii] && ref_loc[ii] == EnumBP.Gap.ascii()) {
+//                throw new RuntimeException("gap-to-gap alignment " + aln[ii]);
+                log.warn("' '-to-' ' alignment found in cmp.h5 alignment:" + aln[ii]);
+            }
+        }
+
+        index_ = index;
+        data_ = data;
+        ref_ = ref_loc;
+        seq_ = seq_loc;
+        aln_ = aln_loc;
+    }
+
+    private void spanHomopolymer(int min_length) {
+        final int length = ref_.length;
+
+        for (int pos = 0; pos < length; ) {
+            final byte base = ref_[pos];
+
+            int next_diff = pos + 1;
+
+            if (base != EnumBP.Gap.ascii()) {
+                int hp_length = 1;
+                for (; next_diff < length && (ref_[next_diff] == EnumBP.Gap.ascii() || ref_[next_diff] == base); ++next_diff) {
+                    if (ref_[next_diff] == base) {
+                        ++hp_length;
+                    }
+                }
+
+                if (hp_length >= min_length) {
+                    int left_most = pos;
+                    for (; left_most > 0 && ref_[left_most - 1] == EnumBP.Gap.ascii() && seq_[left_most - 1] == base; --left_most) {
+                    }
+                    if (left_most != pos) {
+                        ref_[pos] = EnumBP.Gap.ascii();
+                        ref_[left_most] = base;
+                    }
+                }
             }
 
-            index_ = index;
-            data_ = data;
-            ref_ = ref_loc;
-            seq_ = seq_loc;
-            aln_ = aln_loc;
-        } catch (Exception e) {
-            throw e;
+            pos = next_diff;
         }
     }
 
     private int[] index_ = null;
     private AlnData data_ = null;
+    private boolean spanned_ = false;
 
     private int[] aln_ = null; // for diagnostic
     private byte[] ref_ = null;

@@ -12,6 +12,11 @@ import java.util.Arrays;
 
 class AlnIndex {
 
+    private final static Logger log = Logger.getLogger(AlnIndex.class.getName());
+    private int[] data_ = null;
+    private int num_rows_;
+    private int num_cols_;
+
     public AlnIndex(H5File h5) {
         load(h5);
     }
@@ -35,14 +40,14 @@ class AlnIndex {
             obj.init();
 
             long[] dims = obj.getDims();
-            log.debug("/AlnInfo/AlnIndex dimensions: "+dims[0]+" "+dims[1]);
-            if (dims.length != 2) throw new Exception("bad AlnIndex dimension");
+            log.debug("/AlnInfo/AlnIndex dimensions: " + dims[0] + " " + dims[1]);
+            if (dims.length != 2) throw new RuntimeException("bad AlnIndex dimension");
             final int nr = (int) dims[0];
             final int nc = (int) dims[1];
-            if (nc != 22) throw new Exception("bad AlinIndex num_col");
+            if (nc != 22) throw new RuntimeException("bad AlinIndex num_col");
 
             int[] d = (int[]) obj.getData();
-            if (d.length != nr * nc) throw new Exception("bad AlnIndex data_ref");
+            if (d.length != nr * nc) throw new RuntimeException("bad AlnIndex data_ref");
 
             data_ = d;
             num_rows_ = nr;
@@ -55,12 +60,12 @@ class AlnIndex {
         long nIns = 0;
         long nDel = 0;
         long nRef = 0;
-        for(int ii = 0 ; ii < size() ;++ii){
-            nIns += get(ii,EnumIdx.nIns);
-            nDel += get(ii,EnumIdx.nDel);
-            nRef += get(ii,EnumIdx.tEnd) - get(ii,EnumIdx.tStart);
+        for (int ii = 0; ii < size(); ++ii) {
+            nIns += get(ii, EnumIdx.nIns);
+            nDel += get(ii, EnumIdx.nDel);
+            nRef += get(ii, EnumIdx.tEnd) - get(ii, EnumIdx.tStart);
         }
-        log.info("alignment with " + nIns + "(" + (double)nIns / (double)nRef+ ") ins and " + nDel + "(" +(double)nDel/(double)nRef +") del " + nRef + " ref");
+        log.info("alignment with " + nIns + "(" + (double) nIns / (double) nRef + ") ins and " + nDel + "(" + (double) nDel / (double) nRef + ") del " + nRef + " ref");
         return false;
     }
 
@@ -76,9 +81,4 @@ class AlnIndex {
         }
         return sb.toString();
     }
-
-    private final static Logger log = Logger.getLogger(AlnIndex.class.getName());
-    private int[] data_ = null;
-    private int num_rows_;
-    private int num_cols_;
 }

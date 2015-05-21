@@ -52,7 +52,7 @@ public class ByteBuffer {
         }
         // there's probably something like std::copy in java?
         for (int ii = 0; ii < other.size(); ++ii, ++size_) {
-            data_[size_] = other.data_ref()[ii];
+            data_[size_] = other.get(ii);
         }
     }
 
@@ -66,6 +66,14 @@ public class ByteBuffer {
     public void resize(int new_size){
         reserve(new_size);
         size_=new_size;
+    }
+
+    public byte get(int idx) {
+        if(idx >= size_) throw new ArrayIndexOutOfBoundsException(idx);
+        return data_[idx];
+    }
+    public void set(int idx, byte val) {
+        data_[idx] = val;
     }
 
     public byte[] data_ref() {

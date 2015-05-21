@@ -23,6 +23,10 @@ public abstract class Samples {
     private long[] kmer_event_count_;
     private IntBuffer lengths_;
 
+    private long[] kmer_rlen_slen_count_;
+    private static final int max_rlen_ = 100;
+    private static final int max_slen_ = 200;
+
     private int left_flank_;
     private int right_flank_;
     private int k_;
@@ -39,6 +43,22 @@ public abstract class Samples {
 
     public final long[] kmer_event_count_ref() {
         return kmer_event_count_;
+    }
+
+    public int max_rlen() {
+        return max_rlen_;
+    }
+
+    public int max_slen() {
+        return max_slen_;
+    }
+
+    public final long kmer_rlen_slen_count(int kmer, int rlen, int slen) {
+        return kmer_rlen_slen_count_[ ( kmer * max_rlen_ + rlen ) * max_slen_ + slen];
+    }
+
+    public void add_kmer_rlen_slen_count(int kmer, int rlen, int slen) {
+        ++kmer_rlen_slen_count_[ ( kmer * max_rlen_ + rlen ) * max_slen_ + slen];
     }
 
     public final IntBuffer lengths_ref() {
@@ -105,6 +125,7 @@ public abstract class Samples {
         hp_anchor_ = hp_anchor;
         kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
         lengths_ = new IntBuffer(1000);
+        kmer_rlen_slen_count_ = new long[(1<<(2*(2*hp_anchor+1)))*max_rlen_*max_slen_];
     }
 
     public String toString() {
@@ -113,6 +134,36 @@ public abstract class Samples {
         sb.append(EnumEvent.getPrettyStats(event_base_count_));
         sb.append("\n");
         sb.append(EnumEvent.getPrettyStats(event_count_));
+        sb.append("\n");
+        if(kmer_rlen_slen_count_ != null) {
+            for (int k = 0; k < (1 << (2 * (2 * hp_anchor_ + 1))); ++k) {
+                boolean print_header = true;
+                for (int r = 0; r < max_rlen(); ++r) {
+                    long sum = 0;
+                    for (int s = 0; s < max_slen(); ++s) {
+                        sum += kmer_rlen_slen_count(k, r, s);
+                    }
+                    if (sum == 0) {
+                        continue;
+                    }
+                    if (print_header) {
+                        for (byte entry : Kmerizer.toByteArray(k, 5)) {
+                            sb.append((char) entry);
+                        }
+                        sb.append("\n");
+                        print_header = false;
+                    }
+                    sb.append(r + ":");
+                    for (int s = 0; s < max_slen(); ++s) {
+                        long tmp = kmer_rlen_slen_count(k,r,s);
+                        if(tmp>0) {
+                            sb.append(" " + s+"-"+tmp);
+                        }
+                    }
+                    sb.append("\n");
+                }
+            }
+        }
         return sb.toString();
     }
 

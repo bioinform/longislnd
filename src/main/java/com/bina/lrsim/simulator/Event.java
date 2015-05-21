@@ -66,8 +66,7 @@ public class Event {
     // we can also save all 4 bytes by writing homopolymer events to a different stream
     // this can be done down the line if we have time
     public void write(DataOutputStream dos) throws Exception {
-        if (event_.equals(EnumEvent.DELETION)) return;
-        if (event_.value() >= EnumEvent.values().length) throw new Exception("invalid i/o format");
+        if (event_.value() >= EnumEvent.values().length) throw new RuntimeException("invalid i/o format");
         dos.writeInt(context_.kmer());
         dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value());
         bc_.write(dos);
@@ -80,5 +79,12 @@ public class Event {
         event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
         if (null == bc_) bc_ = new BaseCalls();
         bc_.read(dis);
+        for(int ii = 0; ii < size(); ++ii) {
+            byte base = get(ii,EnumDat.BaseCall);
+            if(base != 'A' && base != 'C' && base != 'T' && base != 'G') {
+                throw new RuntimeException("bad event at " + ii + ":" + toString());
+            }
+
+        }
     }
 }

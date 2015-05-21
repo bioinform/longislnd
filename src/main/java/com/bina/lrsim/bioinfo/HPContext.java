@@ -1,7 +1,6 @@
 package com.bina.lrsim.bioinfo;
 
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -31,6 +30,18 @@ public class HPContext extends Context {
         super( constructor_kmerizer(ascii,left_flank,right_flank,hp_anchor)
              , ascii.length-left_flank-right_flank);
         ascii_ = ascii;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(byte entry: ascii_) {
+            sb.append((char)entry);
+        }
+        sb.append(" ");
+        sb.append(String.valueOf(hp_len()));
+        sb.append(" ");
+        sb.append(String.valueOf(kmer()));
+        return sb.toString();
     }
 
     /**

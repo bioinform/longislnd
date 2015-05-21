@@ -49,12 +49,12 @@ public class SamplesCollector extends Samples implements Closeable {
             if (null == event) {
                 continue;
             }
-            if (event.event().record_every() > 0 &&
-                    kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value()] % event.event().record_every() == 0) {
-                event.write(eventOut_);
-            }
 
-            if(event.hp_len() == 1) {
+            if (event.hp_len() == 1) {
+                if (event.event().record_every() > 0 &&
+                        kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value()] % event.event().record_every() == 0) {
+                    event.write(eventOut_);
+                }
                 final int idx = event.event().value();
 
                 ++event_count_ref()[idx];
@@ -63,6 +63,12 @@ public class SamplesCollector extends Samples implements Closeable {
                     event_base_count_ref()[idx] += event.size() - 2;
                 }
                 ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value()];
+            } else {
+                if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
+                    add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
+                    event.write(eventOut_);
+                }
+
             }
         }
     }
@@ -77,7 +83,7 @@ public class SamplesCollector extends Samples implements Closeable {
         int ii = 0;
         for (; ii < groups.size(); ++ii) {
             EventGroup group = groups.getEventGroup(ii);
-            if (ii % 10000 == 1001) {
+            if (ii % 10000 == 0 && ii != 0) {
                 log.info("processing group " + ii + "/" + groups.size());
                 log.info(toString());
             }

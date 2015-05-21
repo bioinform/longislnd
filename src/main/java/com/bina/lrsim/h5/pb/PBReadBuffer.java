@@ -60,13 +60,32 @@ public class PBReadBuffer {
         }
     }
 
-    public void addLast(byte[] other, int begin, int end) throws Exception{
-        if((end-begin) % EnumDat.getBaxSet().size() != 0) throw new Exception("invalid size" );
+    public void addLast(byte[] other, int begin, int end) {
+        if((end-begin) % EnumDat.getBaxSet().size() != 0) throw new RuntimeException("invalid size" );
         for(int itr=begin; itr<end; itr+=EnumDat.getBaxSet().size()){
             for (EnumDat e : EnumDat.getBaxSet()) {
                 data_.get(e).addLast(other[itr+e.value()]);
             }
         }
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (EnumDat e : EnumDat.getBaxSet()) {
+            sb.append("\n");
+            sb.append(e.path() + "\n");
+            if(e.equals(EnumDat.BaseCall) || e.equals(EnumDat.DeletionTag) || e.equals(EnumDat.SubstitutionTag)) {
+                for(int ii = 0; ii < data_.get(e).size(); ++ii) {
+                    sb.append((char)data_.get(e).get(ii));
+                }
+            }
+            else {
+                for(int ii = 0; ii < data_.get(e).size(); ++ii) {
+                    sb.append((char)(data_.get(e).get(ii)+33));
+                }
+            }
+        }
+        return sb.toString();
     }
 
     public ByteBuffer get(EnumDat e) {
