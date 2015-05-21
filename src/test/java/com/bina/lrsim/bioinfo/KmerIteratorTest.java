@@ -28,7 +28,7 @@ public class KmerIteratorTest extends TestCase {
     }
 
     @Test
-    public void testRC() throws Exception {
+    public void testRC() {
         byte[] unit = new byte[]{(byte) 'C', (byte) 'G', (byte) 'A', (byte) 'T'};
 
         byte[] rc = getRC(getATCG(8));
@@ -39,7 +39,7 @@ public class KmerIteratorTest extends TestCase {
     }
 
     @Test
-    public void testFWItr() throws Exception {
+    public void testFWItr() {
         byte[] fw = getATCG(8);
         final int flank = 4;
 
@@ -60,7 +60,7 @@ public class KmerIteratorTest extends TestCase {
     }
 
     @Test
-    public void testRCItr() throws Exception {
+    public void testRCItr() {
         byte[] fw = getATCG(8);
         byte[] rc = getRC(fw);
         final int flank = 4;

@@ -15,10 +15,10 @@ public class H5Sampler {
      *
      * @param args see log.info
      */
-    public static int main(String[] args) {
+    public static void main(String[] args) {
         if (args.length != 6) {
             log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
-            return 1;
+            System.exit(1);
         }
         final String out_prefix = args[0];
         final String in_file = args[1];
@@ -29,20 +29,17 @@ public class H5Sampler {
         final int hp_anchor = 2;
 
         SamplesCollector collector = null;
-        int ret = 0;
         try {
             collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor);
             collector.process(new CmpH5Reader(in_file), min_length, flank_mask);
             log.info(collector.toString());
         } catch (Exception e) {
-            e.printStackTrace();
-            ret = 1;
+            throw new RuntimeException(e);
         } finally {
             if (collector != null) {
                 collector.close();
             }
         }
         log.info("finished");
-        return ret;
     }
 }

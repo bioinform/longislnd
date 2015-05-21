@@ -40,7 +40,7 @@ public class HPIteratorTest extends TestCase {
     }
 
     @Test
-    public void testRC() throws Exception {
+    public void testRC() {
         byte[] unit = new byte[]{(byte) 'C', (byte) 'G', (byte) 'A', (byte) 'T'};
 
         byte[] rc = getRC(getATCG(8));
@@ -51,7 +51,7 @@ public class HPIteratorTest extends TestCase {
     }
 
     @Test
-    public void testFWItr() throws Exception {
+    public void testFWItr() {
         byte[] fw = getATCG(8);
         final int flank = 4;
         final int anchor = 2;
@@ -75,7 +75,7 @@ public class HPIteratorTest extends TestCase {
     }
 
     @Test
-    public void testRCItr() throws Exception {
+    public void testRCItr() {
         byte[] fw = getATCG(8);
         byte[] rc = getRC(fw);
         final int flank = 4;
@@ -100,7 +100,7 @@ public class HPIteratorTest extends TestCase {
     }
 
     @Test
-    public void testHPFW() throws Exception {
+    public void testHPFW() {
         byte[] flanking = getATCG(2);
         final byte homo_base = (byte) 'T';
         final int homo_length = 8;
@@ -166,7 +166,7 @@ public class HPIteratorTest extends TestCase {
 
 
     @Test
-    public void testHPRC() throws Exception {
+    public void testHPRC() {
         byte[] flanking = getATCG(2);
         final byte homo_base = (byte) 'T';
         final int homo_length = 8;

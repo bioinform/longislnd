@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * Created by bayo on 5/8/15.
@@ -65,14 +66,14 @@ public class Event {
     // we can save 4 byte by storing 2byte hp-length and 2byte base length if needed
     // we can also save all 4 bytes by writing homopolymer events to a different stream
     // this can be done down the line if we have time
-    public void write(DataOutputStream dos) throws Exception {
+    public void write(DataOutputStream dos) throws IOException {
         if (event_.value() >= EnumEvent.values().length) throw new RuntimeException("invalid i/o format");
         dos.writeInt(context_.kmer());
         dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value());
         bc_.write(dos);
     }
 
-    public void read(DataInputStream dis) throws Exception {
+    public void read(DataInputStream dis) throws IOException {
         final int kmer = dis.readInt();
         int tmp = dis.readInt();
         context_ = new Context(kmer, tmp / EnumEvent.values().length);

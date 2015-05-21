@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
  */
 public class EnumBPTest extends TestCase{
     @Test
-    public void testRC() throws Exception{
+    public void testRC() {
         assertEquals((byte)'C',EnumBP.ascii_rc((byte)'g'));
         assertEquals((byte)'C',EnumBP.ascii_rc((byte)'G'));
 

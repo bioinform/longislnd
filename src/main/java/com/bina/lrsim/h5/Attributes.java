@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Attributes {
-    public void writeTo(HObject obj) throws Exception {
+    public void writeTo(HObject obj) {
         for (Map.Entry<String, Value> entry : name_value_.entrySet()) {
             final Object raw_buffer = entry.getValue().buffer();
             final EnumH5Type type = EnumH5Type.getEnum(raw_buffer.getClass());
@@ -24,7 +24,7 @@ public class Attributes {
             } catch (Exception e) {
                 log.info(e, e);
                 log.info("attribute write failed for " + entry.getKey());
-                throw e;
+                throw new RuntimeException(e);
             }
         }
     }

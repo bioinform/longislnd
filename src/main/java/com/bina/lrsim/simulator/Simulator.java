@@ -38,9 +38,8 @@ public class Simulator {
      * @param drawer      an instance from which samples can be drawn
      * @param total_bases minimum number of bp to generate
      * @param gen         random number generator
-     * @throws Exception
      */
-    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, RandomGenerator gen) throws Exception {
+    public int simulate(String path, String movie_name, int firsthole, SamplesDrawer drawer, int total_bases, RandomGenerator gen) {
         BaxH5Writer writer = new BaxH5Writer();
         PBReadBuffer read = new PBReadBuffer();
         log.info("generating reads");

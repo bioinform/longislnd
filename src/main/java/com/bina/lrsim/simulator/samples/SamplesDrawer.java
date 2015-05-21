@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -27,7 +28,7 @@ public class SamplesDrawer extends Samples {
     final EnumMap<EnumEvent, BaseCallsPool> kmer_event_drawer_ = new EnumMap<EnumEvent, BaseCallsPool>(EnumEvent.class);
     HPBCPool hp_event_drawer_;
 
-    public SamplesDrawer(String[] prefixes, int max_sample) throws Exception {
+    public SamplesDrawer(String[] prefixes, int max_sample) throws IOException {
         this(prefixes[0], 0/*must use 0 here*/);
         for (int ii = 1; ii < prefixes.length; ++ii) {
             accumulateStats(new SamplesDrawer(prefixes[ii], 0/*must use 0 here*/));
@@ -41,9 +42,9 @@ public class SamplesDrawer extends Samples {
      *
      * @param prefix     prefix of files storing sampled data
      * @param max_sample limit the number of samples per sequencing context
-     * @throws Exception
+     * @throws IOException
      */
-    public SamplesDrawer(String prefix, int max_sample) throws Exception {
+    public SamplesDrawer(String prefix, int max_sample) throws IOException {
         super(prefix);
         log.info("loaded bulk statistics from " + prefix);
         allocateEventDrawer(max_sample);
@@ -134,9 +135,9 @@ public class SamplesDrawer extends Samples {
      *
      * @param prefix     file prefix
      * @param max_sample
-     * @throws Exception
+     * @throws IOException
      */
-    private void loadEvents(String prefix, int max_sample) throws Exception {
+    private void loadEvents(String prefix, int max_sample) throws IOException {
         loadEvents(new String[]{prefix}, max_sample);
     }
 
@@ -144,9 +145,9 @@ public class SamplesDrawer extends Samples {
      * Load the sampled events
      *
      * @param prefixes prefixes of the event files
-     * @throws Exception
+     * @throws IOException
      */
-    private void loadEvents(String[] prefixes, int max_sample) throws Exception {
+    private void loadEvents(String[] prefixes, int max_sample) throws IOException {
         log.info("loading events");
         if (max_sample < 1) return;
         final int num_src = prefixes.length;

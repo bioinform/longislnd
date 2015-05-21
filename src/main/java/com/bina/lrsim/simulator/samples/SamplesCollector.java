@@ -41,9 +41,9 @@ public class SamplesCollector extends Samples implements Closeable {
      * Collect events based on sequencing context
      *
      * @param itr iterator of a group of events, eg an alignment
-     * @throws Exception
+     * @throws IOException
      */
-    public void process(Iterator<Event> itr) throws Exception {
+    public void process(Iterator<Event> itr) throws IOException {
         while (itr.hasNext()) {
             Event event = itr.next();
             if (null == event) {
@@ -77,9 +77,9 @@ public class SamplesCollector extends Samples implements Closeable {
      * Collect events based on sequencing context
      *
      * @param groups a collection of event groups, eg alignments
-     * @throws Exception
+     * @throws IOException
      */
-    public void process(EventGroupFactory groups, int min_length, int flank_mask) throws Exception {
+    public void process(EventGroupFactory groups, int min_length, int flank_mask) throws IOException {
         int ii = 0;
         for (; ii < groups.size(); ++ii) {
             EventGroup group = groups.getEventGroup(ii);

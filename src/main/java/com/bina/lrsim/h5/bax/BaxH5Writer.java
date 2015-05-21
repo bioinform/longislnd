@@ -8,54 +8,79 @@ import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.Attributes;
 import com.bina.lrsim.h5.H5ScalarDSIO;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5File;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.util.EnumSet;
 
 public class BaxH5Writer {
 
-    public void write(String filename, String moviename, int firsthole) throws Exception {
+    public void write(String filename, String moviename, int firsthole) {
         log.info("Writing to " + filename + " as movie " + moviename);
         H5File h5 = new H5File(filename, FileFormat.CREATE);
-        h5.open();
-        AttributesFactory af = new AttributesFactory(size(),moviename);
-        writeGroups(h5,af);
-        writeBaseCalls(h5,af);
-        writeZWM(h5,firsthole);
-        writeRegions(h5,firsthole);
-        h5.close();
+        try {
+            h5.open();
+            AttributesFactory af = new AttributesFactory(size(), moviename);
+            writeGroups(h5, af);
+            writeBaseCalls(h5, af);
+            writeZWM(h5, firsthole);
+            writeRegions(h5, firsthole);
+            h5.close();
+        }
+        catch (IOException e) {
+            // The HDF5 API throws the base class Exception, so let's just catch them all and rethrow run-time exception
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (HDF5Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public void addLast(PBReadBuffer read, int score) {
         buffer_.addLast(read, score);
     }
 
-    private void writeGroups(H5File h5, AttributesFactory af) throws Exception {
+    private void writeGroups(H5File h5, AttributesFactory af) throws IOException {
         for (EnumGroups e : EnumSet.allOf(EnumGroups.class)) {
-            final HObject obj = h5.createGroup(e.path(), null);
-            af.get(e).writeTo(obj);
+            try {
+                final HObject obj = h5.createGroup(e.path(), null);
+                af.get(e).writeTo(obj);
+            }
+            catch (Exception exception) {
+                throw new IOException("failed to write " + e.path());
+            }
         }
     }
 
-    private void writeBaseCalls(H5File h5, AttributesFactory af) throws Exception {
+    private void writeBaseCalls(H5File h5, AttributesFactory af) throws IOException {
         long[] dims = new long[]{buffer_.reads().size()};
         for (EnumDat e : EnumDat.getBaxSet()) {
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path() + e.path(), buffer_.reads().get(e).data_ref(), dims);
-            af.get(e).writeTo(obj);
+            try {
+                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path() + e.path(), buffer_.reads().get(e).data_ref(), dims);
+                af.get(e).writeTo(obj);
+            }
+            catch (Exception exception) {
+                throw new IOException("failed to write " + e.path());
+            }
         }
     }
 
-    public int size() throws Exception {
+    public int size() {
         return buffer_.length_score().size() / 2;
     }
 
     private final DataBuffer buffer_ = new DataBuffer(100000);
     private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
 
-    private void writeRegions(H5File h5, int firsthole) throws Exception {
+    private void writeRegions(H5File h5, int firsthole) throws IOException {
         final EnumSet<EnumTypeIdx> typeSet = EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
         int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
         final int[] length_score = buffer_.length_score().data_ref();
@@ -81,7 +106,7 @@ public class BaxH5Writer {
     }
 
 
-    public void writeZWM(H5File h5, int firsthole) throws Exception {
+    public void writeZWM(H5File h5, int firsthole) throws IOException{
         final int[] length_score = buffer_.length_score().data_ref();
         final long[] dims_1 = new long[]{(long) size()};
         final long[] dims_2 = new long[]{(long) size(), (long) 2};

@@ -13,12 +13,11 @@ public class LRSim {
             + "       parameters -- see mode description by not specifying parameters\n";
 
     public static void main(String[] args) {
-        int ret = 1;
 
         if (args.length < 1) {
             System.err.println(VERSION);
             System.err.println(usage);
-            System.exit(ret);
+            System.exit(1);
         }
 
         final String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
@@ -26,17 +25,16 @@ public class LRSim {
 
         switch (args[0]) {
             case "simulate": // run simulator
-                ret = H5Simulator.main(pass_args);
+                H5Simulator.main(pass_args);
                 break;
 
             case "sample": //run sampling
-                ret = H5Sampler.main(pass_args);
+                H5Sampler.main(pass_args);
                 break;
 
             default:
                 System.err.println(usage);
         }
-        System.exit(ret);
     }
 
 }
