@@ -4,6 +4,8 @@ import com.bina.lrsim.h5.cmp.CmpH5Reader;
 import com.bina.lrsim.simulator.samples.SamplesCollector;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+
 /**
  * Created by bayo on 5/11/15.
  */
@@ -15,7 +17,7 @@ public class H5Sampler {
      *
      * @param args see log.info
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length != 6) {
             log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
             System.exit(1);
@@ -28,17 +30,9 @@ public class H5Sampler {
         final int flank_mask = Integer.parseInt(args[5]);
         final int hp_anchor = 2;
 
-        SamplesCollector collector = null;
-        try {
-            collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor);
+        try ( SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor) ) {
             collector.process(new CmpH5Reader(in_file), min_length, flank_mask);
             log.info(collector.toString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (collector != null) {
-                collector.close();
-            }
         }
         log.info("finished");
     }

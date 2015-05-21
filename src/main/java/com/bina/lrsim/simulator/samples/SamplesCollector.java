@@ -104,19 +104,13 @@ public class SamplesCollector extends Samples implements Closeable {
      * finish sampling and write to file
      */
     @Override
-    public void close() {
-        try {
-            eventOut_.flush();
-            eventOut_.close();
+    public void close() throws IOException {
+        eventOut_.flush();
+        eventOut_.close();
 
-            writeStats(outPrefix_);
-            writeIdx(outPrefix_);
-            writeLengths(outPrefix_);
-
-        } catch (IOException e) {
-            log.info(e, e);
-        }
+        writeStats(outPrefix_);
+        writeIdx(outPrefix_);
+        writeLengths(outPrefix_);
     }
-
 
 }
