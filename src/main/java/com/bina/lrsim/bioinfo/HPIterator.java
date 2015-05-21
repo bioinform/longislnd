@@ -7,20 +7,19 @@ import java.util.Iterator;
 
 /**
  * Created by bayo on 5/13/15.
- *
+ * <p/>
  * An iterator which iterates through homopolymer context sequence.
- *
+ * <p/>
  * A valid homopolymer context of length (q-p+1) is centered at a position, p,
  * such that the bp at p-1 is different. The bp from p to q are the same, and
  * the bp of q+1 is different.
- *
+ * <p/>
  * CGAAAAAAAAAATCA
- *   p        q
- *
+ * p        q
+ * <p/>
  * The iterator for the above situation would output context at
- *
+ * <p/>
  * ... (p-1), p, q+1, ......
- *
  */
 public class HPIterator implements Iterator<Context> {
     private final static Logger log = Logger.getLogger(HPIterator.class.getName());
@@ -34,6 +33,7 @@ public class HPIterator implements Iterator<Context> {
 
     /**
      * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
+     *
      * @param ascii       ascii file
      * @param begin       0-base begin
      * @param end         0-base end, exclusive
@@ -51,60 +51,53 @@ public class HPIterator implements Iterator<Context> {
 
         curr_ = begin + left_flank;
         end_ = end - right_flank;
-        if(rc) {
+        if (rc) {
             curr_ = seq_.length - 1 - curr_;
             end_ = seq_.length - 1 - end_;
 
-            for(;0 <= curr_ && seq_[curr_]==seq_[curr_+1];--curr_) {
+            for (; 0 <= curr_ && seq_[curr_] == seq_[curr_ + 1]; --curr_) {
             }
 
-            for(;end_+2< seq_.length && seq_[end_+1] == seq_[end_+2];++end_) {
+            for (; end_ + 2 < seq_.length && seq_[end_ + 1] == seq_[end_ + 2]; ++end_) {
             }
 
-        }
-        else {
-            for(;curr_ < seq_.length && seq_[curr_]==seq_[curr_-1]; ++curr_){
+        } else {
+            for (; curr_ < seq_.length && seq_[curr_] == seq_[curr_ - 1]; ++curr_) {
             }
-            for(;0 <= end_-2 && seq_[end_-1]==seq_[end_-2]; --end_) {
+            for (; 0 <= end_ - 2 && seq_[end_ - 1] == seq_[end_ - 2]; --end_) {
             }
         }
     }
 
     @Override
     public boolean hasNext() {
-        if(rc_) return curr_>end_;
-        else    return curr_<end_;
+        return rc_ ? curr_ > end_ : curr_ < end_;
     }
 
     @Override
     public Context next() {
-        if(rc_) {
-            return rc_next();
-        }
-        else {
-            return fw_next();
-        }
+        return rc_ ? rc_next() : fw_next();
     }
 
     private HPContext fw_next() {
         // find the next base which is different
         int diff_pos = curr_ + 1;
-        for(; diff_pos < seq_.length && seq_[diff_pos] == seq_[curr_]; ++diff_pos) {
+        for (; diff_pos < seq_.length && seq_[diff_pos] == seq_[curr_]; ++diff_pos) {
         }
 
-        if ( diff_pos + rightFlank_ > seq_.length) return null;
+        if (diff_pos + rightFlank_ > seq_.length) return null;
 
-        final byte[] buffer = Arrays.copyOfRange(seq_,curr_-leftFlank_,diff_pos+rightFlank_);
+        final byte[] buffer = Arrays.copyOfRange(seq_, curr_ - leftFlank_, diff_pos + rightFlank_);
 
         curr_ = diff_pos;
 
-        return new HPContext(buffer,leftFlank_,rightFlank_,hp_anchor_);
+        return new HPContext(buffer, leftFlank_, rightFlank_, hp_anchor_);
     }
 
     private HPContext rc_next() {
         // find the next base which is different
         int diff_pos = curr_ - 1;
-        for(; diff_pos >=0 && seq_[diff_pos] == seq_[curr_]; --diff_pos) {
+        for (; diff_pos >= 0 && seq_[diff_pos] == seq_[curr_]; --diff_pos) {
         }
 
         if (diff_pos - rightFlank_ < -1) return null;
@@ -112,13 +105,13 @@ public class HPIterator implements Iterator<Context> {
         final byte[] buffer = new byte[leftFlank_ + curr_ - diff_pos + rightFlank_];
         int kk = 0;
 
-        for( int pos = curr_ + leftFlank_; kk < buffer.length; ++kk, --pos) {
+        for (int pos = curr_ + leftFlank_; kk < buffer.length; ++kk, --pos) {
             buffer[kk] = EnumBP.ascii_rc(seq_[pos]);
         }
 
         curr_ = diff_pos;
 
-        return new HPContext(buffer,leftFlank_,rightFlank_,hp_anchor_);
+        return new HPContext(buffer, leftFlank_, rightFlank_, hp_anchor_);
     }
 
 

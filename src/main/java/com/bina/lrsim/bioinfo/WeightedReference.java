@@ -67,7 +67,7 @@ public class WeightedReference implements RandomSequenceGenerator {
         return get(name_.get(id));
     }
 
-    static private class ReferenceWeight {
+    private static class ReferenceWeight {
         ReferenceSequence seq_;
         double weight_;
 

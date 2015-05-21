@@ -25,6 +25,7 @@ public class CmpH5Alignment implements EventGroup {
      * @param right_flank number of bp after the position of interest
      * @param left_mask   omit this number of bases in the begining
      * @param right_mask  omit this number of bases in the end
+     * @paran hp_anchor   use this many bases on both ends of homopolymer
      * @return an iterator of events associated with this alignment instance
      */
     @Override

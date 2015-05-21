@@ -18,7 +18,7 @@ public enum EnumEvent {
     DELETION    (1,     "d",         -1,               EmptyBCPool.class),   // skip all deletion samples, emptybcpool has no memory overhead
     SUBSTITUTION(2,     "s",         1,                KmerBCPool.class), // ~1% mismatch so memory is not too bad
     MATCH       (3,     "m",         10,               SingleBCPool.class);  // 85% matches, down-sample 10-fold, must use SingleBCPoolCompression
-    static private EnumEvent[] value2enum_ = {INSERTION, DELETION, SUBSTITUTION, MATCH};
+    private static EnumEvent[] value2enum_ = {INSERTION, DELETION, SUBSTITUTION, MATCH};
 
     private int value_;
     private String description_;
@@ -36,7 +36,7 @@ public enum EnumEvent {
         pool_ = pool;
     }
 
-    static public int num_logged_events() {
+    public static int num_logged_events() {
         int out = 0;
         for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
             if (ev.record_every() > 0) {
@@ -62,7 +62,7 @@ public enum EnumEvent {
         return pool_;
     }
 
-    static public String getPrettyStats(long[] data) {
+    public static String getPrettyStats(long[] data) {
         if (data.length != EnumEvent.values().length) {
             return "invalid data length";
         }

@@ -51,6 +51,7 @@ public class H5CloneGroups {
                         oh5.close();
                         break;
                     default:
+                        throw new RuntimeException("unknown object enumeration in the h5 file");
                 }
             } else {
                 log.info(oid);

@@ -15,7 +15,7 @@ public class H5Sampler {
      *
      * @param args see log.info
      */
-    static public int run(String[] args) {
+    public static int main(String[] args) {
         if (args.length != 6) {
             log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
             return 1;

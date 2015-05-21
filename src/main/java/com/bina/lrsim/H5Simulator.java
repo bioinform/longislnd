@@ -18,7 +18,7 @@ public class H5Simulator {
      *
      * @param args see log.info
      */
-    static public int run(String[] args) {
+    public static int main(String[] args) {
         if (args.length != 6) {
             log.info("parameters: out_dir fasta model_prefix total_bases sample_per seed");
             return 1;

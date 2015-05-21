@@ -106,7 +106,7 @@ public enum EnumBP {
         }
     }
 
-    static public String tableToString() {
+    public static String tableToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("\nR:");
         for (EnumBP entry : EnumBP.cmp2ref_) {

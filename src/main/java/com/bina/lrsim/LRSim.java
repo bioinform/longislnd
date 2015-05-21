@@ -1,7 +1,5 @@
 package com.bina.lrsim;
 
-import org.apache.log4j.Logger;
-
 import java.util.Arrays;
 
 /**
@@ -28,11 +26,11 @@ public class LRSim {
 
         switch (args[0]) {
             case "simulate": // run simulator
-                ret = H5Simulator.run(pass_args);
+                ret = H5Simulator.main(pass_args);
                 break;
 
             case "sample": //run sampling
-                ret = H5Sampler.run(pass_args);
+                ret = H5Sampler.main(pass_args);
                 break;
 
             default:

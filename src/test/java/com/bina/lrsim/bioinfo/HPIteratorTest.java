@@ -28,7 +28,7 @@ public class HPIteratorTest extends TestCase {
         return rc;
     }
 
-    static private void test1Decomposition(Context c, int left_flank, int right_flank) {
+    private static void test1Decomposition(Context c, int left_flank, int right_flank) {
         int count1 = 0;
         for (Iterator<Context> itr1 = c.decompose(left_flank, right_flank); itr1.hasNext(); ) {
             Context c1 = itr1.next();

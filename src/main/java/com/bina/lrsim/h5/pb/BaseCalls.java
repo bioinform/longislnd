@@ -65,7 +65,7 @@ public class BaseCalls {
         return sb.toString();
     }
 
-    static final int bytePerBase = EnumDat.getBaxSet().size();
+    private static final int bytePerBase = EnumDat.getBaxSet().size();
     final private ByteBuffer data_ = new ByteBuffer(bytePerBase);
 
     public void write(DataOutputStream dos) throws IOException {

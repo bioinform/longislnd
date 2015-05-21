@@ -17,22 +17,22 @@ public enum EnumDat {
     SubstitutionQV (6, "/SubstitutionQV"),
     SubstitutionTag(7, "/SubstitutionTag");
 
-    static public String[] getContentDescription(){
+    public static String[] getContentDescription(){
         return new String[]
                 {"Basecall","DeletionQV","DeletionTag","InsertionQV","MergeQV","QualityValue","SubstitutionQV","SubstitutionTag"
                 ,"uint8",   "uint8",     "uint8",      "uint8",      "uint8",  "uint8",       "uint8",         "uint8"};
 
     }
 
-    static public EnumSet<EnumDat> getBaxSet() {
+    public static EnumSet<EnumDat> getBaxSet() {
         return EnumSet.complementOf(EnumSet.of(AlnArray));
     }
 
-    static public EnumSet<EnumDat> getCmpSet() {
+    public static EnumSet<EnumDat> getCmpSet() {
         return EnumSet.complementOf(EnumSet.of(BaseCall));
     }
 
-    static public EnumSet<EnumDat> getNonBaseSet() {
+    public static EnumSet<EnumDat> getNonBaseSet() {
         return EnumSet.complementOf(EnumSet.of(BaseCall, AlnArray));
     }
 

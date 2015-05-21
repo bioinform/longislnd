@@ -6,7 +6,7 @@ package com.bina.lrsim.util;
  * hacked up some reusable snippets until I figure out the proper way of doing so in java
  */
 public class ArrayUtils {
-    static public void axpy(long a, long[] x, long[] y) {
+    public static void axpy(long a, long[] x, long[] y) {
         if(x.length != y.length) throw new RuntimeException("inconsistent samples");
         for(int ii = 0; ii < x.length; ++ii) {
             y[ii] += a * x[ii];

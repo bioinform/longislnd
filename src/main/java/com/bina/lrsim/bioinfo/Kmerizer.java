@@ -1,6 +1,6 @@
 package com.bina.lrsim.bioinfo;
 
-import java.util.Random;
+import org.apache.commons.math3.random.MersenneTwister;
 
 /**
  * Created by bayo on 5/8/15.
@@ -8,7 +8,7 @@ import java.util.Random;
  * kmerize up to 16bp, randomly select a base for N
  */
 public class Kmerizer {
-    static private Random gen_ = new Random(1111);
+    private static MersenneTwister gen_ = new MersenneTwister(1111);
 
     /**
      * kmerize a ascii stream of up to 16 bp
