@@ -18,7 +18,7 @@ public class Context {
         hp_len_ = hp_len;
     }
 
-    protected void set_kmer(int k) {
+    protected final void set_kmer(int k) {
         kmer_ = k;
     }
 

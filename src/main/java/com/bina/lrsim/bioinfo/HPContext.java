@@ -6,7 +6,7 @@ import java.util.Iterator;
 /**
  * Created by bayo on 5/11/15.
  */
-public class HPContext extends Context {
+public final class HPContext extends Context {
     private final byte[] ascii_;
 
     private static int constructor_kmerizer(byte[] ascii, int left_flank, int right_flank, int hp_anchor) {

@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 /**
  * Created by bayo on 5/11/15.
  */
-public class KmerContext extends Context {
+public final class KmerContext extends Context {
     private final static Logger log = Logger.getLogger(KmerContext.class.getName());
 
     KmerContext(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) {

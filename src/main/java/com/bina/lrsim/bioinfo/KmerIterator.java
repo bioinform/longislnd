@@ -7,7 +7,7 @@ import java.util.Iterator;
 /**
  * Created by bayo on 5/11/15.
  */
-public class KmerIterator implements Iterator<Context> {
+public final class KmerIterator implements Iterator<Context> {
     private final static Logger log = Logger.getLogger(KmerIterator.class.getName());
     private final byte[] seq_;
     private int curr_;

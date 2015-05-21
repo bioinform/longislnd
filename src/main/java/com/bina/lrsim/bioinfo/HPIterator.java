@@ -21,7 +21,7 @@ import java.util.Iterator;
  * <p/>
  * ... (p-1), p, q+1, ......
  */
-public class HPIterator implements Iterator<Context> {
+public final class HPIterator implements Iterator<Context> {
     private final static Logger log = Logger.getLogger(HPIterator.class.getName());
     private final byte[] seq_;
     private int curr_;
