@@ -23,13 +23,13 @@ import java.util.Iterator;
  */
 public class HPIterator implements Iterator<Context> {
     private final static Logger log = Logger.getLogger(HPIterator.class.getName());
-    private byte[] seq_;
+    private final byte[] seq_;
     private int curr_;
     private int end_;
-    private int leftFlank_;
-    private int rightFlank_;
-    private int hp_anchor_;
-    private boolean rc_;
+    private final int leftFlank_;
+    private final int rightFlank_;
+    private final int hp_anchor_;
+    private final boolean rc_;
 
     /**
      * Constructor to iterate the kmer context of through [begin,end) of a ascii stream

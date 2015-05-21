@@ -1,5 +1,6 @@
 package com.bina.lrsim;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -12,7 +13,7 @@ public class LRSim {
             + "       mode    -- simulate/sample\n"
             + "       parameters -- see mode description by not specifying parameters\n";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         if (args.length < 1) {
             System.err.println(VERSION);

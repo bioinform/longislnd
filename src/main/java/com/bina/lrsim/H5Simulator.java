@@ -20,7 +20,7 @@ public class H5Simulator {
      *
      * @param args see log.info
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length != 6) {
             log.info("parameters: out_dir fasta model_prefix total_bases sample_per seed");
             System.exit(1);
@@ -33,23 +33,18 @@ public class H5Simulator {
         final int seed = Integer.parseInt(args[5]);
 
 
-        try {
-            final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), sample_per);
+        final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), sample_per);
 
-            log.info("Memory usage: " + Monitor.PeakMemoryUsage());
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-            final Simulator sim = new Simulator(new WeightedReference(fasta));
-            log.info("Memory usage: " + Monitor.PeakMemoryUsage());
+        final Simulator sim = new Simulator(new WeightedReference(fasta));
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-            final RandomGenerator gen = new org.apache.commons.math3.random.MersenneTwister(seed);
-            log.info("Memory usage: " + Monitor.PeakMemoryUsage());
+        final RandomGenerator gen = new org.apache.commons.math3.random.MersenneTwister(seed);
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-            final String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
-            sim.simulate(out_dir, movie_name, 0, samples, total_bases, gen);
-        }
-        catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+        final String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
+        sim.simulate(out_dir, movie_name, 0, samples, total_bases, gen);
 
         log.info("finished.");
     }

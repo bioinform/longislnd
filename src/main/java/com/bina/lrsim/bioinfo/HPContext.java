@@ -7,7 +7,7 @@ import java.util.Iterator;
  * Created by bayo on 5/11/15.
  */
 public class HPContext extends Context {
-    private byte[] ascii_;
+    private final byte[] ascii_;
 
     private static int constructor_kmerizer(byte[] ascii, int left_flank, int right_flank, int hp_anchor) {
         if(ascii.length == 1 + left_flank + right_flank) {

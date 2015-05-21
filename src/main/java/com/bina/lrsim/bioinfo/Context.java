@@ -11,7 +11,7 @@ import java.util.Iterator;
  */
 public class Context {
     private int kmer_;
-    private int hp_len_;
+    private final int hp_len_;
 
     public Context(int kmer, int hp_len) {
         kmer_ = kmer;
