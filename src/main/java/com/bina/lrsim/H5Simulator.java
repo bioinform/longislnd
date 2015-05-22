@@ -28,7 +28,7 @@ public class H5Simulator {
         final String out_dir = args[0];
         final String fasta = args[1];
         final String model_prefixes = args[2];
-        final int total_bases = Integer.parseInt(args[3]);
+        final long total_bases = Long.parseLong(args[3]);
         final int sample_per = Integer.parseInt(args[4]);
         final int seed = Integer.parseInt(args[5]);
 
@@ -43,8 +43,19 @@ public class H5Simulator {
         final RandomGenerator gen = new org.apache.commons.math3.random.MersenneTwister(seed);
         log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-        final String movie_name = "m000000_000000_11111_cSIMULATED_s0_p0";
-        sim.simulate(out_dir, movie_name, 0, samples, total_bases, gen);
+        int current_file_index = 0;
+        int simulated_reads = 0;
+        final int target_number_of_bases = 200000000;
+        // the following can be parallelized
+        for( long simulated_bases = 0; simulated_bases < total_bases; ++current_file_index) {
+            final String movie_name = "m000000_000000_"
+                    + String.format("%05d", current_file_index)
+                    + "_cLR_SIM_s1_p0";
+            log.info("simulating roughly " + target_number_of_bases + " for " + movie_name);
+            simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target_number_of_bases, gen);
+            log.info("total number of reads is " + simulated_reads);
+        }
+
 
         log.info("finished.");
     }

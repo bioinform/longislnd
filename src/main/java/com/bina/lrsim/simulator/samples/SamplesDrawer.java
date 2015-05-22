@@ -100,15 +100,15 @@ public class SamplesDrawer extends Samples {
                 final int differential = buffer.size() - old_length - context.hp_len();
                 if (differential == 0) {
                     counters[EnumEvent.MATCH.value] += context.hp_len();
-                    log.info("homo match");
+//                    log.info("homo match");
                 } else if (differential < 0) {
                     counters[EnumEvent.DELETION.value] += -differential;
-                    log.info("homo del");
+ //                   log.info("homo del");
 
                 } else {
                     counters[EnumEvent.MATCH.value] += context.hp_len() - 1;
                     counters[EnumEvent.INSERTION.value] += differential;
-                    log.info("homo ins");
+//                    log.info("homo ins");
 
                 }
             } else {
