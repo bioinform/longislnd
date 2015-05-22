@@ -86,6 +86,10 @@ public enum EnumBP {
         ascii_rc_['c'] = G.ascii();
         ascii_rc_[G.ascii()] = C.ascii();
         ascii_rc_['g'] = C.ascii();
+        ascii_rc_[N.ascii()] = N.ascii();
+        ascii_rc_['n'] = N.ascii();
+
+        ascii_rc_[' '] = Gap.ascii();
 
         for(EnumBP e: EnumSet.of(EnumBP.A,EnumBP.G,EnumBP.C,EnumBP.T)){
             ascii2value_[e.ascii()] = e.value();

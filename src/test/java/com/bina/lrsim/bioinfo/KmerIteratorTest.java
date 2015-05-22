@@ -1,13 +1,11 @@
 package com.bina.lrsim.bioinfo;
 
-import junit.framework.TestCase;
-import org.apache.log4j.Logger;
-import org.testng.annotations.Test;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.Iterator;
 
-public class KmerIteratorTest extends TestCase {
-    private final static Logger log = Logger.getLogger(KmerIteratorTest.class.getName());
+public class KmerIteratorTest {
 
     private static byte[] getATCG(int repeat) {
         byte[] out = new byte[repeat * 4];

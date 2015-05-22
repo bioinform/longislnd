@@ -1,14 +1,13 @@
 package com.bina.lrsim.bioinfo;
 
-import junit.framework.TestCase;
-import org.apache.log4j.Logger;
-import org.testng.annotations.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
-public class HPIteratorTest extends TestCase {
-    private final static Logger log = Logger.getLogger(HPIteratorTest.class.getName());
+public class HPIteratorTest {
 
     private static byte[] getATCG(int repeat) {
         byte[] out = new byte[repeat * 4];
