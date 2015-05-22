@@ -18,12 +18,8 @@ enum EnumGroups {
     RunInfo("/ScanData/RunInfo");
 
     EnumGroups(String path) {
-        path_ = path;
+        this.path = path;
     }
 
-    String path() {
-        return path_;
-    }
-
-    private final String path_;
+    public final String path;
 }

@@ -51,18 +51,18 @@ public class SamplesCollector extends Samples implements Closeable {
             }
 
             if (event.hp_len() == 1) {
-                if (event.event().record_every() > 0 &&
-                        kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value()] % event.event().record_every() == 0) {
+                if (event.event().recordEvery > 0 &&
+                        kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value] % event.event().recordEvery == 0) {
                     event.write(eventOut_);
                 }
-                final int idx = event.event().value();
+                final int idx = event.event().value;
 
                 ++event_count_ref()[idx];
                 ++event_base_count_ref()[idx];
                 if (event.event().equals(EnumEvent.INSERTION)) {
                     event_base_count_ref()[idx] += event.size() - 2;
                 }
-                ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value()];
+                ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value];
             } else {
                 if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
                     add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());

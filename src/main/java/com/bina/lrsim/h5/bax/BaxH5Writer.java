@@ -51,11 +51,11 @@ public class BaxH5Writer {
     private void writeGroups(H5File h5, AttributesFactory af) throws IOException {
         for (EnumGroups e : EnumSet.allOf(EnumGroups.class)) {
             try {
-                final HObject obj = h5.createGroup(e.path(), null);
+                final HObject obj = h5.createGroup(e.path, null);
                 af.get(e).writeTo(obj);
             }
             catch (Exception exception) {
-                throw new IOException("failed to write " + e.path());
+                throw new IOException("failed to write " + e.path);
             }
         }
     }
@@ -64,11 +64,11 @@ public class BaxH5Writer {
         long[] dims = new long[]{buffer_.reads().size()};
         for (EnumDat e : EnumDat.getBaxSet()) {
             try {
-                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path() + e.path(), buffer_.reads().get(e).data_ref(), dims);
+                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.reads().get(e).data_ref(), dims);
                 af.get(e).writeTo(obj);
             }
             catch (Exception exception) {
-                throw new IOException("failed to write " + e.path());
+                throw new IOException("failed to write " + e.path);
             }
         }
     }
@@ -87,16 +87,16 @@ public class BaxH5Writer {
         int shift = 0;
         for (int rr = 0; rr < size(); ++rr) {
             for (EnumTypeIdx e : typeSet) {
-                buffer[shift + EnumRegionsIdx.HoleNumber.value()] = firsthole + rr;
-                buffer[shift + EnumRegionsIdx.RegionType.value()] = e.value();
-                buffer[shift + EnumRegionsIdx.RegionStart.value()] = 0;
-                buffer[shift + EnumRegionsIdx.RegionEnd.value()] = length_score[2 * rr];
-                buffer[shift + EnumRegionsIdx.RegionScore.value()] = length_score[2 * rr + 1];
+                buffer[shift + EnumRegionsIdx.HoleNumber.value] = firsthole + rr;
+                buffer[shift + EnumRegionsIdx.RegionType.value] = e.value;
+                buffer[shift + EnumRegionsIdx.RegionStart.value] = 0;
+                buffer[shift + EnumRegionsIdx.RegionEnd.value] = length_score[2 * rr];
+                buffer[shift + EnumRegionsIdx.RegionScore.value] = length_score[2 * rr + 1];
                 shift += EnumRegionsIdx.values().length;
             }
         }
         long[] dims = new long[]{buffer.length / EnumRegionsIdx.values().length, EnumRegionsIdx.values().length};
-        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path() + "/Regions", buffer, dims);
+        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path + "/Regions", buffer, dims);
         Attributes att = new Attributes();
         att.add("ColumnNames", EnumRegionsIdx.getDescriptionArray(),new long[]{EnumRegionsIdx.values().length});
         att.add("RegionDescriptions", new String[]{"Adapter Hit","Insert Region","High Quality bases region. Score is 1000 * predicted accuracy, where predicted accuray is 0 to 1.0"}, new long[]{3}); //typo foolows pacbio's typo
@@ -117,7 +117,7 @@ public class BaxH5Writer {
             for (int ii = 0; ii < size(); ++ii) {
                 int_buffer[ii] = firsthole + ii;
             }
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleNumber", int_buffer, dims_1);
+            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleNumber", int_buffer, dims_1);
             Attributes att = new Attributes();
             att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Number assigned to each ZMW on the chip"}, null);
             att.writeTo(obj);
@@ -128,7 +128,7 @@ public class BaxH5Writer {
             for (int ii = 0; ii < size(); ++ii) {
                 byte_buffer[ii] = 0;
             }
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleStatus", byte_buffer, dims_1);
+            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleStatus", byte_buffer, dims_1);
             Attributes att = new Attributes();
             att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Type of ZMW that produced the data_ref"}, null);
             att.add( "LookupTable"
@@ -144,7 +144,7 @@ public class BaxH5Writer {
                 short_buffer[2 * ii] = (short)(holenumber%2);
                 short_buffer[2 * ii + 1] = (short) holenumber;
             }
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleXY", short_buffer, dims_2);
+            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleXY", short_buffer, dims_2);
             Attributes att = new Attributes();
             att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Grid coordinates assigned to each ZMW on the chip"}, null);
             att.writeTo(obj);
@@ -154,7 +154,7 @@ public class BaxH5Writer {
             for (int ii = 0; ii < size(); ++ii) {
                 int_buffer[ii] = length_score[2 * ii];
             }
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/NumEvent", int_buffer, dims_1);
+            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/NumEvent", int_buffer, dims_1);
             Attributes att = new Attributes();
             att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"ZMW event-stream counts"}, null);
             att.writeTo(obj);
@@ -165,7 +165,7 @@ public class BaxH5Writer {
             for (int ii = 0; ii < size(); ++ii) {
                 float_buffer[ii] = (float) (length_score[2 * ii + 1]) / (float) 1001;
             }
-            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path() + "/ReadScore", float_buffer, dims_1);
+            final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path + "/ReadScore", float_buffer, dims_1);
             Attributes att = new Attributes();
             att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Read raw accuracy prediction"}, null);
             att.writeTo(obj);

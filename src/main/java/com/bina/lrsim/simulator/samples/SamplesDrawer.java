@@ -59,7 +59,7 @@ public class SamplesDrawer extends Samples {
             try {
                 kmer_event_drawer_.put(
                         event,
-                        (BaseCallsPool) event.pool().getDeclaredConstructor(new Class[]{int.class, int.class})
+                        (BaseCallsPool) event.pool.getDeclaredConstructor(new Class[]{int.class, int.class})
                                 .newInstance(num_kmer(), cap));
             } catch (ReflectiveOperationException e) {
                 log.info(e, e);
@@ -91,23 +91,23 @@ public class SamplesDrawer extends Samples {
         if (context.hp_len() == 1) {
             EnumEvent ev = randomEvent(context, gen);
             kmer_event_drawer_.get(ev).appendTo(buffer, context, gen);
-            ++counters[ev.value()];
+            ++counters[ev.value];
             if (ev.equals(EnumEvent.INSERTION)) {
-                counters[ev.value()] += buffer.size() - old_length - 2;
+                counters[ev.value] += buffer.size() - old_length - 2;
             }
         } else {
             if (hp_event_drawer_.appendTo(buffer, context, gen)) {
                 final int differential = buffer.size() - old_length - context.hp_len();
                 if (differential == 0) {
-                    counters[EnumEvent.MATCH.value()] += context.hp_len();
+                    counters[EnumEvent.MATCH.value] += context.hp_len();
                     log.info("homo match");
                 } else if (differential < 0) {
-                    counters[EnumEvent.DELETION.value()] += -differential;
+                    counters[EnumEvent.DELETION.value] += -differential;
                     log.info("homo del");
 
                 } else {
-                    counters[EnumEvent.MATCH.value()] += context.hp_len() - 1;
-                    counters[EnumEvent.INSERTION.value()] += differential;
+                    counters[EnumEvent.MATCH.value] += context.hp_len() - 1;
+                    counters[EnumEvent.INSERTION.value] += differential;
                     log.info("homo ins");
 
                 }
@@ -189,9 +189,9 @@ public class SamplesDrawer extends Samples {
                     }
                     */
 
-                    ++event_count[buffer.event().value()];
+                    ++event_count[buffer.event().value];
                     if (kmer_event_drawer_.get(buffer.event()).add(buffer)) {
-                        ++logged_event_count[buffer.event().value()];
+                        ++logged_event_count[buffer.event().value];
                         ++num_logged_event;
                     }
                 } else {

@@ -22,14 +22,14 @@ class AlnData {
     // still trying to figure out how to do associate class type with enum then cast and generic
     public byte[] get(EnumDat f) {
         try {
-            if (null == data_[f.value()]) {
-                data_[f.value()] = H5ScalarDSIO.<byte[]>Read(h5_, path_ + f.path());
+            if (null == data_[f.value]) {
+                data_[f.value] = H5ScalarDSIO.<byte[]>Read(h5_, path_ + f.path);
             }
         }
         catch(Exception e) {
             throw new RuntimeException(e);
         }
-        return (byte[]) data_[f.value()];
+        return (byte[]) data_[f.value];
     }
 
     public void load(H5File h5, String path) {

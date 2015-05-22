@@ -26,7 +26,7 @@ class AlnIndex {
     }
 
     public int get(int alignment_index, EnumIdx c) {
-        return data_[alignment_index * num_cols_ + c.value()];
+        return data_[alignment_index * num_cols_ + c.value];
     }
 
     public int[] get(int alignment_index) {

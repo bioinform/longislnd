@@ -3,7 +3,6 @@ package com.bina.lrsim.simulator;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
-import org.apache.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -67,9 +66,9 @@ public class Event {
     // we can also save all 4 bytes by writing homopolymer events to a different stream
     // this can be done down the line if we have time
     public void write(DataOutputStream dos) throws IOException {
-        if (event_.value() >= EnumEvent.values().length) throw new RuntimeException("invalid i/o format");
+        if (event_.value >= EnumEvent.values().length) throw new RuntimeException("invalid i/o format");
         dos.writeInt(context_.kmer());
-        dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value());
+        dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value);
         bc_.write(dos);
     }
 

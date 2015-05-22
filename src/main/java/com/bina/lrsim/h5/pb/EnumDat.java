@@ -36,19 +36,11 @@ public enum EnumDat {
         return EnumSet.complementOf(EnumSet.of(BaseCall, AlnArray));
     }
 
-    public int value() {
-        return value_;
-    }
-
-    public String path() {
-        return path_;
-    }
-
     EnumDat(int value, String path) {
-        value_ = value;
-        path_ = path;
+        this.value = value;
+        this.path = path;
     }
 
-    private final int value_;
-    private final String path_;
+    public final int value;
+    public final String path;
 }

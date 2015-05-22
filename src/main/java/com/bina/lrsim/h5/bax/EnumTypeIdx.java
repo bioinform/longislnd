@@ -9,24 +9,16 @@ enum EnumTypeIdx {
     TypeHQRegion(2, "HQRegion");
 
     static String[] getDescriptionArray() {
-        return new String[]{ TypeAdapter.description()
-                           , TypeInsert.description()
-                           , TypeHQRegion.description()};
-    }
-
-    public int value() {
-        return value_;
-    }
-
-    public String description() {
-        return description_;
+        return new String[]{TypeAdapter.description
+                           , TypeInsert.description
+                           , TypeHQRegion.description};
     }
 
     EnumTypeIdx(int value, String description) {
-        value_ = value;
-        description_ = description;
+        this.value = value;
+        this.description = description;
     }
 
-    private final String description_;
-    private final int value_;
+    public final String description;
+    public final int value;
 }
