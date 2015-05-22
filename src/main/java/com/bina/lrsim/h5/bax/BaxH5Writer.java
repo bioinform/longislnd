@@ -119,7 +119,7 @@ public class BaxH5Writer {
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleNumber", int_buffer, dims_1);
             Attributes att = new Attributes();
-            att.add(AttributesFactory.DESCRIPTION, new String[]{"Number assigned to each ZMW on the chip"}, null);
+            att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Number assigned to each ZMW on the chip"}, null);
             att.writeTo(obj);
         }
         {
@@ -130,7 +130,7 @@ public class BaxH5Writer {
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleStatus", byte_buffer, dims_1);
             Attributes att = new Attributes();
-            att.add(AttributesFactory.DESCRIPTION, new String[]{"Type of ZMW that produced the data_ref"}, null);
+            att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Type of ZMW that produced the data_ref"}, null);
             att.add( "LookupTable"
                    , new String[]{"SEQUENCING","ANTIHOLE","FIDUCIAL","SUSPECT","ANTIMIRROR","FDZMW","FBZMW","ANTIBEAMLET","OUTSIDEFOV"}
                    , new long[]{9});
@@ -146,7 +146,7 @@ public class BaxH5Writer {
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/HoleXY", short_buffer, dims_2);
             Attributes att = new Attributes();
-            att.add(AttributesFactory.DESCRIPTION, new String[]{"Grid coordinates assigned to each ZMW on the chip"}, null);
+            att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Grid coordinates assigned to each ZMW on the chip"}, null);
             att.writeTo(obj);
         }
         {
@@ -156,7 +156,7 @@ public class BaxH5Writer {
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path() + "/NumEvent", int_buffer, dims_1);
             Attributes att = new Attributes();
-            att.add(AttributesFactory.DESCRIPTION, new String[]{"ZMW event-stream counts"}, null);
+            att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"ZMW event-stream counts"}, null);
             att.writeTo(obj);
         }
         {
@@ -167,7 +167,7 @@ public class BaxH5Writer {
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path() + "/ReadScore", float_buffer, dims_1);
             Attributes att = new Attributes();
-            att.add(AttributesFactory.DESCRIPTION, new String[]{"Read raw accuracy prediction"}, null);
+            att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Read raw accuracy prediction"}, null);
             att.writeTo(obj);
         }
     }

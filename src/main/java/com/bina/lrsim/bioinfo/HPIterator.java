@@ -28,7 +28,7 @@ public final class HPIterator implements Iterator<Context> {
     private int end_;
     private final int leftFlank_;
     private final int rightFlank_;
-    private final int hp_anchor_;
+    private final int hpAnchor_;
     private final boolean rc_;
 
     /**
@@ -37,20 +37,20 @@ public final class HPIterator implements Iterator<Context> {
      * @param ascii       ascii file
      * @param begin       0-base begin
      * @param end         0-base end, exclusive
-     * @param left_flank  number of bp before the position of interest
-     * @param right_flank number of bp after the position of interest
-     * @param hp_anchor   number of bp to anchor homopolymer
+     * @param leftFlank  number of bp before the position of interest
+     * @param rightFlank number of bp after the position of interest
+     * @param hpAnchor   number of bp to anchor homopolymer
      * @param rc          if we are doing reverse complement of ascii
      */
-    HPIterator(byte[] ascii, int begin, int end, int left_flank, int right_flank, int hp_anchor, boolean rc) {
-        leftFlank_ = left_flank;
-        rightFlank_ = right_flank;
-        hp_anchor_ = hp_anchor;
+    HPIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, int hpAnchor, boolean rc) {
+        leftFlank_ = leftFlank;
+        rightFlank_ = rightFlank;
+        hpAnchor_ = hpAnchor;
         rc_ = rc;
         seq_ = ascii;
 
-        curr_ = begin + left_flank;
-        end_ = end - right_flank;
+        curr_ = begin + leftFlank;
+        end_ = end - rightFlank;
         if (rc) {
             curr_ = seq_.length - 1 - curr_;
             end_ = seq_.length - 1 - end_;
@@ -91,7 +91,7 @@ public final class HPIterator implements Iterator<Context> {
 
         curr_ = diff_pos;
 
-        return new HPContext(buffer, leftFlank_, rightFlank_, hp_anchor_);
+        return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
     }
 
     private HPContext rc_next() {
@@ -111,7 +111,7 @@ public final class HPIterator implements Iterator<Context> {
 
         curr_ = diff_pos;
 
-        return new HPContext(buffer, leftFlank_, rightFlank_, hp_anchor_);
+        return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
     }
 
 

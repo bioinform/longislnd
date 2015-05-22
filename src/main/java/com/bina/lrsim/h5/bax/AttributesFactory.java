@@ -13,7 +13,6 @@ import java.util.EnumMap;
  */
 
 class AttributesFactory {
-    public static final String DESCRIPTION = "Description";
 
     private EnumMap<EnumDat,Attributes> ofDat_ = new EnumMap<>(EnumDat.class);
     private EnumMap<EnumGroups,Attributes> ofGrp_ = new EnumMap<>(EnumGroups.class);
@@ -30,61 +29,57 @@ class AttributesFactory {
 
     public AttributesFactory(int num_reads, String movie_name) {
         {//for enum dat
-            final String idxf = "IndexField";
-            final String ne = "NumEvent";
-            final String uoe = "UnitsOrEncoding";
-            final String pqv = "Phred QV";
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Called base"}, null);
-                att.add(idxf, new String[]{ne}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Called base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
                 ofDat_.put(EnumDat.BaseCall, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Probability of deletion error prior to the current base"}, null);
-                att.add(idxf, new String[]{ne}, null);
-                att.add(uoe, new String[]{"Phred QV"}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Probability of deletion error prior to the current base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
+                att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[]{EnumAttributes.PHRED_QV.fieldName}, null);
                 ofDat_.put(EnumDat.DeletionQV, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Likely identity of deleted base"}, null);
-                att.add(idxf, new String[]{ne}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Likely identity of deleted base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
                 ofDat_.put(EnumDat.DeletionTag, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Probability that the current base is an insertion"}, null);
-                att.add(idxf, new String[]{ne}, null);
-                att.add(uoe, new String[]{"Phred QV"}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Probability that the current base is an insertion"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
+                att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[]{EnumAttributes.PHRED_QV.fieldName}, null);
                 ofDat_.put(EnumDat.InsertionQV, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Probability of merged-pulse error at the current base"}, null);
-                att.add(idxf, new String[]{ne}, null);
-                att.add(uoe, new String[]{"Phred QV"}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Probability of merged-pulse error at the current base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
+                att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[]{EnumAttributes.PHRED_QV.fieldName}, null);
                 ofDat_.put(EnumDat.MergeQV, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Probability of basecalling error at the current base"}, null);
-                att.add(idxf, new String[]{ne}, null);
-                att.add(uoe, new String[]{"Phred QV"}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Probability of basecalling error at the current base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
+                att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[]{EnumAttributes.PHRED_QV.fieldName}, null);
                 ofDat_.put(EnumDat.QualityValue, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Probability of substitution error at the current base"}, null);
-                att.add(idxf, new String[]{ne}, null);
-                att.add(uoe, new String[]{"Phred QV"}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Probability of substitution error at the current base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
+                att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[]{EnumAttributes.PHRED_QV.fieldName}, null);
                 ofDat_.put(EnumDat.SubstitutionQV, att);
             }
             {
                 Attributes att = new Attributes();
-                att.add(DESCRIPTION, new String[]{"Most likely alternative base"}, null);
-                att.add(idxf, new String[]{ne}, null);
+                att.add(EnumAttributes.DESCRIPTION.fieldName, new String[]{"Most likely alternative base"}, null);
+                att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[]{EnumAttributes.NUM_EVENT.fieldName}, null);
                 ofDat_.put(EnumDat.SubstitutionTag, att);
             }
         }

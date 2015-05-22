@@ -34,15 +34,15 @@ public class WeightedReference implements RandomSequenceGenerator {
     }
 
     @Override
-    public Iterator<Context> getSequence(int length, int left_flank, int right_flank, int hp_anchor, RandomGenerator gen) {
+    public Iterator<Context> getSequence(int length, int leftFlank, int rightFlank, int hp_anchor, RandomGenerator gen) {
         Iterator<Context> itr = null;
         while (null == itr) {
-            itr = getSequenceImpl(length, left_flank, right_flank, hp_anchor, gen);
+            itr = getSequenceImpl(length, leftFlank, rightFlank, hp_anchor, gen);
         }
         return itr;
     }
 
-    private Iterator<Context> getSequenceImpl(int length, int left_flank, int right_flank, int hp_anchor, RandomGenerator gen) {
+    private Iterator<Context> getSequenceImpl(int length, int leftFlank, int rightFlank, int hp_anchor, RandomGenerator gen) {
         final boolean rc = gen.nextBoolean();
         final long num_bases = ref_cdf_.get(ref_cdf_.size() - 1);
         final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : gen.nextLong() % num_bases;
@@ -53,8 +53,8 @@ public class WeightedReference implements RandomSequenceGenerator {
         final int ref_pos = (0 == ref_idx) ? (int) pos : (int) (pos - ref_cdf_.get(ref_idx - 1));
 
         if (ref_pos + length <= get(ref_idx).length) {
-//            return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,left_flank,right_flank, rc);
-            return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, left_flank, right_flank, hp_anchor, rc);
+//            return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
+            return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
         }
         return null;
     }

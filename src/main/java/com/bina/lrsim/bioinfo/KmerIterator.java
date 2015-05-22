@@ -22,17 +22,17 @@ public final class KmerIterator implements Iterator<Context> {
      * @param ascii       ascii file
      * @param begin       0-base begin
      * @param end         0-base end, exclusive
-     * @param left_flank  number of bp before the position of interest
-     * @param right_flank number of bp after the position of interest
+     * @param leftFlank  number of bp before the position of interest
+     * @param rightFlank number of bp after the position of interest
      * @param rc          if we are doing reverse complement
      */
-    KmerIterator(byte[] ascii, int begin, int end, int left_flank, int right_flank, boolean rc) {
-        leftFlank_ = left_flank;
-        rightFlank_ = right_flank;
+    KmerIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, boolean rc) {
+        leftFlank_ = leftFlank;
+        rightFlank_ = rightFlank;
         rc_ = rc;
         seq_ = ascii;
-        curr_ = begin + left_flank;
-        end_ = end - right_flank;
+        curr_ = begin + leftFlank;
+        end_ = end - rightFlank;
     }
 
     @Override
