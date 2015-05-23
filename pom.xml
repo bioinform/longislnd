@@ -186,73 +186,61 @@
             <groupId>com.bina</groupId>
             <artifactId>jarnc2obj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarh4obj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarh5obj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>fits</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>netcdf</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>slf4jnop</artifactId>
             <version>1.7.5-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdf5</artifactId>
             <version>2.11.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarfitsobj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>slf4japi</artifactId>
             <version>1.7.5-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdf</artifactId>
             <version>2.11.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdfobj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jhdfview</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

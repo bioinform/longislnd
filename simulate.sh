@@ -6,6 +6,8 @@ MODEL_PREFIX=model
 
 OUTPUT_DIR=/Users/bayo/Downloads
 
+MOVIE_ID=FromLRSim
+
 MOVIE_ID=LRSim
 
 FASTA=/Users/bayo/Downloads/ecoli_mod.fasta
@@ -16,4 +18,4 @@ SAMPLE_PER=100
 
 SEED=1351
 
-java -Djava.library.path=${HDF5_LIB} -jar LRSim.jar simulate ${OUTPUT_DIR} ${FASTA} ${MODEL_PREFIX} ${NUM_BASES} ${SAMPLE_PER} ${SEED}
+java -Djava.library.path=${HDF5_LIB} -jar LRSim.jar simulate ${OUTPUT_DIR} ${MOVIE_ID} ${FASTA} ${MODEL_PREFIX} ${NUM_BASES} ${SAMPLE_PER} ${SEED}
