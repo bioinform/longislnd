@@ -47,7 +47,7 @@ public class H5Simulator {
         int simulated_reads = 0;
         final int target_number_of_bases = 200000000;
         // the following can be parallelized
-        for( long simulated_bases = 0; simulated_bases < total_bases; ++current_file_index) {
+        for( long simulated_bases = 0; simulated_bases < total_bases; ++current_file_index, simulated_bases+=target_number_of_bases) {
             final String movie_name = "m000000_000000_"
                     + String.format("%05d", current_file_index)
                     + "_cFromLRSim_s1_p0";
