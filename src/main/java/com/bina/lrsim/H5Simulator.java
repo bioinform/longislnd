@@ -21,16 +21,17 @@ public class H5Simulator {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length != 6) {
-      log.info("parameters: out_dir fasta model_prefix total_bases sample_per seed");
+    if (args.length != 7) {
+      log.info("parameters: out_dir movie_id fasta model_prefix total_bases sample_per seed");
       System.exit(1);
     }
     final String out_dir = args[0];
-    final String fasta = args[1];
-    final String model_prefixes = args[2];
-    final long total_bases = Long.parseLong(args[3]);
-    final int sample_per = Integer.parseInt(args[4]);
-    final int seed = Integer.parseInt(args[5]);
+    final String identifier = args[1].trim();
+    final String fasta = args[2];
+    final String model_prefixes = args[3];
+    final long total_bases = Long.parseLong(args[4]);
+    final int sample_per = Integer.parseInt(args[5]);
+    final int seed = Integer.parseInt(args[6]);
 
 
     final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), sample_per);
@@ -48,7 +49,9 @@ public class H5Simulator {
     final int target_number_of_bases = 200000000;
     // the following can be parallelized
     for (long simulated_bases = 0; simulated_bases < total_bases; ++current_file_index, simulated_bases += target_number_of_bases) {
-      final String movie_name = "m000000_000000_" + String.format("%05d", current_file_index) + "_cFromLRSim_s1_p0";
+      final String movie_name = "m000000_000000_"
+              + String.format("%05d", current_file_index)
+              + "_c"+identifier+"_s1_p0";
       log.info("simulating roughly " + target_number_of_bases + " for " + movie_name);
       simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target_number_of_bases, gen);
       log.info("total number of reads is " + simulated_reads);

@@ -6,6 +6,8 @@ MODEL_PREFIX=model
 
 OUTPUT_DIR=/Users/bayo/Downloads
 
+MOVIE_ID=LRSim
+
 FASTA=/Users/bayo/Downloads/ecoli_mod.fasta
 
 NUM_BASES=235851050
