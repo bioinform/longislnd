@@ -11,7 +11,6 @@ JAR_LOC=${build_dir}/HDFView-2.11.0-Linux/HDF_Group/HDFView/2.11.0/lib/
 mkdir ${build_dir}
 cd ${build_dir}
 
-#http://www.hdfgroup.org/ftp/HDF5/hdf-java/current/bin/HDFView-2.11.0-Darwin.dmg
 wget http://www.hdfgroup.org/ftp/HDF5/hdf-java/current/bin/${TAR_GZ}
 
 tar xzf ${TAR_GZ}
@@ -72,3 +71,5 @@ for (( i =0; i < ${#ORG_NAMES[@]}; ++i ));
 do
   mvn install:install-file -DlocalRepositoryPath=repo -DcreateChecksum=true -Dpackaging=jar -Dfile=${JAR_LOC}/${ORG_NAMES[$i]} -DgroupId=com.bina -DartifactId=${ARTIFACT[$i]} -Dversion=${VERSION[$i]}
 done
+
+mvn package
