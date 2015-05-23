@@ -8,54 +8,54 @@ import java.util.Iterator;
  * Created by bayo on 5/11/15.
  */
 public final class KmerIterator implements Iterator<Context> {
-    private final static Logger log = Logger.getLogger(KmerIterator.class.getName());
-    private final byte[] seq_;
-    private int curr_;
-    private final int end_;
-    private final int leftFlank_;
-    private final int rightFlank_;
-    private final boolean rc_;
+  private final static Logger log = Logger.getLogger(KmerIterator.class.getName());
+  private final byte[] seq_;
+  private int curr_;
+  private final int end_;
+  private final int leftFlank_;
+  private final int rightFlank_;
+  private final boolean rc_;
 
-    /**
-     * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
-     *
-     * @param ascii       ascii file
-     * @param begin       0-base begin
-     * @param end         0-base end, exclusive
-     * @param leftFlank  number of bp before the position of interest
-     * @param rightFlank number of bp after the position of interest
-     * @param rc          if we are doing reverse complement
-     */
-    KmerIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, boolean rc) {
-        leftFlank_ = leftFlank;
-        rightFlank_ = rightFlank;
-        rc_ = rc;
-        seq_ = ascii;
-        curr_ = begin + leftFlank;
-        end_ = end - rightFlank;
-    }
+  /**
+   * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
+   * 
+   * @param ascii ascii file
+   * @param begin 0-base begin
+   * @param end 0-base end, exclusive
+   * @param leftFlank number of bp before the position of interest
+   * @param rightFlank number of bp after the position of interest
+   * @param rc if we are doing reverse complement
+   */
+  KmerIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, boolean rc) {
+    leftFlank_ = leftFlank;
+    rightFlank_ = rightFlank;
+    rc_ = rc;
+    seq_ = ascii;
+    curr_ = begin + leftFlank;
+    end_ = end - rightFlank;
+  }
 
-    @Override
-    public boolean hasNext() {
-        return curr_ < end_;
-    }
+  @Override
+  public boolean hasNext() {
+    return curr_ < end_;
+  }
 
-    @Override
-    public Context next() {
-        KmerContext c = null;
-        try {
-            //there can be a running sum optimization
-            c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_, rc_);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            c = null;
-        }
-        ++curr_;
-        return c;
+  @Override
+  public Context next() {
+    KmerContext c = null;
+    try {
+      // there can be a running sum optimization
+      c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_, rc_);
+    } catch (RuntimeException e) {
+      e.printStackTrace();
+      c = null;
     }
+    ++curr_;
+    return c;
+  }
 
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public void remove() {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -8,34 +8,33 @@ import java.util.Arrays;
  */
 public class LRSim {
 
-    private static String VERSION = "LRSim " + LRSim.class.getPackage().getImplementationVersion();
-    private static String usage = "java -jar LRSim.jar <mode> [parameters] \n"
-            + "       mode    -- simulate/sample\n"
-            + "       parameters -- see mode description by not specifying parameters\n";
+  private static String VERSION = "LRSim " + LRSim.class.getPackage().getImplementationVersion();
+  private static String usage = "java -jar LRSim.jar <mode> [parameters] \n" + "       mode    -- simulate/sample\n"
+                                + "       parameters -- see mode description by not specifying parameters\n";
 
-    public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException {
 
-        if (args.length < 1) {
-            System.err.println(VERSION);
-            System.err.println(usage);
-            System.exit(1);
-        }
-
-        final String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
-
-
-        switch (args[0]) {
-            case "simulate": // run simulator
-                H5Simulator.main(pass_args);
-                break;
-
-            case "sample": //run sampling
-                H5Sampler.main(pass_args);
-                break;
-
-            default:
-                System.err.println(usage);
-        }
+    if (args.length < 1) {
+      System.err.println(VERSION);
+      System.err.println(usage);
+      System.exit(1);
     }
+
+    final String[] pass_args = Arrays.copyOfRange(args, 1, args.length);
+
+
+    switch (args[0]) {
+      case "simulate": // run simulator
+        H5Simulator.main(pass_args);
+        break;
+
+      case "sample": // run sampling
+        H5Sampler.main(pass_args);
+        break;
+
+      default:
+        System.err.println(usage);
+    }
+  }
 
 }

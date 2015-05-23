@@ -10,14 +10,14 @@ import java.io.IOException;
  * Created by bayo on 5/11/15.
  */
 public class H5Sampler {
-    private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
+  private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
 
-    /**
-     * collect context-specific samples of reference->read edits from an alignment file
-     *
-     * @param args see log.info
-     */
-    public static void main(String[] args) throws IOException {
+  /**
+   * collect context-specific samples of reference->read edits from an alignment file
+   * 
+   * @param args see log.info
+   */
+  public static void main(String[] args) throws IOException {
         if (args.length != 6) {
             log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
             System.exit(1);
