@@ -57,7 +57,7 @@ public class Event {
     }
 
     public byte[] data_cpy() {
-        return bc_.data_cpy();
+        return bc_.toByteArray();
     }
 
 

@@ -64,7 +64,7 @@ public class BaxH5Writer {
         long[] dims = new long[]{buffer_.reads().size()};
         for (EnumDat e : EnumDat.getBaxSet()) {
             try {
-                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.reads().get(e).data_ref(), dims);
+                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.reads().get(e).toByteArray(), dims);
                 af.get(e).writeTo(obj);
             }
             catch (Exception exception) {
