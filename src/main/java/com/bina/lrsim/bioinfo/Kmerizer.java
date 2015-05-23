@@ -26,11 +26,10 @@ public class Kmerizer {
     for (int ii = begin; ii < end; ++ii) {
       out *= 4;
       int val = EnumBP.ascii2value(ascii[ii]);
-      if (val == EnumBP.N.value) {
+      if ( val < 0 | val >=4 ) {
         val = ThreadLocalRandom.current().nextInt(4);
       }
-      if (val >= 4) throw new RuntimeException("bad ascii stream");
-      out += EnumBP.ascii2value(ascii[ii]);
+      out += val;
     }
     return out;
   }
