@@ -3,12 +3,12 @@ package com.bina.lrsim.simulator.samples;
 import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.util.ArrayUtils;
-import com.bina.lrsim.util.IntBuffer;
 import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 
 /**
  * Created by bayo on 5/10/15.
@@ -21,7 +21,7 @@ public abstract class Samples {
     private final long[] event_base_count_ = new long[EnumEvent.values().length];
     private final long[] event_count_ = new long[EnumEvent.values().length];
     private long[] kmer_event_count_;
-    private IntBuffer lengths_;
+    private ArrayList<Integer> lengths_;
 
     private long[] kmer_rlen_slen_count_;
     private static final int max_rlen_ = 100;
@@ -61,7 +61,7 @@ public abstract class Samples {
         ++kmer_rlen_slen_count_[ ( kmer * max_rlen_ + rlen ) * max_slen_ + slen];
     }
 
-    public final IntBuffer lengths_ref() {
+    public final ArrayList<Integer> lengths_ref() {
         return lengths_;
     }
 
@@ -95,7 +95,7 @@ public abstract class Samples {
         ArrayUtils.axpy(1,other.event_base_count_,event_base_count_);
         ArrayUtils.axpy(1,other.event_count_,event_count_);
         ArrayUtils.axpy(1,other.kmer_event_count_,kmer_event_count_);
-        lengths_.addLast(other.lengths_);
+        lengths_.addAll(other.lengths_);
         base_log.info("after accumulation "+this.toString());
     }
 
@@ -124,7 +124,7 @@ public abstract class Samples {
         num_kmer_ = 1 << ( 2*k_ );
         hp_anchor_ = hp_anchor;
         kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
-        lengths_ = new IntBuffer(1000);
+        lengths_ = new ArrayList<Integer>(1000);
         kmer_rlen_slen_count_ = new long[(1<<(2*(2*hp_anchor+1)))*max_rlen_*max_slen_];
     }
 
@@ -249,9 +249,9 @@ public abstract class Samples {
     protected final void loadLengths(String prefix) throws IOException {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
         int new_size = dis.readInt();
-        lengths_ = new IntBuffer(new_size);
+        lengths_ = new ArrayList<Integer>(new_size);
         for(int ii = 0 ; ii < new_size ; ++ii) {
-            lengths_.addLast(dis.readInt());
+            lengths_.add(dis.readInt());
         }
         dis.close();
         base_log.info("loaded " + lengths_.size() + " length");

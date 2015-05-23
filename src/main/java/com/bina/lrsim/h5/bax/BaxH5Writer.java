@@ -61,10 +61,10 @@ public class BaxH5Writer {
     }
 
     private void writeBaseCalls(H5File h5, AttributesFactory af) throws IOException {
-        long[] dims = new long[]{buffer_.reads().size()};
+        long[] dims = new long[]{buffer_.getReadsRef().size()};
         for (EnumDat e : EnumDat.getBaxSet()) {
             try {
-                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.reads().get(e).toByteArray(), dims);
+                final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.getReadsRef().get(e).toByteArray(), dims);
                 af.get(e).writeTo(obj);
             }
             catch (Exception exception) {
@@ -74,7 +74,7 @@ public class BaxH5Writer {
     }
 
     public int size() {
-        return buffer_.length_score().size() / 2;
+        return buffer_.size();
     }
 
     private final DataBuffer buffer_ = new DataBuffer(100000);
@@ -83,15 +83,14 @@ public class BaxH5Writer {
     private void writeRegions(H5File h5, int firsthole) throws IOException {
         final EnumSet<EnumTypeIdx> typeSet = EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
         int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
-        final int[] length_score = buffer_.length_score().data_ref();
         int shift = 0;
         for (int rr = 0; rr < size(); ++rr) {
             for (EnumTypeIdx e : typeSet) {
                 buffer[shift + EnumRegionsIdx.HoleNumber.value] = firsthole + rr;
                 buffer[shift + EnumRegionsIdx.RegionType.value] = e.value;
                 buffer[shift + EnumRegionsIdx.RegionStart.value] = 0;
-                buffer[shift + EnumRegionsIdx.RegionEnd.value] = length_score[2 * rr];
-                buffer[shift + EnumRegionsIdx.RegionScore.value] = length_score[2 * rr + 1];
+                buffer[shift + EnumRegionsIdx.RegionEnd.value] = buffer_.getLength(rr);
+                buffer[shift + EnumRegionsIdx.RegionScore.value] = buffer_.getScore(rr);
                 shift += EnumRegionsIdx.values().length;
             }
         }
@@ -107,7 +106,6 @@ public class BaxH5Writer {
 
 
     public void writeZWM(H5File h5, int firsthole) throws IOException{
-        final int[] length_score = buffer_.length_score().data_ref();
         final long[] dims_1 = new long[]{(long) size()};
         final long[] dims_2 = new long[]{(long) size(), (long) 2};
 
@@ -152,7 +150,7 @@ public class BaxH5Writer {
         {
             //NumEvent
             for (int ii = 0; ii < size(); ++ii) {
-                int_buffer[ii] = length_score[2 * ii];
+                int_buffer[ii] = buffer_.getLength(ii);
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/NumEvent", int_buffer, dims_1);
             Attributes att = new Attributes();
@@ -163,7 +161,7 @@ public class BaxH5Writer {
             //ReadScore
             float[] float_buffer = new float[size()];
             for (int ii = 0; ii < size(); ++ii) {
-                float_buffer[ii] = (float) (length_score[2 * ii + 1]) / (float) 1001;
+                float_buffer[ii] = (float) (buffer_.getScore(ii)) / (float) 1001;
             }
             final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path + "/ReadScore", float_buffer, dims_1);
             Attributes att = new Attributes();
