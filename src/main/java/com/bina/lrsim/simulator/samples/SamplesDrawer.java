@@ -68,7 +68,7 @@ public class SamplesDrawer extends Samples {
 
   /**
    * Returns a read length drawn from sampled data
-   * 
+   *
    * @param gen random number generator
    * @return read length
    */
@@ -78,7 +78,7 @@ public class SamplesDrawer extends Samples {
 
   /**
    * For the given sequencing context, append to buffer a sequence drawn from the sampled data
-   * 
+   *
    * @param buffer visitor to take the randomly generated sequence
    * @param context sequencing context
    * @param gen random number generator
@@ -131,7 +131,7 @@ public class SamplesDrawer extends Samples {
 
   /**
    * load events from a single file
-   * 
+   *
    * @param prefix file prefix
    * @param max_sample
    * @throws IOException
@@ -142,7 +142,7 @@ public class SamplesDrawer extends Samples {
 
   /**
    * Load the sampled events
-   * 
+   *
    * @param prefixes prefixes of the event files
    * @throws IOException
    */
@@ -160,14 +160,14 @@ public class SamplesDrawer extends Samples {
 
     long[] event_count = new long[EnumEvent.values().length];
     long[] logged_event_count = new long[EnumEvent.values().length];
-    long num_logged_event = 0;
-    final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long) max_sample;
+//    long num_logged_event = 0;
+//    final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long) max_sample;
 
     long num_hp_events = 0;
 
     final boolean[] src_done = new boolean[num_src];
 
-    for (int src = 0, n_src_done = 0; n_src_done < num_src && num_logged_event < max_logged_event; src = (src + 1) % num_src) {
+    for (int src = 0, n_src_done = 0; n_src_done < num_src /*&& num_logged_event < max_logged_event*/; src = (src + 1) % num_src) {
       if (dis[src].available() > 0) {
         buffer.read(dis[src]);
 
@@ -190,7 +190,7 @@ public class SamplesDrawer extends Samples {
           ++event_count[buffer.event().value];
           if (kmer_event_drawer_.get(buffer.event()).add(buffer)) {
             ++logged_event_count[buffer.event().value];
-            ++num_logged_event;
+//            ++num_logged_event;
           }
         } else {
           hp_event_drawer_.add(buffer);
@@ -221,7 +221,7 @@ public class SamplesDrawer extends Samples {
 
   /**
    * For a given sequencing context, generate an event
-   * 
+   *
    * @param context sequencing context
    * @param gen random number generator
    * @return
