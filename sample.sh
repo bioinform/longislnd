@@ -1,7 +1,8 @@
 
 set -ex
 
-HDF5_LIB=/Applications/HDFView.app/Contents/Resources/lib
+ROOT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+HDF5_LIB=${ROOT_DIR}/build/lib
 
 MODEL_PREFIX=model.2
 
@@ -13,4 +14,4 @@ MIN_LENGTH=1000
 
 FLANK_MASK=100
 
-java -Djava.library.path=${HDF5_LIB} -jar LRSim.jar sample ${MODEL_PREFIX} ${CMP_H5} ${BASE_FLANK} ${BASE_FLANK} ${MIN_LENGTH} ${FLANK_MASK}
+java -Djava.library.path=${HDF5_LIB} -jar ${ROOT_DIR}/LRSim.jar sample ${MODEL_PREFIX} ${CMP_H5} ${BASE_FLANK} ${BASE_FLANK} ${MIN_LENGTH} ${FLANK_MASK}

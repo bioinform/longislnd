@@ -1,6 +1,7 @@
 set -ex
 
-HDF5_LIB=/Applications/HDFView.app/Contents/Resources/lib
+ROOT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+HDF5_LIB=${ROOT_DIR}/build/lib
 
 MODEL_PREFIX=model
 
@@ -18,4 +19,4 @@ SAMPLE_PER=100
 
 SEED=1351
 
-java -Djava.library.path=${HDF5_LIB} -jar LRSim.jar simulate ${OUTPUT_DIR} ${MOVIE_ID} ${FASTA} ${MODEL_PREFIX} ${NUM_BASES} ${SAMPLE_PER} ${SEED}
+java -Djava.library.path=${HDF5_LIB} -jar ${ROOT_DIR}/LRSim.jar simulate ${OUTPUT_DIR} ${MOVIE_ID} ${FASTA} ${MODEL_PREFIX} ${NUM_BASES} ${SAMPLE_PER} ${SEED}

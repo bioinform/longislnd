@@ -182,6 +182,7 @@
             <version>SNAPSHOT-1.0.0</version>
         </dependency>
 -->
+<!--
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarnc2obj</artifactId>
@@ -192,11 +193,13 @@
             <artifactId>jarh4obj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
+-->
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarh5obj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
+<!--
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>fits</artifactId>
@@ -212,11 +215,13 @@
             <artifactId>slf4jnop</artifactId>
             <version>1.7.5-SNAPSHOT</version>
         </dependency>
+-->
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdf5</artifactId>
             <version>2.11.0-SNAPSHOT</version>
         </dependency>
+<!--
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarfitsobj</artifactId>
@@ -232,16 +237,19 @@
             <artifactId>jarhdf</artifactId>
             <version>2.11.0-SNAPSHOT</version>
         </dependency>
+-->
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdfobj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
+<!--
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jhdfview</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.biojava</groupId>
