@@ -50,7 +50,7 @@ public class H5Simulator {
         for( long simulated_bases = 0; simulated_bases < total_bases; ++current_file_index) {
             final String movie_name = "m000000_000000_"
                     + String.format("%05d", current_file_index)
-                    + "_cLR_SIM_s1_p0";
+                    + "_cFromLRSim_s1_p0";
             log.info("simulating roughly " + target_number_of_bases + " for " + movie_name);
             simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target_number_of_bases, gen);
             log.info("total number of reads is " + simulated_reads);
