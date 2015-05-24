@@ -49,7 +49,7 @@ public class Simulator {
     PBReadBuffer read = new PBReadBuffer();
     log.info("generating reads");
 
-    for (int num_bases = 0; num_bases <= total_bases;) {
+    for (int num_bases = 0; num_bases < total_bases;) {
       read.clear();
       if (read.size() != 0) {
         log.info("couldn't clear buffer");

@@ -1,13 +1,14 @@
 package com.bina.lrsim;
 
+import java.io.IOException;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.log4j.Logger;
+
 import com.bina.lrsim.bioinfo.WeightedReference;
 import com.bina.lrsim.simulator.Simulator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
-
-import java.io.IOException;
 
 /**
  * Created by bayo on 5/11/15.
@@ -46,15 +47,15 @@ public class H5Simulator {
 
     int current_file_index = 0;
     int simulated_reads = 0;
-    final int target_number_of_bases = 200000000;
+    final int target_chunk = 200000000;
     // the following can be parallelized
-    for (long simulated_bases = 0; simulated_bases < total_bases; ++current_file_index, simulated_bases += target_number_of_bases) {
-      final String movie_name = "m000000_000000_"
-              + String.format("%05d", current_file_index)
-              + "_c"+identifier+"_s1_p0";
-      log.info("simulating roughly " + target_number_of_bases + " for " + movie_name);
-      simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target_number_of_bases, gen);
+    for (long simulated_bases = 0; simulated_bases <= total_bases; ++current_file_index) {
+      final String movie_name = "m000000_000000_" + String.format("%05d", current_file_index) + "_c" + identifier + "_s1_p0";
+      int target = (int) Math.min(target_chunk, Math.max(0, total_bases - simulated_bases));
+      log.info("simulating roughly " + target_chunk + " for " + movie_name);
+      simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target, gen);
       log.info("total number of reads is " + simulated_reads);
+      simulated_bases += target + 1;
     }
 
 

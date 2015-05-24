@@ -65,7 +65,7 @@ public class BaxH5Writer {
       try {
         final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.getReadsRef()
                                                                                               .get(e)
-                                                                                              .toByteArray(), dims);
+                                                                                              .toByteArray(), dims, e.isSigned);
         af.get(e).writeTo(obj);
       } catch (Exception exception) {
         throw new IOException("failed to write " + e.path);
@@ -95,18 +95,18 @@ public class BaxH5Writer {
       }
     }
     long[] dims = new long[] {buffer.length / EnumRegionsIdx.values().length, EnumRegionsIdx.values().length};
-    final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path + "/Regions", buffer, dims);
+    final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path + "/Regions", buffer, dims, true);
     Attributes att = new Attributes();
-    att.add("ColumnNames", EnumRegionsIdx.getDescriptionArray(), new long[] {EnumRegionsIdx.values().length});
+    att.add("ColumnNames", EnumRegionsIdx.getDescriptionArray(), new long[] {EnumRegionsIdx.values().length}, false);
     att.add("RegionDescriptions",
             new String[] {"Adapter Hit",
                           "Insert Region",
                           "High Quality bases region. Score is 1000 * predicted accuracy, where predicted accuray is 0 to 1.0"},
-            new long[] {3}); // typo foolows pacbio's typo
+            new long[] {3}, false); // typo foolows pacbio's typo
     att.add("RegionSources",
             new String[] {"AdapterFinding", "AdapterFinding", "PulseToBase Region classifer"},
-            new long[] {3}); // typo follows pacbio's typo
-    att.add("RegionTypes", EnumTypeIdx.getDescriptionArray(), new long[] {EnumTypeIdx.values().length});
+            new long[] {3}, false); // typo follows pacbio's typo
+    att.add("RegionTypes", EnumTypeIdx.getDescriptionArray(), new long[] {EnumTypeIdx.values().length}, false);
     att.writeTo(obj);
   }
 
@@ -121,9 +121,9 @@ public class BaxH5Writer {
       for (int ii = 0; ii < size(); ++ii) {
         int_buffer[ii] = firsthole + ii;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleNumber", int_buffer, dims_1);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleNumber", int_buffer, dims_1, false);
       Attributes att = new Attributes();
-      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Number assigned to each ZMW on the chip"}, null);
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Number assigned to each ZMW on the chip"}, null, false);
       att.writeTo(obj);
     }
     {
@@ -132,9 +132,9 @@ public class BaxH5Writer {
       for (int ii = 0; ii < size(); ++ii) {
         byte_buffer[ii] = 0;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleStatus", byte_buffer, dims_1);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleStatus", byte_buffer, dims_1, false);
       Attributes att = new Attributes();
-      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Type of ZMW that produced the data_ref"}, null);
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Type of ZMW that produced the data_ref"}, null, false);
       att.add("LookupTable", new String[] {"SEQUENCING",
                                            "ANTIHOLE",
                                            "FIDUCIAL",
@@ -143,7 +143,7 @@ public class BaxH5Writer {
                                            "FDZMW",
                                            "FBZMW",
                                            "ANTIBEAMLET",
-                                           "OUTSIDEFOV"}, new long[] {9});
+                                           "OUTSIDEFOV"}, new long[] {9}, false);
       att.writeTo(obj);
     }
     {
@@ -154,11 +154,11 @@ public class BaxH5Writer {
         short_buffer[2 * ii] = (short) (holenumber % 2);
         short_buffer[2 * ii + 1] = (short) holenumber;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleXY", short_buffer, dims_2);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/HoleXY", short_buffer, dims_2, true);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName,
               new String[] {"Grid coordinates assigned to each ZMW on the chip"},
-              null);
+              null, false);
       att.writeTo(obj);
     }
     {
@@ -166,9 +166,9 @@ public class BaxH5Writer {
       for (int ii = 0; ii < size(); ++ii) {
         int_buffer[ii] = buffer_.getLength(ii);
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/NumEvent", int_buffer, dims_1);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMW.path + "/NumEvent", int_buffer, dims_1, true);
       Attributes att = new Attributes();
-      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW event-stream counts"}, null);
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW event-stream counts"}, null, false);
       att.writeTo(obj);
     }
     {
@@ -177,9 +177,9 @@ public class BaxH5Writer {
       for (int ii = 0; ii < size(); ++ii) {
         float_buffer[ii] = (float) (buffer_.getScore(ii)) / (float) 1001;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path + "/ReadScore", float_buffer, dims_1);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.ZMWMetrics.path + "/ReadScore", float_buffer, dims_1, false);
       Attributes att = new Attributes();
-      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Read raw accuracy prediction"}, null);
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Read raw accuracy prediction"}, null, false);
       att.writeTo(obj);
     }
   }

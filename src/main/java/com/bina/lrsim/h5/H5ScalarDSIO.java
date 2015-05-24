@@ -24,11 +24,11 @@ public class H5ScalarDSIO {
     }
   }
 
-  public static Dataset Write(H5File h5, String path, Object buffer, long[] dims) throws IOException {
+  public static Dataset Write(H5File h5, String path, Object buffer, long[] dims, boolean isSigned) throws IOException {
     try {
       return h5.createScalarDS(path,
                                null,
-                               EnumH5Type.getEnum(buffer.getClass()).getH5Datatype(buffer, dims),
+                               EnumH5Type.getH5Datatype(buffer, dims, isSigned),
                                dims,
                                null,
                                null,

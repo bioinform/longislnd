@@ -7,15 +7,15 @@ package com.bina.lrsim.h5.pb;
 import java.util.EnumSet;
 
 public enum EnumDat {
-  BaseCall(0, "/Basecall"), // for bax
-  AlnArray(0, "/AlnArray"), // for cmp
-  DeletionQV(1, "/DeletionQV"),
-  DeletionTag(2, "/DeletionTag"),
-  InsertionQV(3, "/InsertionQV"),
-  MergeQV(4, "/MergeQV"),
-  QualityValue(5, "/QualityValue"),
-  SubstitutionQV(6, "/SubstitutionQV"),
-  SubstitutionTag(7, "/SubstitutionTag");
+  BaseCall(0, "/Basecall", false), // for bax
+  AlnArray(0, "/AlnArray", false), // for cmp
+  DeletionQV(1, "/DeletionQV", false),
+  DeletionTag(2, "/DeletionTag", false),
+  InsertionQV(3, "/InsertionQV", false),
+  MergeQV(4, "/MergeQV", false),
+  QualityValue(5, "/QualityValue", false),
+  SubstitutionQV(6, "/SubstitutionQV", false),
+  SubstitutionTag(7, "/SubstitutionTag", false);
 
   public static String[] getContentDescription() {
     return new String[] {"Basecall",
@@ -49,11 +49,13 @@ public enum EnumDat {
     return EnumSet.complementOf(EnumSet.of(BaseCall, AlnArray));
   }
 
-  EnumDat(int value, String path) {
+  EnumDat(int value, String path, boolean isSigned) {
     this.value = value;
     this.path = path;
+    this.isSigned = isSigned;
   }
 
   public final int value;
   public final String path;
+  public final boolean isSigned;
 }
