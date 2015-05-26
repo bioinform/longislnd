@@ -2,6 +2,7 @@ package com.bina.lrsim;
 
 import java.io.IOException;
 
+import com.bina.lrsim.h5.pb.PBCcsSpec;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.h5.cmp.CmpH5Reader;
@@ -15,30 +16,48 @@ import com.bina.lrsim.simulator.samples.SamplesCollector;
 public class H5Sampler {
   private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
 
+  private final static String usage = "parameters: out_prefix in_file read_type left_flank right_flank min_length flank_mask";
   /**
    * collect context-specific samples of reference->read edits from an alignment file
    * 
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length != 6) {
-      log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
+    if (args.length != 7) {
+      log.info(usage);
       System.exit(1);
     }
     final String out_prefix = args[0];
     final String in_file = args[1];
-    final int left_flank = Integer.parseInt(args[2]);
-    final int right_flank = Integer.parseInt(args[3]);
-    final int min_length = Integer.parseInt(args[4]);
-    final int flank_mask = Integer.parseInt(args[5]);
+    final String read_type = args[2];
+    final int left_flank = Integer.parseInt(args[3]);
+    final int right_flank = Integer.parseInt(args[4]);
+    final int min_length = Integer.parseInt(args[5]);
+    final int flank_mask = Integer.parseInt(args[6]);
     final int hp_anchor = 2;
 
-    final PBSpec spec = new PBBaxSpec();
+    final PBSpec spec;
 
-    try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor)) {
-      collector.process(new CmpH5Reader(in_file, spec), min_length, flank_mask);
-      log.info(collector.toString());
+    switch(read_type){
+      case "bax":
+        spec = new PBBaxSpec();
+        break;
+      case "ccs":
+        spec = new PBCcsSpec();
+        break;
+      default:
+        spec = null;
+        log.info("read_type must be bax or ccs");
+        log.info(usage);
+        System.exit(1);
     }
-    log.info("finished");
+
+    if(spec != null) {
+      try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor)) {
+        collector.process(new CmpH5Reader(in_file, spec), min_length, flank_mask);
+        log.info(collector.toString());
+      }
+      log.info("finished");
+    }
   }
 }
