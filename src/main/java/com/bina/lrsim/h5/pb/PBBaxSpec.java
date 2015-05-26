@@ -35,6 +35,11 @@ public class PBBaxSpec extends PBSpec {
   }
 
   @Override
+  public String getSuffix() {
+    return ".bax.h5";
+  }
+
+  @Override
   public EnumSet<EnumDat> getDataSet() {
     return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray));
   }

@@ -78,7 +78,7 @@ public class Simulator {
     log.info(toString());
     log.info("generated " + writer.size() + " reads.");
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
-    writer.write(path + "/" + movie_name + ".bax.h5", movie_name, firsthole);
+    writer.write(path + "/" + movie_name + spec.getSuffix(), movie_name, firsthole);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
     return writer.size();
   }

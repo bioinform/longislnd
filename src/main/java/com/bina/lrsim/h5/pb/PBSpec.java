@@ -22,4 +22,6 @@ public abstract class PBSpec {
   public abstract EnumGroups getZMWEnum();
 
   public abstract EnumGroups getZMWMetricsEnum();
+
+  public abstract String getSuffix();
 }

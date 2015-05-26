@@ -75,7 +75,7 @@ public class BaxH5Writer {
     long[] dims = new long[] {buffer_.getReadsRef().size()};
     for (EnumDat e : spec.getDataSet()) {
       try {
-        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.BaseCalls.path + e.path, buffer_.getReadsRef().get(e).toByteArray(), dims, e.isSigned);
+        final HObject obj = H5ScalarDSIO.Write(h5, spec.getBaseCallsEnum().path + e.path, buffer_.getReadsRef().get(e).toByteArray(), dims, e.isSigned);
         af.get(e).writeTo(obj);
       } catch (Exception exception) {
         throw new IOException("failed to write " + e.path);

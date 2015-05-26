@@ -35,6 +35,11 @@ public class PBCcsSpec extends PBSpec {
   }
 
   @Override
+  public String getSuffix() {
+    return ".ccs.h5";
+  }
+
+  @Override
   public EnumSet<EnumDat> getDataSet() {
     return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV));
   }
