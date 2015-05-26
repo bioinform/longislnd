@@ -6,6 +6,8 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.WeightedReference;
+import com.bina.lrsim.h5.pb.PBBaxSpec;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Simulator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
@@ -34,8 +36,9 @@ public class H5Simulator {
     final int sample_per = Integer.parseInt(args[5]);
     final int seed = Integer.parseInt(args[6]);
 
+    final PBSpec spec = new PBBaxSpec();
 
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), sample_per);
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per);
 
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
@@ -53,7 +56,7 @@ public class H5Simulator {
       final String movie_name = "m000000_000000_" + String.format("%05d", current_file_index) + "_c" + identifier + "_s1_p0";
       int target = (int) Math.min(target_chunk, Math.max(0, total_bases - simulated_bases));
       log.info("simulating roughly " + target_chunk + " for " + movie_name);
-      simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target, gen);
+      simulated_reads += sim.simulate(out_dir, movie_name, simulated_reads, samples, target, spec, gen);
       log.info("total number of reads is " + simulated_reads);
       simulated_bases += target + 1;
     }

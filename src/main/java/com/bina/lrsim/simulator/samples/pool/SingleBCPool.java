@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator.samples.pool;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
@@ -15,8 +16,8 @@ public class SingleBCPool extends BaseCallsPool {
   private byte[] data_;
   private int[] end_;
 
-  public SingleBCPool(int numKmers, int entryPerKmer) {
-    super(numKmers, entryPerKmer);
+  public SingleBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+    super(spec,numKmers, entryPerKmer);
     data_ = new byte[begin(numKmers)];
     end_ = new int[numKmers_];
     for (int kk = 0; kk < numKmers_; ++kk) {
@@ -35,7 +36,7 @@ public class SingleBCPool extends BaseCallsPool {
       if (ev.size() != 1) {
         throw new RuntimeException("event is too large");
       }
-      for (EnumDat e : EnumDat.getBaxSet()) {
+      for (EnumDat e : spec.getSet()) {
         data_[shift + e.value] = ev.get(0, e);
       }
       end_[ev.kmer()] += BYTE_PER_BC;

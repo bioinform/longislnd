@@ -8,6 +8,7 @@ package com.bina.lrsim.h5.cmp;
 import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
@@ -25,8 +26,10 @@ public class CmpH5Reader implements EventGroupFactory {
   private Map<String, AlnData> path_data_ = null;
   private String last_path_;
   private AlnData last_data_;
+  private final PBSpec spec;
 
-  public CmpH5Reader(String filename) {
+  public CmpH5Reader(String filename, PBSpec spec) {
+    this.spec = spec;
     load(filename);
   }
 
@@ -48,7 +51,7 @@ public class CmpH5Reader implements EventGroupFactory {
       last_data_ = new AlnData(h5_, path);
       last_path_ = path;
     }
-    return new CmpH5Alignment(AlnIndex_.get(index), last_data_);
+    return new CmpH5Alignment(AlnIndex_.get(index), last_data_, spec);
   }
 
   public void load(String filename) {

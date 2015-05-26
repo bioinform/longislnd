@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
@@ -44,9 +45,10 @@ public class Simulator {
                       int firsthole,
                       SamplesDrawer drawer,
                       int total_bases,
+                      PBSpec spec,
                       RandomGenerator gen) {
-    BaxH5Writer writer = new BaxH5Writer();
-    PBReadBuffer read = new PBReadBuffer();
+    BaxH5Writer writer = new BaxH5Writer(spec);
+    PBReadBuffer read = new PBReadBuffer(spec);
     log.info("generating reads");
 
     for (int num_bases = 0; num_bases < total_bases;) {

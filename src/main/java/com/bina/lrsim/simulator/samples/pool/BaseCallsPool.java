@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator.samples.pool;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -11,9 +12,10 @@ import org.apache.commons.math3.random.RandomGenerator;
  */
 public abstract class BaseCallsPool {
 
-  protected static final int BYTE_PER_BC = EnumDat.getBaxSet().size();
-  protected int entryPerKmer_;
-  protected int numKmers_;
+  protected static final int BYTE_PER_BC = EnumDat.numBytes;
+  protected final int entryPerKmer_;
+  protected final int numKmers_;
+  protected final PBSpec spec;
 
   /**
    * constrcutor
@@ -22,9 +24,10 @@ public abstract class BaseCallsPool {
    * @param entryPerKmer a hint of maximum number of entries per kmer, <1 means some default
    *        behavior
    */
-  protected BaseCallsPool(int numKmers, int entryPerKmer) {
+  protected BaseCallsPool(PBSpec spec, int numKmers, int entryPerKmer) {
     numKmers_ = numKmers;
     entryPerKmer_ = entryPerKmer;
+    this.spec = spec;
   }
 
   /**

@@ -2,6 +2,7 @@ package com.bina.lrsim.simulator.samples.pool;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -17,8 +18,8 @@ public class KmerBCPool extends BaseCallsPool {
 
   private List<List<byte[]>> data_;
 
-  public KmerBCPool(int numKmers, int entryPerKmer) {
-    super(numKmers, entryPerKmer);
+  public KmerBCPool(PBSpec spec,int numKmers, int entryPerKmer) {
+    super(spec, numKmers, entryPerKmer);
     data_ = new ArrayList<List<byte[]>>(numKmers_);
     for (int ii = 0; ii < numKmers_; ++ii) {
       data_.add(new ArrayList<byte[]>((entryPerKmer > 0) ? entryPerKmer : 100));

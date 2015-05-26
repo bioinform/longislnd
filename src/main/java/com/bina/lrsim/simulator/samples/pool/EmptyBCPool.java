@@ -2,6 +2,7 @@ package com.bina.lrsim.simulator.samples.pool;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -9,8 +10,8 @@ import org.apache.commons.math3.random.RandomGenerator;
  * Created by bayo on 5/10/15.
  */
 public class EmptyBCPool extends BaseCallsPool {
-  public EmptyBCPool(int numKmers, int entryPerKmer) {
-    super(numKmers, entryPerKmer);
+  public EmptyBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+    super(spec, numKmers, entryPerKmer);
   }
 
   @Override

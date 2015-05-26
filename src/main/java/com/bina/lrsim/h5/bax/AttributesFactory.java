@@ -7,6 +7,7 @@ import java.util.EnumMap;
 
 import com.bina.lrsim.h5.Attributes;
 import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.h5.pb.PBSpec;
 
 /**
  * Created by bayo on 5/7/15.
@@ -17,7 +18,7 @@ class AttributesFactory {
   private EnumMap<EnumDat, Attributes> ofDat_ = new EnumMap<>(EnumDat.class);
   private EnumMap<EnumGroups, Attributes> ofGrp_ = new EnumMap<>(EnumGroups.class);
 
-  public AttributesFactory(int num_reads, String movie_name) {
+  public AttributesFactory(int num_reads, String movie_name, PBSpec spec) {
     {// for enum dat
       {
         Attributes att = new Attributes();
@@ -77,7 +78,7 @@ class AttributesFactory {
       {
         Attributes att = new Attributes();
         att.add("ChangeListID", new String[] {"2.1.0.0.126982"}, null, false);
-        att.add("Content", EnumDat.getContentDescription(), new long[] {2, EnumDat.getContentDescription().length / 2}, false);
+        att.add("Content", spec.getContentDescription(), new long[] {2, spec.getContentDescription().length / 2}, false);
         att.add("CountStored", new int[] {num_reads}, null, true);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'+00:00'");
         att.add("DateCreated", new String[] {df.format(Calendar.getInstance().getTime())}, null, false);

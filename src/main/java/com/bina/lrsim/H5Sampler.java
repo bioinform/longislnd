@@ -1,10 +1,13 @@
 package com.bina.lrsim;
 
-import com.bina.lrsim.h5.cmp.CmpH5Reader;
-import com.bina.lrsim.simulator.samples.SamplesCollector;
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
+import com.bina.lrsim.h5.cmp.CmpH5Reader;
+import com.bina.lrsim.h5.pb.PBBaxSpec;
+import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.simulator.samples.SamplesCollector;
 
 /**
  * Created by bayo on 5/11/15.
@@ -18,22 +21,24 @@ public class H5Sampler {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-        if (args.length != 6) {
-            log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
-            System.exit(1);
-        }
-        final String out_prefix = args[0];
-        final String in_file = args[1];
-        final int left_flank = Integer.parseInt(args[2]);
-        final int right_flank = Integer.parseInt(args[3]);
-        final int min_length = Integer.parseInt(args[4]);
-        final int flank_mask = Integer.parseInt(args[5]);
-        final int hp_anchor = 2;
-
-        try ( SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor) ) {
-            collector.process(new CmpH5Reader(in_file), min_length, flank_mask);
-            log.info(collector.toString());
-        }
-        log.info("finished");
+    if (args.length != 6) {
+      log.info("parameters: out_prefix in_file left_flank right_flank min_length flank_mask");
+      System.exit(1);
     }
+    final String out_prefix = args[0];
+    final String in_file = args[1];
+    final int left_flank = Integer.parseInt(args[2]);
+    final int right_flank = Integer.parseInt(args[3]);
+    final int min_length = Integer.parseInt(args[4]);
+    final int flank_mask = Integer.parseInt(args[5]);
+    final int hp_anchor = 2;
+
+    final PBSpec spec = new PBBaxSpec();
+
+    try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor)) {
+      collector.process(new CmpH5Reader(in_file, spec), min_length, flank_mask);
+      log.info(collector.toString());
+    }
+    log.info("finished");
+  }
 }

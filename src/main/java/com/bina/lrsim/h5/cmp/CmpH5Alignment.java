@@ -11,6 +11,7 @@ import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
@@ -112,7 +113,7 @@ public class CmpH5Alignment implements EventGroup {
         extra_ = null;
         return ret;
       }
-      BaseCalls bc = new BaseCalls(); // this is probably a memory bound block killer
+      BaseCalls bc = new BaseCalls(spec); // this is probably a memory bound block killer
       EnumEvent event = null;
 
       if (ref_[next_] == EnumBP.Gap.ascii) {
@@ -225,7 +226,7 @@ public class CmpH5Alignment implements EventGroup {
         return null;
       }
 
-      BaseCalls bc = new BaseCalls();
+      BaseCalls bc = new BaseCalls(spec);
       try {
         for (int pos = start; pos < next_diff; ++pos) {
           if (seq_[pos] != EnumBP.Gap.ascii) {
@@ -283,7 +284,7 @@ public class CmpH5Alignment implements EventGroup {
       int loc_idx = bc.size();
       bc.push_back();
       bc.set(loc_idx, EnumDat.BaseCall, seq_[index]);
-      for (EnumDat ed : EnumDat.getNonBaseSet()) {
+      for (EnumDat ed : spec.getNonBaseSet()) {
         bc.set(loc_idx, ed, data_.get(ed)[begin + index]);
       }
     }
@@ -346,7 +347,8 @@ public class CmpH5Alignment implements EventGroup {
     return EnumIdx.offset_end.value;
   }
 
-  public CmpH5Alignment(int[] index, AlnData data) {
+  public CmpH5Alignment(int[] index, AlnData data, PBSpec spec) {
+    this.spec = spec;
     load(index, data);
   }
 
@@ -360,12 +362,12 @@ public class CmpH5Alignment implements EventGroup {
 
   private PBReadBuffer toRead(byte[] ba) {
     final int begin = index_[EnumIdx.offset_begin.value];
-    PBReadBuffer buffer = new PBReadBuffer(aln_length());
-    BaseCalls bc = new BaseCalls(1);
+    PBReadBuffer buffer = new PBReadBuffer(spec,aln_length());
+    BaseCalls bc = new BaseCalls(spec, 1);
     for (int ii = 0; ii < aln_length(); ++ii) {
       if (ba[ii] != EnumBP.Gap.ascii) {
         bc.set(0, EnumDat.BaseCall, ba[ii]);
-        for (EnumDat e : EnumDat.getNonBaseSet()) {
+        for (EnumDat e : spec.getNonBaseSet()) {
           bc.set(0, e, data_.get(e)[begin + ii]);
         }
         buffer.addLast(bc);
@@ -443,6 +445,7 @@ public class CmpH5Alignment implements EventGroup {
   private int[] index_ = null;
   private AlnData data_ = null;
   private boolean spanned_ = false;
+  private final PBSpec spec;
 
   private int[] aln_ = null; // for diagnostic
   private byte[] ref_ = null;

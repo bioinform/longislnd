@@ -4,8 +4,8 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
-import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.H5ScalarDSIO;
+import com.bina.lrsim.h5.pb.EnumDat;
 import ncsa.hdf.object.h5.H5File;
 
 class AlnData {

@@ -1,24 +1,28 @@
 package com.bina.lrsim.h5.pb;
 
-import com.bina.lrsim.bioinfo.EnumBP;
-import com.google.common.primitives.Bytes;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.bina.lrsim.bioinfo.EnumBP;
+import com.google.common.primitives.Bytes;
+
 /**
  * Created by bayo on 5/8/15.
  */
 public class BaseCalls {
-  private static final int bytePerBase = EnumDat.getBaxSet().size();
+  private static final int bytePerBase = EnumDat.numBytes;
   // util.ByteBuffer can save a full copy operation everytime a byte[] is extracted from get()
-  final private ArrayList<Byte> data_ = new ArrayList<Byte>(bytePerBase);
+  private final ArrayList<Byte> data_ = new ArrayList<Byte>(bytePerBase);
+  private final PBSpec spec; // maybe there's a way to templatize this like in c++
 
-  public BaseCalls() {}
+  public BaseCalls(PBSpec spec) {
+    this.spec = spec;
+  }
 
-  public BaseCalls(int size) {
+  public BaseCalls(PBSpec spec, int size) {
+    this(spec);
     resize(size);
   }
 
@@ -59,7 +63,7 @@ public class BaseCalls {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (EnumDat e : EnumDat.getBaxSet()) {
+    for (EnumDat e : spec.getSet()) {
       for (int ii = 0; ii < size(); ++ii) {
         if (e.equals(EnumDat.BaseCall)) {
           sb.append((char) (0xff & this.get(ii, e)));

@@ -2,6 +2,7 @@ package com.bina.lrsim.simulator.samples.pool;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -18,8 +19,8 @@ public class HPBCPool extends BaseCallsPool {
 
   private List<List<List<byte[]>>> data_; // data[kmer][hp_len] contains a pool of byte[] base calls
 
-  public HPBCPool(int numKmers, int entryPerKmer) {
-    super(numKmers, entryPerKmer);
+  public HPBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+    super(spec, numKmers, entryPerKmer);
 
     data_ = new ArrayList<List<List<byte[]>>>(numKmers_);
     for (int ii = 0; ii < numKmers_; ++ii) {

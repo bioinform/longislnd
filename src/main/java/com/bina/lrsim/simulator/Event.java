@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.h5.pb.PBSpec;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,12 +16,12 @@ import java.io.IOException;
 public class Event {
   private Context context_;
   private EnumEvent event_;
-  private BaseCalls bc_;
+  private final BaseCalls bc_;
 
-  public Event() {
+  public Event(PBSpec spec) {
     context_ = null;
     event_ = null;
-    bc_ = new BaseCalls();
+    bc_ = new BaseCalls(spec);
   }
 
   public Event(Context c, EnumEvent e, BaseCalls b) {
@@ -77,7 +78,6 @@ public class Event {
     int tmp = dis.readInt();
     context_ = new Context(kmer, tmp / EnumEvent.values().length);
     event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
-    if (null == bc_) bc_ = new BaseCalls();
     bc_.read(dis);
     for (int ii = 0; ii < size(); ++ii) {
       byte base = get(ii, EnumDat.BaseCall);

@@ -2,6 +2,7 @@ package com.bina.lrsim.simulator.samples;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
@@ -26,14 +27,15 @@ import java.util.Iterator;
 public class SamplesDrawer extends Samples {
   private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
   final EnumMap<EnumEvent, BaseCallsPool> kmer_event_drawer_ = new EnumMap<EnumEvent, BaseCallsPool>(EnumEvent.class);
-  HPBCPool hp_event_drawer_;
+  private HPBCPool hp_event_drawer_;
+  private final PBSpec spec;
 
-  public SamplesDrawer(String[] prefixes, int max_sample) throws IOException {
-    this(prefixes[0], 0/* must use 0 here */);
+  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample) throws IOException {
+    this(prefixes[0], spec, 0/* must use 0 here */);
     for (int ii = 1; ii < prefixes.length; ++ii) {
-      accumulateStats(new SamplesDrawer(prefixes[ii], 0/* must use 0 here */));
+      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */));
     }
-    allocateEventDrawer(max_sample);
+    allocateEventDrawer(spec, max_sample);
     loadEvents(prefixes, max_sample);
   }
 
@@ -44,22 +46,23 @@ public class SamplesDrawer extends Samples {
    * @param max_sample limit the number of samples per sequencing context
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, int max_sample) throws IOException {
+  public SamplesDrawer(String prefix, PBSpec spec, int max_sample) throws IOException {
     super(prefix);
+    this.spec = spec;
     log.info("loaded bulk statistics from " + prefix);
-    allocateEventDrawer(max_sample);
+    allocateEventDrawer(spec, max_sample);
     loadEvents(prefix, max_sample);
   }
 
-  private void allocateEventDrawer(int max_sample) {
-    hp_event_drawer_ = new HPBCPool(1 << (2 * (1 + 2 * hp_anchor())), -1);
+  private void allocateEventDrawer(PBSpec spec, int max_sample) {
+    hp_event_drawer_ = new HPBCPool(spec, 1 << (2 * (1 + 2 * hp_anchor())), -1);
     for (EnumEvent event : EnumSet.allOf(EnumEvent.class)) {
       // final int cap = (event.equals(EnumEvent.MATCH) ) ? max_sample : -1;
       final int cap = max_sample;
       try {
         kmer_event_drawer_.put(event,
-                               (BaseCallsPool) event.pool.getDeclaredConstructor(new Class[] {int.class, int.class})
-                                                         .newInstance(num_kmer(), cap));
+                               (BaseCallsPool) event.pool.getDeclaredConstructor(new Class[] {PBSpec.class, int.class, int.class})
+                                                         .newInstance(spec, num_kmer(), cap));
       } catch (ReflectiveOperationException e) {
         log.info(e, e);
       }
@@ -155,7 +158,7 @@ public class SamplesDrawer extends Samples {
       dis[ii] = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.EVENTS.filename(prefixes[ii])),
                                                             1000000));
     }
-    Event buffer = new Event();
+    Event buffer = new Event(spec);
     long count = 0;
 
     long[] event_count = new long[EnumEvent.values().length];
