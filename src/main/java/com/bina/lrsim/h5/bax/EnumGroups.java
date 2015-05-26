@@ -3,11 +3,18 @@ package com.bina.lrsim.h5.bax;
 /**
  * Created by bayo on 5/3/15.
  */
-enum EnumGroups {
+public enum EnumGroups {
   PulseData("/PulseData"),
+
   BaseCalls("/PulseData/BaseCalls"),
   ZMW("/PulseData/BaseCalls/ZMW"),
   ZMWMetrics("/PulseData/BaseCalls/ZMWMetrics"),
+
+  CBaseCalls("/PulseData/ConsensusBaseCalls"),
+  CZMW("/PulseData/ConsensusBaseCalls/ZMW"),
+  CZMWMetrics("/PulseData/ConsensusBaseCalls/ZMWMetrics"),
+  CPasses("/PulseData/ConsensusBaseCalls/Passes"),
+
   ScanData("/ScanData"),
   AcqParams("/ScanData/AcqParams"),
   DyeSet("/ScanData/DyeSet"),

@@ -63,7 +63,7 @@ public class BaseCalls {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (EnumDat e : spec.getSet()) {
+    for (EnumDat e : spec.getDataSet()) {
       for (int ii = 0; ii < size(); ++ii) {
         if (e.equals(EnumDat.BaseCall)) {
           sb.append((char) (0xff & this.get(ii, e)));

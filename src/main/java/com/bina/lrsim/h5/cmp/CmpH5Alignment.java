@@ -284,7 +284,7 @@ public class CmpH5Alignment implements EventGroup {
       int loc_idx = bc.size();
       bc.push_back();
       bc.set(loc_idx, EnumDat.BaseCall, seq_[index]);
-      for (EnumDat ed : spec.getNonBaseSet()) {
+      for (EnumDat ed : spec.getNonBaseDataSet()) {
         bc.set(loc_idx, ed, data_.get(ed)[begin + index]);
       }
     }
@@ -367,7 +367,7 @@ public class CmpH5Alignment implements EventGroup {
     for (int ii = 0; ii < aln_length(); ++ii) {
       if (ba[ii] != EnumBP.Gap.ascii) {
         bc.set(0, EnumDat.BaseCall, ba[ii]);
-        for (EnumDat e : spec.getNonBaseSet()) {
+        for (EnumDat e : spec.getNonBaseDataSet()) {
           bc.set(0, e, data_.get(e)[begin + ii]);
         }
         buffer.addLast(bc);

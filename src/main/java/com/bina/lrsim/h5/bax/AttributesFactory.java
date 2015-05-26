@@ -78,7 +78,7 @@ class AttributesFactory {
       {
         Attributes att = new Attributes();
         att.add("ChangeListID", new String[] {"2.1.0.0.126982"}, null, false);
-        att.add("Content", spec.getContentDescription(), new long[] {2, spec.getContentDescription().length / 2}, false);
+        att.add("Content", spec.getDataDescription(), new long[] {2, spec.getDataDescription().length / 2}, false);
         att.add("CountStored", new int[] {num_reads}, null, true);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'+00:00'");
         att.add("DateCreated", new String[] {df.format(Calendar.getInstance().getTime())}, null, false);
@@ -91,6 +91,24 @@ class AttributesFactory {
         // This should be refactered to go along with ZMW group
         att.add("SchemaRevision", new String[] {"NumEvent", "HoleNumber", "HoleXY", "HoleStatus", "int32", "uint32", "int16", "uint8"}, new long[] {2, 4}, false);
         ofGrp_.put(EnumGroups.ZMW, att);
+      }
+
+      {
+        Attributes att = new Attributes();
+        att.add("ChangeListID", new String[] {"2.3.0.0.140936"}, null, false);
+        att.add("Content", spec.getDataDescription(), new long[] {2, spec.getDataDescription().length / 2}, false);
+        att.add("CountStored", new int[] {num_reads}, null, true);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'+00:00'");
+        att.add("DateCreated", new String[] {df.format(Calendar.getInstance().getTime())}, null, false);
+        att.add("QVDecoding", new String[] {"Standard Phred encoding: QV = -10 * log10(p) - where p is the probability of error"}, null, false);
+        att.add("SchemaRevision", new String[] {"1.0"}, null, false);
+        ofGrp_.put(EnumGroups.CBaseCalls, att);
+      }
+      {
+        Attributes att = new Attributes();
+        // This should be refactered to go along with ZMW group
+        att.add("SchemaRevision", new String[] {"NumEvent", "HoleNumber", "HoleXY", "HoleStatus", "int32", "uint32", "int16", "uint8"}, new long[] {2, 4}, false);
+        ofGrp_.put(EnumGroups.CZMW, att);
       }
       {
         Attributes att = new Attributes();

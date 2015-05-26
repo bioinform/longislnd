@@ -23,7 +23,7 @@ public class PBReadBuffer {
 
   public PBReadBuffer(PBSpec spec, int reserveSize) {
     this.spec = spec;
-    for (EnumDat e : spec.getSet()) {
+    for (EnumDat e : spec.getDataSet()) {
       data_.put(e, new ByteArrayOutputStream(reserveSize));
     }
     reserve(reserveSize);
@@ -44,13 +44,13 @@ public class PBReadBuffer {
   // should "templatize" when have time
 
   public void clear() {
-    for (EnumDat e : spec.getSet()) {
+    for (EnumDat e : spec.getDataSet()) {
       data_.get(e).reset();
     }
   }
 
   public void addLast(BaseCalls other) {
-    for (EnumDat e : spec.getSet()) {
+    for (EnumDat e : spec.getDataSet()) {
       for (int pp = 0; pp < other.size(); ++pp) {
         data_.get(e).write(other.get(pp, e));
       }
@@ -58,7 +58,7 @@ public class PBReadBuffer {
   }
 
   public void addLast(PBReadBuffer other) {
-    for (EnumDat e : spec.getSet()) {
+    for (EnumDat e : spec.getDataSet()) {
       final byte[] tmp = other.get(e).toByteArray();
       data_.get(e).write(tmp, 0, tmp.length); // the (byte[]) version throws IO exception
     }
@@ -67,7 +67,7 @@ public class PBReadBuffer {
   public void addLast(byte[] other, int begin, int end) {
     if ((end - begin) % EnumDat.numBytes != 0) throw new RuntimeException("invalid size");
     for (int itr = begin; itr < end; itr += EnumDat.numBytes) {
-      for (EnumDat e : spec.getSet()) {
+      for (EnumDat e : spec.getDataSet()) {
         data_.get(e).write(other[itr + e.value]);
       }
     }
@@ -75,7 +75,7 @@ public class PBReadBuffer {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (EnumDat e : spec.getSet()) {
+    for (EnumDat e : spec.getDataSet()) {
       sb.append("\n");
       sb.append(e.path + "\n");
       if (e.equals(EnumDat.BaseCall) || e.equals(EnumDat.DeletionTag) || e.equals(EnumDat.SubstitutionTag)) {

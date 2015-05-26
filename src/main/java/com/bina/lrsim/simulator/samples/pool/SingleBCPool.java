@@ -36,7 +36,7 @@ public class SingleBCPool extends BaseCallsPool {
       if (ev.size() != 1) {
         throw new RuntimeException("event is too large");
       }
-      for (EnumDat e : spec.getSet()) {
+      for (EnumDat e : spec.getDataSet()) {
         data_[shift + e.value] = ev.get(0, e);
       }
       end_[ev.kmer()] += BYTE_PER_BC;
