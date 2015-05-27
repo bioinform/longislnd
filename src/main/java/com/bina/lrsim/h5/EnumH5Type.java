@@ -33,14 +33,14 @@ public enum EnumH5Type {
     if (obj instanceof String[] ) {
       sign = Datatype.NATIVE;
       //the API cannot handle multidimensional variable string
-//      if( null != dims && dims.length > 1) {
+      if( null != dims && dims.length > 1) {
         for (String entry : (String[]) obj) {
           if (numBytes < entry.length()) {
             numBytes = entry.length();
           }
         }
-//      }
-      ++numBytes;
+        ++numBytes;
+      }
     }
     else if (obj instanceof float[] ) {
       sign = Datatype.NATIVE;
