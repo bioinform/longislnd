@@ -167,6 +167,18 @@ public class BaxH5Writer {
       att.writeTo(obj);
     }
     {
+      // Productivit
+      byte[] byte_buffer = new byte[size()];
+      for (int ii = 0; ii < size(); ++ii) {
+        byte_buffer[ii] = 1;
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWMetricsEnum().path + "/Productivity", byte_buffer, dims_1, false);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW productivity classification"}, null, false);
+      att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {"0:Empty,1:Productive,2:Other,255:NotDefined"}, null, false);
+      att.writeTo(obj);
+    }
+    {
       // ReadScore
       float[] float_buffer = new float[size()];
       for (int ii = 0; ii < size(); ++ii) {
