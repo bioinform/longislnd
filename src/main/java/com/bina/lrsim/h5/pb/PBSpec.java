@@ -1,6 +1,7 @@
 package com.bina.lrsim.h5.pb;
 
 import com.bina.lrsim.h5.bax.EnumGroups;
+import com.bina.lrsim.h5.bax.EnumTypeIdx;
 
 import java.util.EnumSet;
 
@@ -16,6 +17,8 @@ public abstract class PBSpec {
   public abstract String[] getDataDescription();
 
   public abstract EnumSet<EnumGroups> getGroupSet();
+
+  public abstract EnumSet<EnumTypeIdx> getTypeIdx();
 
   public abstract EnumGroups getBaseCallsEnum();
 

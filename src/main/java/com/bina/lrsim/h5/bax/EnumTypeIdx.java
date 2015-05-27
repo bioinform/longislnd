@@ -3,7 +3,7 @@ package com.bina.lrsim.h5.bax;
 /**
  * Created by bayo on 5/6/15.
  */
-enum EnumTypeIdx {
+public enum EnumTypeIdx {
   TypeAdapter(0, "Adapter"), TypeInsert(1, "Insert"), TypeHQRegion(2, "HQRegion");
 
   static String[] getDescriptionArray() {

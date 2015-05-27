@@ -88,7 +88,7 @@ public class BaxH5Writer {
   }
 
   private void writeRegions(H5File h5, int firsthole) throws IOException {
-    final EnumSet<EnumTypeIdx> typeSet = EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
+    final EnumSet<EnumTypeIdx> typeSet = spec.getTypeIdx();
     int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
     int shift = 0;
     for (int rr = 0; rr < size(); ++rr) {
