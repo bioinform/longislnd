@@ -17,7 +17,7 @@ public class PBCcsSpec extends PBSpec {
 
   @Override
   public EnumSet<EnumGroups> getGroupSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumGroups.BaseCalls, EnumGroups.ZMW, EnumGroups.ZMWMetrics));
+    return EnumSet.complementOf(EnumSet.of(EnumGroups.ZMW, EnumGroups.ZMWMetrics));
   }
 
   @Override
