@@ -7,18 +7,19 @@ package com.bina.lrsim.h5.bax;
 import java.io.IOException;
 import java.util.EnumSet;
 
-import com.bina.lrsim.h5.pb.PBSpec;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5File;
 
+import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.h5.Attributes;
 import com.bina.lrsim.h5.H5ScalarDSIO;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
 
 public class BaxH5Writer {
 
@@ -28,7 +29,7 @@ public class BaxH5Writer {
 
   public BaxH5Writer(PBSpec spec) {
     this.spec = spec;
-    buffer_ = new DataBuffer(spec,100000);
+    buffer_ = new DataBuffer(spec, 100000);
   }
 
   public void write(String filename, String moviename, int firsthole) {
@@ -61,7 +62,7 @@ public class BaxH5Writer {
   }
 
   private void writeGroups(H5File h5, AttributesFactory af) throws IOException {
-    for (EnumGroups e : spec.getGroupSet() ) {
+    for (EnumGroups e : spec.getGroupSet()) {
       try {
         final HObject obj = h5.createGroup(e.path, null);
         af.get(e).writeTo(obj);
@@ -80,6 +81,73 @@ public class BaxH5Writer {
       } catch (Exception exception) {
         throw new IOException("failed to write " + e.path);
       }
+    }
+    if (spec.getGroupSet().contains(EnumGroups.CPasses)) writePasses(h5);
+  }
+
+  private void writePasses(H5File h5) throws IOException {
+    final long[] dims_1 = new long[] {(long) size()};
+    byte[] byte_buffer = new byte[size()];
+    int[] int_buffer = new int[size()];
+    MersenneTwister gen = new MersenneTwister(1111);
+    {
+      for (int ii = 0; ii < size(); ++ii) {
+        byte_buffer[ii] = gen.nextBoolean() ? (byte) 1 : (byte) 0;
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitAfter", byte_buffer, dims_1, false);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the end of this pass"}, null, false);
+      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+      att.writeTo(obj);
+    }
+    {
+      for (int ii = 0; ii < size(); ++ii) {
+        byte_buffer[ii] = gen.nextBoolean() ? (byte) 1 : (byte) 0;
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitBefore", byte_buffer, dims_1, false);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the beginning of this pass"}, null, false);
+      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+      att.writeTo(obj);
+    }
+    {
+      for (int ii = 0; ii < size(); ++ii) {
+        int_buffer[ii] = 3;
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/NumPasses", int_buffer, dims_1, true);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW event-stream counts"}, null, false);
+      att.writeTo(obj);
+    }
+    {
+      for (int ii = 0; ii < size(); ++ii) {
+        byte_buffer[ii] = gen.nextBoolean() ? (byte) 1 : (byte) 0;
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassDirection", byte_buffer, dims_1, false);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Direction of pass across the SMRTbell"}, null, false);
+      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+      att.writeTo(obj);
+    }
+    {
+      for (int ii = 0; ii < size(); ++ii) {
+        int_buffer[ii] = buffer_.getLength(ii);
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassNumBases", int_buffer, dims_1, false);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Number of bases in circular consensus pass"}, null, false);
+      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+      att.writeTo(obj);
+    }
+    {
+      for (int ii = 0; ii < size(); ++ii) {
+        int_buffer[ii] = 0;
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassStartBase", int_buffer, dims_1, false);
+      Attributes att = new Attributes();
+      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Index of first base in circular consensus pass"}, null, false);
+      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+      att.writeTo(obj);
     }
   }
 
