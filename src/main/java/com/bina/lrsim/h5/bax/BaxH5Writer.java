@@ -86,44 +86,54 @@ public class BaxH5Writer {
   }
 
   private void writePasses(H5File h5) throws IOException {
-    final long[] dims_1 = new long[] {(long) size()};
-    byte[] byte_buffer = new byte[size()];
-    int[] int_buffer = new int[size()];
+    final int fakeNumPasses = 3;
+    final long[] dims_reads = new long[] {(long) size()};
+    final long[] dims_passes = new long[] {fakeNumPasses * (long) size()};
+    byte[] byte_buffer = new byte[fakeNumPasses * size()];
+    int[] int_buffer = new int[fakeNumPasses * size()];
     MersenneTwister gen = new MersenneTwister(1111);
     {
       for (int ii = 0; ii < size(); ++ii) {
-        byte_buffer[ii] = gen.nextBoolean() ? (byte) 1 : (byte) 0;
+        int value = gen.nextBoolean() ? 1 : 0;
+        for (int jj = 0; jj < fakeNumPasses; ++jj, value = (value + 1) % 2) {
+          byte_buffer[fakeNumPasses * ii + jj] = (byte) value;
+        }
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitAfter", byte_buffer, dims_1, false);
-      Attributes att = new Attributes();
-      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the end of this pass"}, null, false);
-      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
-      att.writeTo(obj);
+      {
+        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitAfter", byte_buffer, dims_passes, false);
+        Attributes att = new Attributes();
+        att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the end of this pass"}, null, false);
+        att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+        att.writeTo(obj);
+      }
+      for (int ii = 0; ii < fakeNumPasses * size(); ++ii) {
+        byte_buffer[ii] = (byte) ((byte_buffer[ii] + 1) % 2);
+      }
+      {
+        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitBefore", byte_buffer, dims_passes, false);
+        Attributes att = new Attributes();
+        att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the beginning of this pass"}, null, false);
+        att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
+        att.writeTo(obj);
+      }
     }
     {
       for (int ii = 0; ii < size(); ++ii) {
-        byte_buffer[ii] = gen.nextBoolean() ? (byte) 1 : (byte) 0;
+        int_buffer[ii] = fakeNumPasses;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitBefore", byte_buffer, dims_1, false);
-      Attributes att = new Attributes();
-      att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the beginning of this pass"}, null, false);
-      att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
-      att.writeTo(obj);
-    }
-    {
-      for (int ii = 0; ii < size(); ++ii) {
-        int_buffer[ii] = 3;
-      }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/NumPasses", int_buffer, dims_1, true);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/NumPasses", int_buffer, dims_reads, true);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW event-stream counts"}, null, false);
       att.writeTo(obj);
     }
     {
       for (int ii = 0; ii < size(); ++ii) {
-        byte_buffer[ii] = gen.nextBoolean() ? (byte) 1 : (byte) 0;
+        int value = gen.nextBoolean() ? 1 : 0;
+        for (int jj = 0; jj < fakeNumPasses; ++jj, value = (value + 1) % 2) {
+          byte_buffer[fakeNumPasses * ii + jj] = (byte) value;
+        }
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassDirection", byte_buffer, dims_1, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassDirection", byte_buffer, dims_passes, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Direction of pass across the SMRTbell"}, null, false);
       att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
@@ -131,9 +141,11 @@ public class BaxH5Writer {
     }
     {
       for (int ii = 0; ii < size(); ++ii) {
-        int_buffer[ii] = buffer_.getLength(ii);
+        for (int jj = 0; jj < fakeNumPasses; ++jj) {
+          int_buffer[fakeNumPasses * ii + jj] = buffer_.getLength(ii);
+        }
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassNumBases", int_buffer, dims_1, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassNumBases", int_buffer, dims_passes, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Number of bases in circular consensus pass"}, null, false);
       att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
@@ -143,7 +155,15 @@ public class BaxH5Writer {
       for (int ii = 0; ii < size(); ++ii) {
         int_buffer[ii] = 0;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassStartBase", int_buffer, dims_1, false);
+      for (int ii = 0; ii < size(); ++ii) {
+        // this is not strictly correct wrt
+        final int adapter_length = 50;
+        int shift = adapter_length;
+        for (int jj = 0; jj < fakeNumPasses; ++jj, shift += buffer_.getLength(ii) + adapter_length) {
+          int_buffer[fakeNumPasses * ii + jj] = shift;
+        }
+      }
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassStartBase", int_buffer, dims_passes, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Index of first base in circular consensus pass"}, null, false);
       att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
