@@ -32,6 +32,7 @@ public class H5RegionSampler {
     final String in_file = args[1];
 
     int count = 0;
+    long base_count = 0;
 
     try (DataOutputStream len_out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.LENGTH.filename(out_prefix))));
          DataOutputStream score_out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.SCORE.filename(out_prefix))))) {
@@ -51,6 +52,7 @@ public class H5RegionSampler {
                 len_out.writeInt(rr.getMaxInsertLength());
                 score_out.writeInt(rr.getRegionScore());
                 ++count;
+                base_count += rr.getMaxInsertLength();
               }
             }
           }
@@ -63,6 +65,6 @@ public class H5RegionSampler {
       len_out.writeInt(count);
       score_out.writeInt(count);
     }
-    log.info(count);
+    log.info("number of reads: " + count + " number of bases " + base_count);
   }
 }
