@@ -259,8 +259,8 @@ public abstract class Samples {
     base_log.info("loaded " + lengths_.size() + " length");
   }
 
-  protected enum Suffixes {
-    EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len");
+  public enum Suffixes {
+    EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr");
     private String suffix_;
 
     Suffixes(String s) {
