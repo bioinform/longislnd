@@ -1,14 +1,15 @@
 package com.bina.lrsim.simulator.samples;
 
-import com.bina.lrsim.bioinfo.Kmerizer;
-import com.bina.lrsim.simulator.EnumEvent;
-import com.bina.lrsim.util.ArrayUtils;
-import org.apache.log4j.Logger;
-
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import org.apache.log4j.Logger;
+
+import com.bina.lrsim.bioinfo.Kmerizer;
+import com.bina.lrsim.simulator.EnumEvent;
+import com.bina.lrsim.util.ArrayUtils;
 
 /**
  * Created by bayo on 5/10/15.
@@ -23,6 +24,7 @@ public abstract class Samples {
   private final long[] event_count_ = new long[EnumEvent.values().length];
   private long[] kmer_event_count_;
   private ArrayList<Integer> lengths_;
+  private ArrayList<Integer> scores_;
 
   private long[] kmer_rlen_slen_count_;
   private static final int max_rlen_ = 100;
@@ -62,8 +64,16 @@ public abstract class Samples {
     ++kmer_rlen_slen_count_[(kmer * max_rlen_ + rlen) * max_slen_ + slen];
   }
 
-  public final ArrayList<Integer> lengths_ref() {
-    return lengths_;
+  public final int getLengthSize() {
+    return lengths_.size();
+  }
+
+  public final int getLength(int index) {
+    return lengths_.get(index);
+  }
+
+  public final int getScore(int index) {
+    return scores_.get(index);
   }
 
   public final int left_flank() {
@@ -97,6 +107,7 @@ public abstract class Samples {
     ArrayUtils.axpy(1, other.event_count_, event_count_);
     ArrayUtils.axpy(1, other.kmer_event_count_, kmer_event_count_);
     lengths_.addAll(other.lengths_);
+    scores_.addAll(other.scores_);
     base_log.info("after accumulation " + this.toString());
   }
 
@@ -111,6 +122,7 @@ public abstract class Samples {
     kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
     loadStats(prefix);
     loadLengths(prefix);
+    loadScores(prefix);
   }
 
   /**
@@ -128,6 +140,7 @@ public abstract class Samples {
     hp_anchor_ = hp_anchor;
     kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
     lengths_ = new ArrayList<Integer>(1000);
+    scores_ = new ArrayList<Integer>(1000);
     kmer_rlen_slen_count_ = new long[(1 << (2 * (2 * hp_anchor + 1))) * max_rlen_ * max_slen_];
   }
 
@@ -238,7 +251,7 @@ public abstract class Samples {
     file.close();
     fos.close();
   }
-
+  /*
   protected final void writeLengths(String prefix) throws IOException {
     DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.LENGTH.filename(prefix))));
     dos.writeInt(lengths_.size());
@@ -247,6 +260,7 @@ public abstract class Samples {
     }
     dos.close();
   }
+  */
 
   protected final void loadLengths(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
@@ -257,6 +271,17 @@ public abstract class Samples {
     }
     dis.close();
     base_log.info("loaded " + lengths_.size() + " length");
+  }
+
+  protected final void loadScores(String prefix) throws IOException {
+    DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.SCORE.filename(prefix))));
+    int new_size = dis.readInt();
+    scores_ = new ArrayList<Integer>(new_size);
+    for (int ii = 0; ii < new_size; ++ii) {
+      scores_.add(dis.readInt());
+    }
+    dis.close();
+    base_log.info("loaded " + scores_.size() + " score");
   }
 
   public enum Suffixes {

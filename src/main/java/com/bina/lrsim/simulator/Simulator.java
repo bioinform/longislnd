@@ -1,5 +1,11 @@
 package com.bina.lrsim.simulator;
 
+import java.util.Iterator;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.Pair;
+import org.apache.log4j.Logger;
+
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
@@ -7,10 +13,6 @@ import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.RandomSequenceGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
-
-import java.util.Iterator;
 
 /**
  * Created by bayo on 5/11/15.
@@ -58,18 +60,22 @@ public class Simulator {
         throw new RuntimeException("different lengths!");
       }
 
-      for (Iterator<Context> itr = seqGen_.getSequence(drawer.drawLength(gen),
+      Pair<Integer, Integer> len_score = drawer.getRandomLengthScore(gen);
+
+      for (Iterator<Context> itr = seqGen_.getSequence((int)(len_score.getFirst()*1.2),
                                                        drawer.left_flank(),
                                                        drawer.right_flank(),
                                                        drawer.hp_anchor(),
-                                                       gen); itr.hasNext();) {
+                                                       gen)
+          ; read.size() < len_score.getFirst() && itr.hasNext()
+          ;) {
         long[] change_counters = drawer.appendTo(read, itr.next(), gen);
         for (int ii = 0; ii < change_counters.length; ++ii) {
           base_counter_[ii] += change_counters[ii];
         }
       }
 
-      writer.addLast(read, 1000);
+      writer.addLast(read, len_score.getSecond());
       num_bases += read.size();
       if (writer.size() % 10000 == 1) {
         log.info(toString());

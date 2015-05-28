@@ -1,15 +1,5 @@
 package com.bina.lrsim.simulator.samples;
 
-import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
-import com.bina.lrsim.simulator.EnumEvent;
-import com.bina.lrsim.simulator.Event;
-import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
-import com.bina.lrsim.simulator.samples.pool.HPBCPool;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -18,6 +8,18 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.Pair;
+import org.apache.log4j.Logger;
+
+import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.simulator.EnumEvent;
+import com.bina.lrsim.simulator.Event;
+import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
+import com.bina.lrsim.simulator.samples.pool.HPBCPool;
 
 /**
  * Created by bayo on 5/10/15.
@@ -70,13 +72,14 @@ public class SamplesDrawer extends Samples {
   }
 
   /**
-   * Returns a read length drawn from sampled data
+   * Returns a read length/score drawn from sampled data
    *
    * @param gen random number generator
-   * @return read length
+   * @return read length and region score
    */
-  public int drawLength(RandomGenerator gen) {
-    return lengths_ref().get(gen.nextInt(lengths_ref().size()));
+  public final Pair<Integer, Integer> getRandomLengthScore(RandomGenerator gen) {
+    final int index = gen.nextInt(getLengthSize());
+    return new Pair<Integer, Integer>(getLength(index), getScore(index));
   }
 
   /**

@@ -16,7 +16,7 @@ import com.bina.lrsim.simulator.samples.Samples;
 public class H5RegionSampler {
   private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
 
-  private final static String usage = "parameters: out_prefix in_file";
+  private final static String usage = "parameters: out_prefix fofn";
 
   /**
    * collect context-specific samples of reference->read edits from an alignment file
@@ -38,15 +38,25 @@ public class H5RegionSampler {
       len_out.writeInt(-1);
       score_out.writeInt(-1);
 
-      RegionGroup rg = new BaxH5Reader(in_file);
-      for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
-        Region rr = itr.next();
-        if (rr.getMaxInsertLength() > 0 && rr.getRegionScore() > 0) {
-          len_out.writeInt(rr.getMaxInsertLength());
-          score_out.writeInt(rr.getRegionScore());
-          ++count;
+      try (BufferedReader br = new BufferedReader(new FileReader(in_file))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          String filename = line.trim(); // for each listed file
+          if (filename.length() > 0) {
+            log.info("processing " + filename);
+            RegionGroup rg = new BaxH5Reader(filename);
+            for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
+              Region rr = itr.next();
+              if (rr.getMaxInsertLength() > 0 && rr.getRegionScore() > 0) {
+                len_out.writeInt(rr.getMaxInsertLength());
+                score_out.writeInt(rr.getRegionScore());
+                ++count;
+              }
+            }
+          }
         }
       }
+
     }
     try (RandomAccessFile len_out = new RandomAccessFile(Samples.Suffixes.LENGTH.filename(out_prefix), "rws");
          RandomAccessFile score_out = new RandomAccessFile(Samples.Suffixes.SCORE.filename(out_prefix), "rws")) {

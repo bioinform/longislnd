@@ -96,7 +96,7 @@ public class SamplesCollector extends Samples implements Closeable {
       if (group.seq_length() < min_length) {
         continue;
       }
-      super.lengths_ref().add(group.seq_length());
+//      super.lengths_ref().add(group.seq_length());
       process(group.getEventIterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
     }
     log.info("processed " + ii + " groups");
@@ -112,7 +112,7 @@ public class SamplesCollector extends Samples implements Closeable {
 
     writeStats(outPrefix_);
     writeIdx(outPrefix_);
-    writeLengths(outPrefix_);
+//    writeLengths(outPrefix_);
   }
 
 }
