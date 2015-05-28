@@ -11,6 +11,7 @@ import com.bina.lrsim.bioinfo.WeightedReference;
 import com.bina.lrsim.h5.pb.PBBaxSpec;
 import com.bina.lrsim.h5.pb.PBCcsSpec;
 import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Simulator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
@@ -20,7 +21,7 @@ import com.bina.lrsim.util.Monitor;
  */
 public class H5Simulator {
   private final static Logger log = Logger.getLogger(H5Simulator.class.getName());
-  private final static String usage = "parameters: out_dir movie_id read_type fasta model_prefix total_bases sample_per seed";
+  private final static String usage = "parameters: out_dir movie_id read_type fasta model_prefix total_bases sample_per seed [" + EnumEvent.getListDescription() + "]";
 
   /**
    * create a file of simulated reads based on the given FASTA and model
@@ -28,7 +29,7 @@ public class H5Simulator {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length != 8) {
+    if (args.length < 8) {
       log.info(usage);
       System.exit(1);
     }
@@ -40,6 +41,19 @@ public class H5Simulator {
     final long total_bases = Long.parseLong(args[5]);
     final int sample_per = Integer.parseInt(args[6]);
     final int seed = Integer.parseInt(args[7]);
+
+    long[] events_frequency = null;
+    if (args.length > 8) {
+      String[] idsm = args[8].split(":");
+      if (idsm.length != EnumEvent.values().length) {
+        log.info(usage);
+        log.info("event frequency must be a set of integers " + EnumEvent.getListDescription());
+        events_frequency = new long[EnumEvent.values().length];
+        for (int ii = 0; ii < events_frequency.length; ++ii) {
+          events_frequency[ii] = Long.parseLong(idsm[ii]);
+        }
+      }
+    }
 
     final PBSpec spec;
 
@@ -57,7 +71,7 @@ public class H5Simulator {
         System.exit(1);
     }
 
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per);
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency);
 
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 

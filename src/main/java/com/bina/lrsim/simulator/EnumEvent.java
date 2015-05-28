@@ -22,6 +22,14 @@ public enum EnumEvent {
   MATCH(3, "m", 10, SingleBCPool.class); // 85% matches, down-sample 10-fold, must use
                                          // SingleBCPoolCompression
   private static final EnumEvent[] value2enum_ = {INSERTION, DELETION, SUBSTITUTION, MATCH};
+  public static String getListDescription() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(value2enum(0).toString());
+    for(int ii = 1; ii < EnumEvent.values().length; ++ii) {
+      sb.append(":"+value2enum(ii).toString());
+    }
+    return sb.toString();
+  }
 
   public final int value;
   public final String description;

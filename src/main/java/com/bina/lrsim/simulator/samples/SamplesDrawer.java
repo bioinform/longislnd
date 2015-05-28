@@ -31,11 +31,21 @@ public class SamplesDrawer extends Samples {
   final EnumMap<EnumEvent, BaseCallsPool> kmer_event_drawer_ = new EnumMap<EnumEvent, BaseCallsPool>(EnumEvent.class);
   private HPBCPool hp_event_drawer_;
   private final PBSpec spec;
+  private final long[] custom_frequency;
 
-  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample) throws IOException {
-    this(prefixes[0], spec, 0/* must use 0 here */);
+  /**
+   * Constructor
+   * 
+   * @param prefixes a list of prefixes storing sampled data
+   * @param spec specification of data fields, etc
+   * @param max_sample maximum number of samples stored in compressed way
+   * @param custom_frequency if not null, override per-kmer event frequency with this
+   * @throws IOException
+   */
+  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency) throws IOException {
+    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency);
     for (int ii = 1; ii < prefixes.length; ++ii) {
-      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */));
+      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency));
     }
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefixes, max_sample);
@@ -44,13 +54,23 @@ public class SamplesDrawer extends Samples {
   /**
    * Constructor
    * 
+   * @param prefix
    * @param prefix prefix of files storing sampled data
-   * @param max_sample limit the number of samples per sequencing context
+   * @param spec specification of data fields, etc
+   * @param max_sample maximum number of samples stored in compressed way
+   * @param custom_frequency if not null, override per-kmer event frequency with this
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, PBSpec spec, int max_sample) throws IOException {
+  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency) throws IOException {
     super(prefix);
     this.spec = spec;
+    this.custom_frequency = custom_frequency;
+    if(this.custom_frequency != null) {
+      log.info("using custom event frequencies");
+    }
+    else{
+      log.info("using sampled event frequencies");
+    }
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefix, max_sample);
@@ -101,7 +121,9 @@ public class SamplesDrawer extends Samples {
         counters[ev.value] += buffer.size() - old_length - 2;
       }
     } else {
-      if (hp_event_drawer_.appendTo(buffer, context, gen)) {
+      // do not do full hp if custom frequency is provided
+      // custom hp drawing is possible improvement
+      if (custom_frequency == null && hp_event_drawer_.appendTo(buffer, context, gen)) {
         final int differential = buffer.size() - old_length - context.hp_len();
         if (differential == 0) {
           counters[EnumEvent.MATCH.value] += context.hp_len();
@@ -230,22 +252,22 @@ public class SamplesDrawer extends Samples {
    *
    * @param context sequencing context
    * @param gen random number generator
-   * @return
+   * @return an event type
    */
   private EnumEvent randomEvent(Context context, RandomGenerator gen) {
     if (context.hp_len() == 1) {
       final int shift = EnumEvent.values().length * context.kmer();
+      final long[] frequencies = (custom_frequency != null) ? custom_frequency : Arrays.copyOfRange(kmer_event_count_ref(), shift, shift + EnumEvent.values().length);
+
       long sum = 0;
       for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
-        sum += kmer_event_count_ref()[shift + ii];
+        sum += frequencies[ii];
       }
       final double p = gen.nextDouble();
-      if (p < 0 || p > 1) {
-        throw new RuntimeException("bad p=" + p);
-      }
+      if (p < 0 || p > 1) { throw new RuntimeException("bad p=" + p); }
       double cdf = 0;
       for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
-        cdf += (double) (kmer_event_count_ref()[shift + ii]) / (sum);
+        cdf += (double) (frequencies[ii]) / (double) (sum);
         if (p <= cdf) return EnumEvent.value2enum(ii);
       }
       return EnumEvent.MATCH;
