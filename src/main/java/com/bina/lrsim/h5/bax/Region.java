@@ -8,11 +8,13 @@ import java.util.ArrayList;
 public class Region {
   final int regionScore_;
   final float readScore;
+  final byte hole_status;
   final ArrayList<Integer> insertLengths = new ArrayList<Integer>();
 
-  public Region(int[] data, int begin, int end, float score) {
+  public Region(int[] data, int begin, int end, float score, byte hole_status) {
     if (end < begin || (end - begin) % EnumRegionsIdx.values().length != 0) { throw new RuntimeException("unexpected region data"); }
-    readScore = score;
+    this.readScore = score;
+    this.hole_status = hole_status;
 
     int hq_start = Integer.MAX_VALUE;
     int hq_end = -1;
@@ -51,5 +53,9 @@ public class Region {
 
   public float getReadScore() {
     return readScore;
+  }
+
+  public boolean isSequencing() {
+    return hole_status == EnumHoleStatus.SEQUENCING.value;
   }
 }

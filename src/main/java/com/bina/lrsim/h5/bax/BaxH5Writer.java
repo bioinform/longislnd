@@ -223,7 +223,7 @@ public class BaxH5Writer {
       // HoleStatus
       byte[] byte_buffer = new byte[size()];
       for (int ii = 0; ii < size(); ++ii) {
-        byte_buffer[ii] = 0;
+        byte_buffer[ii] = EnumHoleStatus.SEQUENCING.value;
       }
       final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleStatus", byte_buffer, dims_1, false);
       Attributes att = new Attributes();
@@ -255,7 +255,7 @@ public class BaxH5Writer {
       att.writeTo(obj);
     }
     {
-      // Productivit
+      // Productivity
       byte[] byte_buffer = new byte[size()];
       for (int ii = 0; ii < size(); ++ii) {
         byte_buffer[ii] = 1;

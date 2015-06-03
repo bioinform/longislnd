@@ -68,6 +68,7 @@ public class H5RegionSampler {
             RegionGroup rg = new BaxH5Reader(filename, spec);
             for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
               Region rr = itr.next();
+              if (!rr.isSequencing()) continue;
               for (int insertLength : rr.getInsertLengths()) {
                 if (insertLength > 0 && rr.getReadScore() >= min_read_score) {
                   len_out.writeInt(insertLength);
