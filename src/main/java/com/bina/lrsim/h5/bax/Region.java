@@ -26,8 +26,8 @@ public class Region {
         insert_start.add(loc_start);
         insert_end.add(loc_end);
       } else if (data[shift + EnumRegionsIdx.RegionType.value] == EnumTypeIdx.TypeHQRegion.value) {
-        hq_start = Math.max(loc_start, hq_start);
-        hq_end = Math.min(loc_end, hq_end);
+        hq_start = Math.min(loc_start, hq_start);
+        hq_end = Math.max(loc_end, hq_end);
         regionScore = Math.max(regionScore, data[shift + EnumRegionsIdx.RegionScore.value]);
       }
     }
