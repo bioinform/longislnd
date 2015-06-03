@@ -16,7 +16,7 @@ import com.bina.lrsim.simulator.samples.Samples;
 public class H5RegionSampler {
   private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
 
-  private final static String usage = "parameters: out_prefix fofn";
+  private final static String usage = "parameters: out_prefix fofn min_region_score";
 
   /**
    * collect context-specific samples of reference->read edits from an alignment file
@@ -24,12 +24,13 @@ public class H5RegionSampler {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length != 2) {
+    if (args.length != 3) {
       log.info(usage);
       System.exit(1);
     }
     final String out_prefix = args[0];
     final String in_file = args[1];
+    final int min_region_score = Integer.parseInt(args[2]);
 
     int count = 0;
     long base_count = 0;
@@ -48,7 +49,7 @@ public class H5RegionSampler {
             RegionGroup rg = new BaxH5Reader(filename);
             for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
               Region rr = itr.next();
-              if (rr.getMaxInsertLength() > 0 && rr.getRegionScore() > 0) {
+              if (rr.getMaxInsertLength() > 0 && rr.getRegionScore() >= min_region_score) {
                 len_out.writeInt(rr.getMaxInsertLength());
                 score_out.writeInt(rr.getRegionScore());
                 ++count;
