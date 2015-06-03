@@ -33,6 +33,10 @@ public class WeightedReference implements RandomSequenceGenerator {
     }
   }
 
+  public long size() {
+    return ref_cdf_.get(ref_cdf_.size() - 1);
+  }
+
   @Override
   public Iterator<Context> getSequence(int length, int leftFlank, int rightFlank, int hp_anchor, RandomGenerator gen) {
     Iterator<Context> itr = null;

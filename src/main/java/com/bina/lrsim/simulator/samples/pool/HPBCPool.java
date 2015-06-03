@@ -15,7 +15,7 @@ import java.util.List;
 public class HPBCPool extends BaseCallsPool {
 
   // this is a hack until we have a proper full-blown homopolyer error rate scaling
-  private final static int MIN_POOL_SIZE = 50;
+  private final static int MIN_POOL_SIZE = 20;
 
   private List<List<List<byte[]>>> data_; // data[kmer][hp_len] contains a pool of byte[] base calls
 

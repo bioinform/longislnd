@@ -75,7 +75,9 @@ public class H5Simulator {
 
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    final Simulator sim = new Simulator(new WeightedReference(fasta));
+    final WeightedReference wr = new WeightedReference(fasta);
+
+    final Simulator sim = new Simulator(wr);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     final RandomGenerator gen = new org.apache.commons.math3.random.MersenneTwister(seed);
@@ -83,7 +85,7 @@ public class H5Simulator {
 
     int current_file_index = 0;
     int simulated_reads = 0;
-    final int target_chunk = 200000000;
+    final int target_chunk = (int) wr.size();
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 

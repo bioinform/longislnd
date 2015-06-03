@@ -32,7 +32,7 @@ public class CmpH5Alignment implements EventGroup {
   @Override
   public Iterator<Event> getEventIterator(int left_flank, int right_flank, int left_mask, int right_mask, int hp_anchor) {
     if (!spanned_) {
-      this.spanHomopolymer(Math.max(left_flank, right_flank) + 1);
+      this.spanHomopolymer(1);
       spanned_ = true;
     }
     return new EventIterator(left_flank, right_flank, left_mask, right_mask, hp_anchor);
@@ -120,10 +120,7 @@ public class CmpH5Alignment implements EventGroup {
         log.info("alignment data can't be parsed properly");
         throw new RuntimeException("alignment data can't be parsed properly");
       }
-      if (seq_[next_] == EnumBP.Gap.ascii) {
-        event = EnumEvent.DELETION;
-      } else if (ref_[next_ + 1] == EnumBP.Gap.ascii) {
-        event = EnumEvent.INSERTION;
+      if (ref_[next_ + 1] == EnumBP.Gap.ascii) {
         bc.reserve(10);
         if (seq_[next_] != EnumBP.Gap.ascii) {
           fillbase(bc, next_);
@@ -136,6 +133,17 @@ public class CmpH5Alignment implements EventGroup {
             // throw new RuntimeException("gap-vs-gap alignment");
           }
         }
+        if (bc.size() == 0) {
+          event = EnumEvent.DELETION;
+        } else if (bc.size() == 1) {
+          // no sane aligner will give the same base really
+          event = EnumEvent.SUBSTITUTION;
+        }
+        else {
+          event = EnumEvent.INSERTION;
+        }
+      } else if (seq_[next_] == EnumBP.Gap.ascii) {
+        event = EnumEvent.DELETION;
       } else if (seq_[next_] == ref_[next_]) {
         event = EnumEvent.MATCH;
         fillbase(bc, next_);
@@ -420,7 +428,7 @@ public class CmpH5Alignment implements EventGroup {
 
       int next_diff = pos + 1;
 
-      if (base != EnumBP.Gap.ascii) {
+      if (base != EnumBP.Gap.ascii && base == seq_[pos] && base != EnumBP.N.ascii && base != 'n') {
         int hp_length = 1;
         for (; next_diff < length && (ref_[next_diff] == EnumBP.Gap.ascii || ref_[next_diff] == base); ++next_diff) {
           if (ref_[next_diff] == base) {
