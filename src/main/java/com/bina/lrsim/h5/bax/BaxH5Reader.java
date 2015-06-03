@@ -27,22 +27,59 @@ public class BaxH5Reader implements RegionGroup {
 
   @Override
   public Iterator<Region> getRegionIterator() {
-    return new RegionIterator();
+    return (spec.getZMWEnum().equals(EnumGroups.CZMW)) ? new CCSRegionIterator() : new RegionIterator();
+  }
+
+  private class CCSRegionIterator implements Iterator<Region> {
+    int curr = 0;
+    private float[] holeScore;
+    private byte[] holeStatus;
+    private int[] numEvents;
+    int min_hole = Integer.MAX_VALUE;
+
+    CCSRegionIterator() {
+      curr = 0;
+      try {
+        holeScore = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
+        holeStatus = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
+        numEvents = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/NumEvent");
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
+    }
+
+    @Override
+    public boolean hasNext() {
+      return curr < numEvents.length;
+    }
+
+    @Override
+    public Region next() {
+      Region ret = new Region((int) (1000 * holeScore[curr]), holeScore[curr], holeStatus[curr], numEvents[curr]);
+      ++curr;
+      return ret;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("cannot remove elements");
+    }
   }
 
   private class RegionIterator implements Iterator<Region> {
     int curr = 0;
-    private int[] region_data;
-    private float[] hole_score;
-    private byte[] hole_status;
+    private int[] regionData;
+    private float[] holeScore;
+    private byte[] holeStatus;
     int min_hole = Integer.MAX_VALUE;
 
     RegionIterator() {
       curr = 0;
       try {
-        region_data = H5ScalarDSIO.<int[]>Read(h5_, EnumGroups.PulseData.path + "/Regions");
-        hole_score = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
-        hole_status = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
+        regionData = H5ScalarDSIO.<int[]>Read(h5_, EnumGroups.PulseData.path + "/Regions");
+        holeScore = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
+        holeStatus = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -50,16 +87,16 @@ public class BaxH5Reader implements RegionGroup {
 
     @Override
     public boolean hasNext() {
-      return curr < region_data.length;
+      return curr < regionData.length;
     }
 
     @Override
     public Region next() {
-      int hole_number = region_data[curr + EnumRegionsIdx.HoleNumber.value];
+      int hole_number = regionData[curr + EnumRegionsIdx.HoleNumber.value];
       min_hole = Math.min(hole_number, min_hole);
       int next = curr + EnumRegionsIdx.values().length;
-      for (; next < region_data.length && region_data[next + EnumRegionsIdx.HoleNumber.value] == hole_number; next += EnumRegionsIdx.values().length) {}
-      Region r = new Region(region_data, curr, next, hole_score[hole_number - min_hole], hole_status[hole_number - min_hole]);
+      for (; next < regionData.length && regionData[next + EnumRegionsIdx.HoleNumber.value] == hole_number; next += EnumRegionsIdx.values().length) {}
+      Region r = new Region(regionData, curr, next, holeScore[hole_number - min_hole], holeStatus[hole_number - min_hole]);
       curr = next;
       return r;
     }

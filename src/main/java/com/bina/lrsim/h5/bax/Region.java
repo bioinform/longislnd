@@ -6,15 +6,22 @@ import java.util.ArrayList;
  * Created by bayo on 5/27/15.
  */
 public class Region {
-  final int regionScore_;
+  final int regionScore;
   final float readScore;
-  final byte hole_status;
+  final byte holeStatus;
   final ArrayList<Integer> insertLengths = new ArrayList<Integer>();
 
-  public Region(int[] data, int begin, int end, float score, byte hole_status) {
+  public Region(int regionScore, float readScore, byte holeStatus, int insertLength) {
+    this.regionScore = regionScore;
+    this.readScore = readScore;
+    this.holeStatus = holeStatus;
+    insertLengths.add(insertLength);
+  }
+
+  public Region(int[] data, int begin, int end, float score, byte holeStatus) {
     if (end < begin || (end - begin) % EnumRegionsIdx.values().length != 0) { throw new RuntimeException("unexpected region data"); }
     this.readScore = score;
-    this.hole_status = hole_status;
+    this.holeStatus = holeStatus;
 
     int hq_start = Integer.MAX_VALUE;
     int hq_end = -1;
@@ -40,7 +47,7 @@ public class Region {
       insertLengths.add(Math.min(insert_end.get(ii), hq_end) - Math.max(insert_start.get(ii), hq_start));
     }
 
-    regionScore_ = regionScore;
+    this.regionScore = regionScore;
   }
 
   public ArrayList<Integer> getInsertLengths() {
@@ -48,7 +55,7 @@ public class Region {
   }
 
   public int getRegionScore() {
-    return regionScore_;
+    return regionScore;
   }
 
   public float getReadScore() {
@@ -56,6 +63,6 @@ public class Region {
   }
 
   public boolean isSequencing() {
-    return hole_status == EnumHoleStatus.SEQUENCING.value;
+    return holeStatus == EnumHoleStatus.SEQUENCING.value;
   }
 }
