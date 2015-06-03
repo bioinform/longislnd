@@ -7,10 +7,12 @@ import java.util.ArrayList;
  */
 public class Region {
   final int regionScore_;
+  final float readScore;
   final ArrayList<Integer> insertLengths = new ArrayList<Integer>();
 
-  public Region(int[] data, int begin, int end) {
+  public Region(int[] data, int begin, int end, float score) {
     if (end < begin || (end - begin) % EnumRegionsIdx.values().length != 0) { throw new RuntimeException("unexpected region data"); }
+    readScore = score;
 
     int hq_start = Integer.MAX_VALUE;
     int hq_end = -1;
@@ -45,5 +47,9 @@ public class Region {
 
   public int getRegionScore() {
     return regionScore_;
+  }
+
+  public float getReadScore() {
+    return readScore;
   }
 }

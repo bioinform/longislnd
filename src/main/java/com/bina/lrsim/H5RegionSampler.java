@@ -16,7 +16,7 @@ import com.bina.lrsim.simulator.samples.Samples;
 public class H5RegionSampler {
   private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
 
-  private final static String usage = "parameters: out_prefix fofn min_region_score";
+  private final static String usage = "parameters: out_prefix fofn min_read_score";
 
   /**
    * collect context-specific samples of reference->read edits from an alignment file
@@ -30,7 +30,7 @@ public class H5RegionSampler {
     }
     final String out_prefix = args[0];
     final String in_file = args[1];
-    final int min_region_score = Integer.parseInt(args[2]);
+    final float min_read_score = Float.parseFloat(args[2]);
 
     int count = 0;
     long base_count = 0;
@@ -50,9 +50,9 @@ public class H5RegionSampler {
             for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
               Region rr = itr.next();
               for (int insertLength : rr.getInsertLengths()) {
-                if (insertLength > 0 && rr.getRegionScore() >= min_region_score) {
+                if (insertLength > 0 && rr.getReadScore() >= min_read_score) {
                   len_out.writeInt(insertLength);
-                  score_out.writeInt(rr.getRegionScore());
+                  score_out.writeInt((int)(rr.getReadScore()*1000)); // quick and dirty hack
                   ++count;
                   base_count += insertLength;
                 }
@@ -61,7 +61,6 @@ public class H5RegionSampler {
           }
         }
       }
-
     }
     try (RandomAccessFile len_out = new RandomAccessFile(Samples.Suffixes.LENGTH.filename(out_prefix), "rws");
          RandomAccessFile score_out = new RandomAccessFile(Samples.Suffixes.SCORE.filename(out_prefix), "rws")) {
