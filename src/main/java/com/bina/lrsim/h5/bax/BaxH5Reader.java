@@ -2,6 +2,7 @@ package com.bina.lrsim.h5.bax;
 
 import java.util.Iterator;
 
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.RegionGroup;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
@@ -13,9 +14,10 @@ import com.bina.lrsim.h5.H5ScalarDSIO;
  */
 public class BaxH5Reader implements RegionGroup{
   private H5File h5_ = null;
-
-  public BaxH5Reader(String filename) {
+  private final PBSpec spec;
+  public BaxH5Reader(String filename, PBSpec spec) {
     this.load(filename);
+    this.spec = spec;
   }
 
   public void load(String filename) {
@@ -36,7 +38,7 @@ public class BaxH5Reader implements RegionGroup{
       curr = 0;
       try {
         region_data = H5ScalarDSIO.<int[]>Read(h5_, EnumGroups.PulseData.path + "/Regions");
-        hole_score = H5ScalarDSIO.<float[]>Read(h5_, EnumGroups.CZMWMetrics.path + "/ReadScore");
+        hole_score = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

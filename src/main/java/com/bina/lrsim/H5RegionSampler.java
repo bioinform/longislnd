@@ -7,6 +7,9 @@ import org.apache.log4j.Logger;
 
 import com.bina.lrsim.h5.bax.BaxH5Reader;
 import com.bina.lrsim.h5.bax.Region;
+import com.bina.lrsim.h5.pb.PBBaxSpec;
+import com.bina.lrsim.h5.pb.PBCcsSpec;
+import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.RegionGroup;
 import com.bina.lrsim.simulator.samples.Samples;
 
@@ -16,7 +19,7 @@ import com.bina.lrsim.simulator.samples.Samples;
 public class H5RegionSampler {
   private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
 
-  private final static String usage = "parameters: out_prefix fofn min_read_score";
+  private final static String usage = "parameters: out_prefix fofn read_type min_read_score";
 
   /**
    * collect context-specific samples of reference->read edits from an alignment file
@@ -24,13 +27,29 @@ public class H5RegionSampler {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length != 3) {
+    if (args.length != 4) {
       log.info(usage);
       System.exit(1);
     }
     final String out_prefix = args[0];
     final String in_file = args[1];
-    final float min_read_score = Float.parseFloat(args[2]);
+    final String read_type = args[2];
+    final float min_read_score = Float.parseFloat(args[3]);
+
+    final PBSpec spec;
+    switch (read_type) {
+      case "ccs":
+        spec = new PBCcsSpec();
+        break;
+      case "bax":
+        spec = new PBBaxSpec();
+        break;
+      default:
+        spec = null;
+        log.info(usage);
+        log.info("spec must be ccs or bax");
+        System.exit(1);
+    }
 
     int count = 0;
     long base_count = 0;
@@ -46,13 +65,13 @@ public class H5RegionSampler {
           String filename = line.trim(); // for each listed file
           if (filename.length() > 0) {
             log.info("processing " + filename);
-            RegionGroup rg = new BaxH5Reader(filename);
+            RegionGroup rg = new BaxH5Reader(filename, spec);
             for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
               Region rr = itr.next();
               for (int insertLength : rr.getInsertLengths()) {
                 if (insertLength > 0 && rr.getReadScore() >= min_read_score) {
                   len_out.writeInt(insertLength);
-                  score_out.writeInt((int)(rr.getReadScore()*1000)); // quick and dirty hack
+                  score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
                   ++count;
                   base_count += insertLength;
                 }
