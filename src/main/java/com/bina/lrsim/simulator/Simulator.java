@@ -69,9 +69,12 @@ public class Simulator {
                                                        gen)
           ; read.size() < len_score.getFirst() && itr.hasNext()
           ;) {
-        long[] change_counters = drawer.appendTo(read, itr.next(), gen);
-        for (int ii = 0; ii < change_counters.length; ++ii) {
-          base_counter_[ii] += change_counters[ii];
+        final Context con = itr.next();
+        if (null != con) {
+          long[] change_counters = drawer.appendTo(read, con, gen);
+          for (int ii = 0; ii < change_counters.length; ++ii) {
+            base_counter_[ii] += change_counters[ii];
+          }
         }
       }
 

@@ -1,9 +1,9 @@
 package com.bina.lrsim.bioinfo;
 
-import org.apache.log4j.Logger;
-
 import java.util.Arrays;
 import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 
 /**
  * Created by bayo on 5/13/15.
@@ -32,7 +32,7 @@ public final class HPIterator implements Iterator<Context> {
   /**
    * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
    * 
-   * @param ascii ascii file
+   * @param ascii ascii sequence in the fw direction
    * @param begin 0-base begin
    * @param end 0-base end, exclusive
    * @param leftFlank number of bp before the position of interest
@@ -78,13 +78,15 @@ public final class HPIterator implements Iterator<Context> {
     int diff_pos = curr_ + 1;
     for (; diff_pos < seq_.length && seq_[diff_pos] == seq_[curr_]; ++diff_pos) {}
 
-    if (diff_pos + rightFlank_ > seq_.length) return null;
+    if (diff_pos + rightFlank_ > seq_.length) {
+      curr_ = diff_pos;
+      return null;
+    } else {
+      final byte[] buffer = Arrays.copyOfRange(seq_, curr_ - leftFlank_, diff_pos + rightFlank_);
 
-    final byte[] buffer = Arrays.copyOfRange(seq_, curr_ - leftFlank_, diff_pos + rightFlank_);
-
-    curr_ = diff_pos;
-
-    return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
+      curr_ = diff_pos;
+      return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
+    }
   }
 
   private HPContext rc_next() {
@@ -92,18 +94,20 @@ public final class HPIterator implements Iterator<Context> {
     int diff_pos = curr_ - 1;
     for (; diff_pos >= 0 && seq_[diff_pos] == seq_[curr_]; --diff_pos) {}
 
-    if (diff_pos - rightFlank_ < -1) return null;
+    if (diff_pos - rightFlank_ < -1) {
+      curr_ = diff_pos;
+      return null;
+    } else {
+      final byte[] buffer = new byte[leftFlank_ + curr_ - diff_pos + rightFlank_];
+      int kk = 0;
 
-    final byte[] buffer = new byte[leftFlank_ + curr_ - diff_pos + rightFlank_];
-    int kk = 0;
+      for (int pos = curr_ + leftFlank_; kk < buffer.length; ++kk, --pos) {
+        buffer[kk] = EnumBP.ascii_rc(seq_[pos]);
+      }
 
-    for (int pos = curr_ + leftFlank_; kk < buffer.length; ++kk, --pos) {
-      buffer[kk] = EnumBP.ascii_rc(seq_[pos]);
+      curr_ = diff_pos;
+      return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
     }
-
-    curr_ = diff_pos;
-
-    return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
   }
 
 

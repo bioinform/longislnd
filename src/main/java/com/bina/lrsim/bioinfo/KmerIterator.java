@@ -19,7 +19,7 @@ public final class KmerIterator implements Iterator<Context> {
   /**
    * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
    * 
-   * @param ascii ascii file
+   * @param ascii ascii sequence in fw direction
    * @param begin 0-base begin
    * @param end 0-base end, exclusive
    * @param leftFlank number of bp before the position of interest
@@ -30,7 +30,7 @@ public final class KmerIterator implements Iterator<Context> {
     leftFlank_ = leftFlank;
     rightFlank_ = rightFlank;
     rc_ = rc;
-    seq_ = ascii;
+    seq_ = ascii; // this can be pre-rc'ed as a whole if needed
     curr_ = begin + leftFlank;
     end_ = end - rightFlank;
   }
@@ -42,14 +42,8 @@ public final class KmerIterator implements Iterator<Context> {
 
   @Override
   public Context next() {
-    KmerContext c = null;
-    try {
-      // there can be a running sum optimization
-      c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_, rc_);
-    } catch (RuntimeException e) {
-      e.printStackTrace();
-      c = null;
-    }
+    // there can be a running sum optimization
+    KmerContext c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_, rc_);
     ++curr_;
     return c;
   }
