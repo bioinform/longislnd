@@ -2,19 +2,20 @@ package com.bina.lrsim.h5.bax;
 
 import java.util.Iterator;
 
-import com.bina.lrsim.h5.pb.PBSpec;
-import com.bina.lrsim.interfaces.RegionGroup;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
 import com.bina.lrsim.h5.H5ScalarDSIO;
+import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.interfaces.RegionGroup;
 
 /**
  * Created by bayo on 5/27/15.
  */
-public class BaxH5Reader implements RegionGroup{
+public class BaxH5Reader implements RegionGroup {
   private H5File h5_ = null;
   private final PBSpec spec;
+
   public BaxH5Reader(String filename, PBSpec spec) {
     this.load(filename);
     this.spec = spec;
@@ -34,6 +35,7 @@ public class BaxH5Reader implements RegionGroup{
     private int[] region_data;
     private float[] hole_score;
     private byte[] hole_status;
+    int min_hole = Integer.MAX_VALUE;
 
     RegionIterator() {
       curr = 0;
@@ -54,9 +56,10 @@ public class BaxH5Reader implements RegionGroup{
     @Override
     public Region next() {
       int hole_number = region_data[curr + EnumRegionsIdx.HoleNumber.value];
+      min_hole = Math.min(hole_number, min_hole);
       int next = curr + EnumRegionsIdx.values().length;
       for (; next < region_data.length && region_data[next + EnumRegionsIdx.HoleNumber.value] == hole_number; next += EnumRegionsIdx.values().length) {}
-      Region r = new Region(region_data, curr, next, hole_score[hole_number], hole_status[hole_number]);
+      Region r = new Region(region_data, curr, next, hole_score[hole_number - min_hole], hole_status[hole_number - min_hole]);
       curr = next;
       return r;
     }
