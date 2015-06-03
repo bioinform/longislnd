@@ -49,11 +49,13 @@ public class H5RegionSampler {
             RegionGroup rg = new BaxH5Reader(filename);
             for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
               Region rr = itr.next();
-              if (rr.getMaxInsertLength() > 0 && rr.getRegionScore() >= min_region_score) {
-                len_out.writeInt(rr.getMaxInsertLength());
-                score_out.writeInt(rr.getRegionScore());
-                ++count;
-                base_count += rr.getMaxInsertLength();
+              for (int insertLength : rr.getInsertLengths()) {
+                if (insertLength > 0 && rr.getRegionScore() >= min_region_score) {
+                  len_out.writeInt(insertLength);
+                  score_out.writeInt(rr.getRegionScore());
+                  ++count;
+                  base_count += insertLength;
+                }
               }
             }
           }
