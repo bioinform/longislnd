@@ -7,7 +7,7 @@ import java.util.Calendar;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.bioinfo.WeightedReference;
+import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
 import com.bina.lrsim.h5.pb.PBBaxSpec;
 import com.bina.lrsim.h5.pb.PBCcsSpec;
 import com.bina.lrsim.h5.pb.PBSpec;
@@ -75,7 +75,7 @@ public class H5Simulator {
 
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    final WeightedReference wr = new WeightedReference(fasta);
+    final ReferenceSequenceDrawer wr = new ReferenceSequenceDrawer(fasta);
 
     final Simulator sim = new Simulator(wr);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
@@ -85,7 +85,8 @@ public class H5Simulator {
 
     int current_file_index = 0;
     int simulated_reads = 0;
-    final int target_chunk = (int) wr.size();
+    final int target_chunk = (int) Math.min(wr.num_non_n(), 200000000);
+    log.info("each file will have ~" + target_chunk + " bases");
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 

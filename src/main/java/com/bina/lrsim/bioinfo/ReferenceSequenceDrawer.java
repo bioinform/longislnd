@@ -15,28 +15,34 @@ import htsjdk.samtools.reference.ReferenceSequence;
 
 /**
  * Created by bayo on 5/7/15.
+ *
+ * This class is obvious hacked up and need some clean up
  */
-public class WeightedReference implements RandomSequenceGenerator {
-  private final static Logger log = Logger.getLogger(WeightedReference.class.getName());
-  final Map<String, ReferenceWeight> name_ref_wei_ = new HashMap<String, ReferenceWeight>();
+public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
+  private final static Logger log = Logger.getLogger(ReferenceSequenceDrawer.class.getName());
+  final Map<String, Chromosome> name_chromosome = new HashMap<String, Chromosome>();
   final ArrayList<String> name_ = new ArrayList<String>();
   final ArrayList<Long> ref_cdf_ = new ArrayList<Long>();
   FastaSequenceFile reference_;
 
-  public WeightedReference(String filename) {
+  public ReferenceSequenceDrawer(String filename) {
     reference_ = new FastaSequenceFile(new java.io.File(filename), true);
     long num_bases = 0;
     for (ReferenceSequence rr = reference_.nextSequence(); null != rr; rr = reference_.nextSequence()) {
       name_.add(rr.getName());
-      name_ref_wei_.put(rr.getName(), new ReferenceWeight(rr, 1.0));
+      name_chromosome.put(rr.getName(), new Chromosome(rr));
       log.info("read " + rr.getName());
       num_bases += get(name_.size() - 1).length;
       ref_cdf_.add(num_bases);
     }
   }
 
-  public long size() {
-    return ref_cdf_.get(ref_cdf_.size() - 1);
+  public long num_non_n() {
+    long ret = 0;
+    for (Map.Entry<String, Chromosome> entry : name_chromosome.entrySet()) {
+      ret += entry.getValue().num_non_n();
+    }
+    return ret;
   }
 
   @Override
@@ -80,32 +86,41 @@ public class WeightedReference implements RandomSequenceGenerator {
   }
 
   public byte[] get(String name) {
-    return name_ref_wei_.get(name).seq().getBases();
+    return name_chromosome.get(name).seq().getBases();
   }
 
   public byte[] get(int id) {
     return get(name_.get(id));
   }
 
-  private static class ReferenceWeight {
+  private static class Chromosome {
     ReferenceSequence seq_;
-    double weight_;
+    int num_non_n_;
 
-    ReferenceWeight(ReferenceSequence seq, double weight) {
+    Chromosome(ReferenceSequence seq) {
       seq_ = seq;
-      weight_ = weight;
+      num_non_n_ = 0;
+
+      for (byte bb : seq_.getBases()) {
+        final byte value = EnumBP.ascii2value(bb);
+        if (value >= 0 && value < 4) {
+          ++num_non_n_;
+        }
+        if (value == EnumBP.Invalid.value) { throw new RuntimeException("reference contains " + bb); }
+      }
     }
 
     public int size() {
       return seq_.length();
     }
 
+    public int num_non_n() {
+      return num_non_n_;
+    }
+
     public ReferenceSequence seq() {
       return seq_;
     }
 
-    public double weight() {
-      return weight_;
-    }
   }
 }
