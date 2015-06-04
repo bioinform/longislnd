@@ -1,15 +1,17 @@
 package com.bina.lrsim.bioinfo;
 
-import com.bina.lrsim.interfaces.RandomSequenceGenerator;
-import htsjdk.samtools.reference.FastaSequenceFile;
-import htsjdk.samtools.reference.ReferenceSequence;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.log4j.Logger;
+
+import com.bina.lrsim.interfaces.RandomSequenceGenerator;
+
+import htsjdk.samtools.reference.FastaSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequence;
 
 /**
  * Created by bayo on 5/7/15.
@@ -46,11 +48,7 @@ public class WeightedReference implements RandomSequenceGenerator {
     return itr;
   }
 
-  private Iterator<Context> getSequenceImpl(int length,
-                                            int leftFlank,
-                                            int rightFlank,
-                                            int hp_anchor,
-                                            RandomGenerator gen) {
+  private Iterator<Context> getSequenceImpl(int length, int leftFlank, int rightFlank, int hp_anchor, RandomGenerator gen) {
     final boolean rc = gen.nextBoolean();
     final long num_bases = ref_cdf_.get(ref_cdf_.size() - 1);
     final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : gen.nextLong() % num_bases;
@@ -60,8 +58,23 @@ public class WeightedReference implements RandomSequenceGenerator {
     final int ref_pos = (0 == ref_idx) ? (int) pos : (int) (pos - ref_cdf_.get(ref_idx - 1));
 
     if (ref_pos + length <= get(ref_idx).length) {
+      final byte[] chromosome = get(ref_idx);
+      final byte[] sequence = new byte[length];
+      if (rc) {
+        for (int ss = 0, cc = chromosome.length - 1 - ref_pos; ss < length; ++ss, --cc) {
+          sequence[ss] = EnumBP.ascii_rc(chromosome[cc]);
+          if (sequence[ss] == 'N' || sequence[ss] == 'n') { return null; }
+        }
+
+      } else {
+        for (int ss = 0; ss < length; ++ss) {
+          sequence[ss] = chromosome[ref_pos + ss];
+          if (sequence[ss] == 'N' || sequence[ss] == 'n') { return null; }
+        }
+      }
       // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
-      return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
+      // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
+      return new HPIterator(sequence, 0, length, leftFlank, rightFlank, hp_anchor, false);
     }
     return null;
   }
