@@ -56,7 +56,7 @@ public class HPIteratorTest {
     final int anchor = 2;
 
     int count = 0;
-    for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor, false); itr.hasNext();) {
+    for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor); itr.hasNext();) {
       Context c = itr.next();
       assertEquals(1, c.hp_len());
 
@@ -72,7 +72,7 @@ public class HPIteratorTest {
     }
     assertEquals(count, fw.length - flank - flank);
   }
-
+/*
   @Test
   public void testRCItr() {
     byte[] fw = getATCG(8);
@@ -97,6 +97,7 @@ public class HPIteratorTest {
     }
     assertEquals(count, fw.length - flank - flank);
   }
+*/
 
   @Test
   public void testHPFW() {
@@ -123,8 +124,8 @@ public class HPIteratorTest {
 
     int count = 0;
     int kmer_pos = 0;
-    Iterator<Context> kitr = new KmerIterator(fw, 0, fw.length, flank, flank, false);
-    for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor, false); itr.hasNext();) {
+    Iterator<Context> kitr = new KmerIterator(fw, 0, fw.length, flank, flank);
+    for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor); itr.hasNext();) {
       Context c = itr.next();
       if (c.hp_len() == 1) {
         test1Decomposition(c, flank, flank);
@@ -163,7 +164,7 @@ public class HPIteratorTest {
     assertEquals(count, 2 * (flanking.length - flank) + 1);
   }
 
-
+/*
   @Test
   public void testHPRC() {
     byte[] flanking = getATCG(2);
@@ -235,5 +236,5 @@ public class HPIteratorTest {
     assertFalse(kitr.hasNext());
     assertEquals(count, 2 * (flanking_rc.length - flank) + 1);
   }
-
+*/
 }

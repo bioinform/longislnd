@@ -49,7 +49,7 @@ public final class HPContext extends Context {
    */
   @Override
   public Iterator<Context> decompose(int leftFlank, int rightFlank) {
-    return new KmerIterator(ascii_, 0, ascii_.length, leftFlank, rightFlank, false);
+    return new KmerIterator(ascii_, 0, ascii_.length, leftFlank, rightFlank);
   }
 
 }

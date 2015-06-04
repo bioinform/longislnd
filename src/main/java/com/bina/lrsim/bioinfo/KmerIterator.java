@@ -14,7 +14,6 @@ public final class KmerIterator implements Iterator<Context> {
   private final int end_;
   private final int leftFlank_;
   private final int rightFlank_;
-  private final boolean rc_;
 
   /**
    * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
@@ -24,13 +23,11 @@ public final class KmerIterator implements Iterator<Context> {
    * @param end 0-base end, exclusive
    * @param leftFlank number of bp before the position of interest
    * @param rightFlank number of bp after the position of interest
-   * @param rc if we are doing reverse complement
    */
-  KmerIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, boolean rc) {
+  KmerIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank) {
     leftFlank_ = leftFlank;
     rightFlank_ = rightFlank;
-    rc_ = rc;
-    seq_ = ascii; // this can be pre-rc'ed as a whole if needed
+    seq_ = ascii;
     curr_ = begin + leftFlank;
     end_ = end - rightFlank;
   }
@@ -43,7 +40,7 @@ public final class KmerIterator implements Iterator<Context> {
   @Override
   public Context next() {
     // there can be a running sum optimization
-    KmerContext c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_, rc_);
+    KmerContext c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_);
     ++curr_;
     return c;
   }

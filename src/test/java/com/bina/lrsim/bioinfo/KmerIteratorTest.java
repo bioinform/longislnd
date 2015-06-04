@@ -42,7 +42,7 @@ public class KmerIteratorTest {
     final int flank = 4;
 
     int count = 0;
-    for (Iterator<Context> itr = new KmerIterator(fw, 0, fw.length, flank, flank, false); itr.hasNext();) {
+    for (Iterator<Context> itr = new KmerIterator(fw, 0, fw.length, flank, flank); itr.hasNext();) {
       Context c = itr.next();
       assertEquals(1, c.hp_len());
 
@@ -56,7 +56,7 @@ public class KmerIteratorTest {
     }
     assertEquals(count, fw.length - flank - flank);
   }
-
+/*
   @Test
   public void testRCItr() {
     byte[] fw = getATCG(8);
@@ -78,4 +78,5 @@ public class KmerIteratorTest {
     }
     assertEquals(count, fw.length - flank - flank);
   }
+*/
 }

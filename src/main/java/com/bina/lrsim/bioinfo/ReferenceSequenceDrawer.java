@@ -80,7 +80,7 @@ public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
       }
       // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
       // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
-      return new HPIterator(sequence, 0, length, leftFlank, rightFlank, hp_anchor, false);
+      return new HPIterator(sequence, 0, length, leftFlank, rightFlank, hp_anchor);
     }
     return null;
   }
