@@ -4,6 +4,7 @@ import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
+import com.bina.lrsim.bioinfo.Heuristics;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class HPBCPool extends BaseCallsPool {
 
     data_ = new ArrayList<List<List<byte[]>>>(numKmers_);
     for (int ii = 0; ii < numKmers_; ++ii) {
-      data_.add(new ArrayList<List<byte[]>>((entryPerKmer > 0) ? entryPerKmer : MIN_POOL_SIZE));
+      data_.add(new ArrayList<List<byte[]>>((entryPerKmer > 0) ? entryPerKmer : Heuristics.MIN_HP_SAMPLES));
     }
     // data_[kmer] is non-null, but data_[kmer][len] might not have been allocated at this point
   }
@@ -53,7 +54,7 @@ public class HPBCPool extends BaseCallsPool {
     final int hp_len = context.hp_len();
     if (hp_len < data_.get(kmer).size()) {
       List<byte[]> pool = data_.get(kmer).get(hp_len);
-      if (null != pool && pool.size() > MIN_POOL_SIZE) {
+      if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
         buffer.addLast(b, 0, b.length);
         return true;

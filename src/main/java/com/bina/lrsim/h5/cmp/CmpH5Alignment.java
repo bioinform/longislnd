@@ -4,6 +4,10 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
+
 import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.EnumBP;
@@ -15,10 +19,7 @@ import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
-import org.apache.log4j.Logger;
-
-import java.util.Arrays;
-import java.util.Iterator;
+import com.bina.lrsim.bioinfo.Heuristics;
 
 public class CmpH5Alignment implements EventGroup {
 
@@ -114,6 +115,8 @@ public class CmpH5Alignment implements EventGroup {
         extra_ = null;
         return ret;
       }
+      boolean valid = true; // various conditions must be met to return this as an event to be considered
+
       BaseCalls bc = new BaseCalls(spec); // this is probably a memory bound block killer
       EnumEvent event = null;
 
@@ -139,9 +142,11 @@ public class CmpH5Alignment implements EventGroup {
         } else if (bc.size() == 1) {
           // no sane aligner will give the same base really
           event = EnumEvent.SUBSTITUTION;
-        }
-        else {
+        } else {
           event = EnumEvent.INSERTION;
+          if (bc.size() - 1 > Heuristics.MAX_INS_BP) {
+            valid = false;
+          }
         }
       } else if (seq_[next_] == EnumBP.Gap.ascii) {
         event = EnumEvent.DELETION;
@@ -155,10 +160,6 @@ public class CmpH5Alignment implements EventGroup {
         throw new RuntimeException("parsing error");
       }
 
-      // kmer to return
-      int kmer = -1;
-      boolean valid = true;
-
       // this is a hack to accommodate spurious gap-to-gap alignment in pbalign's output
       if (event.equals(EnumEvent.INSERTION) && bc.size() == 0) {
         valid = false;
@@ -171,9 +172,8 @@ public class CmpH5Alignment implements EventGroup {
         }
       }
 
-      if(valid) {
-        kmer = Kmerizer.fromASCII(key_);
-      }
+      // kmer to return
+      final int kmer = (valid) ?  Kmerizer.fromASCII(key_) : -1;
 
       if (valid) {
         extra_ = constructHPEvent(next_, lf_, rf_, hp_anchor_);
@@ -216,9 +216,7 @@ public class CmpH5Alignment implements EventGroup {
       }
 
       // homopolymer sampling is not needed if it's <= the flanking bases
-      if (hp_length <= left_flank && hp_length <= right_flank) {
-        return null;
-      }
+      if (hp_length <= left_flank && hp_length <= right_flank) { return null; }
 
       // make sure the right flank is "intact"
       for (int pos = next_diff; kk < tmp.length && pos < ref_.length; ++pos) {
@@ -228,9 +226,7 @@ public class CmpH5Alignment implements EventGroup {
           return null;
         }
       }
-      if (kk != tmp.length) {
-        return null;
-      }
+      if (kk != tmp.length) { return null; }
 
       BaseCalls bc = new BaseCalls(spec);
       try {
@@ -264,15 +260,11 @@ public class CmpH5Alignment implements EventGroup {
 
       }
       /*
-       * { StringBuilder sb = new StringBuilder(); sb.append("homopolymer " +start + " " +
-       * next_diff+" " + anchor+"\n"); for(int pos = start - anchor ; pos < next_diff+anchor; ++pos)
-       * { sb.append((char)seq_[pos]); } sb.append("\n"); for(int pos = start - anchor ; pos <
-       * next_diff+anchor; ++pos) { sb.append((char)ref_[pos]); } sb.append("\n"); for(int pos = 0;
-       * pos<bc.size(); ++pos){ sb.append((char)bc.get(pos,EnumDat.BaseCall)); } sb.append(" ");
-       * for(int pos = start - anchor ; pos < start; ++pos) { sb.append((char)ref_[pos]); }
-       * sb.append(" "); for(int pos = next_diff ; pos < next_diff+anchor; ++pos) {
-       * sb.append((char)ref_[pos]); } sb.append("\n"); sb.append(Arrays.toString(tmp)+" "+
-       * hp_length); log.info(sb.toString());
+       * { StringBuilder sb = new StringBuilder(); sb.append("homopolymer " +start + " " + next_diff+" " + anchor+"\n"); for(int pos = start - anchor ; pos <
+       * next_diff+anchor; ++pos) { sb.append((char)seq_[pos]); } sb.append("\n"); for(int pos = start - anchor ; pos < next_diff+anchor; ++pos) {
+       * sb.append((char)ref_[pos]); } sb.append("\n"); for(int pos = 0; pos<bc.size(); ++pos){ sb.append((char)bc.get(pos,EnumDat.BaseCall)); } sb.append(" ");
+       * for(int pos = start - anchor ; pos < start; ++pos) { sb.append((char)ref_[pos]); } sb.append(" "); for(int pos = next_diff ; pos < next_diff+anchor;
+       * ++pos) { sb.append((char)ref_[pos]); } sb.append("\n"); sb.append(Arrays.toString(tmp)+" "+ hp_length); log.info(sb.toString());
        * 
        * }
        */
@@ -368,7 +360,7 @@ public class CmpH5Alignment implements EventGroup {
 
   private PBReadBuffer toRead(byte[] ba) {
     final int begin = index_[EnumIdx.offset_begin.value];
-    PBReadBuffer buffer = new PBReadBuffer(spec,aln_length());
+    PBReadBuffer buffer = new PBReadBuffer(spec, aln_length());
     BaseCalls bc = new BaseCalls(spec, 1);
     for (int ii = 0; ii < aln_length(); ++ii) {
       if (ba[ii] != EnumBP.Gap.ascii) {
@@ -401,9 +393,8 @@ public class CmpH5Alignment implements EventGroup {
       if (EnumBP.Invalid.value == seq_loc[ii]) throw new RuntimeException("bad seq char");
 
       /*
-       * this assert is to throw if there's a gap-to-gap alignment, which breaks some down stream
-       * pacbio tools, instead, the insertion code path is modified to avoid the logging of
-       * gap-to-gap alignment
+       * this assert is to throw if there's a gap-to-gap alignment, which breaks some down stream pacbio tools, instead, the insertion code path is modified to
+       * avoid the logging of gap-to-gap alignment
        */
       if (ref_loc[ii] == seq_loc[ii] && ref_loc[ii] == EnumBP.Gap.ascii) {
         // throw new RuntimeException("gap-to-gap alignment " + aln[ii]);
@@ -419,58 +410,43 @@ public class CmpH5Alignment implements EventGroup {
   }
 
   private void spanAlignment(int min_length) {
-    spanLeftOnMatching();
-    spanRightOnMismatch();
+    if (Heuristics.SPAN_LEFT_ON_MATCHES) spanLeftOnMatching();
+    if (Heuristics.SPAN_RIGHT_ON_MISMATCHES) spanRightOnMismatch();
     /*
-    final int length = ref_.length;
-
-    for (int pos = 0; pos < length;) {
-      final byte base = ref_[pos];
-
-      int next_diff = pos + 1;
-
-      if (base != EnumBP.Gap.ascii && base == seq_[pos] && base != EnumBP.N.ascii && base != 'n') {
-        int hp_length = 1;
-        for (; next_diff < length && (ref_[next_diff] == EnumBP.Gap.ascii || ref_[next_diff] == base); ++next_diff) {
-          if (ref_[next_diff] == base) {
-            ++hp_length;
-          }
-        }
-
-        if (hp_length >= min_length) {
-          int left_most = pos;
-          for (; left_most > 0 && ref_[left_most - 1] == EnumBP.Gap.ascii && seq_[left_most - 1] == base; --left_most) {}
-          if (left_most != pos) {
-            ref_[pos] = EnumBP.Gap.ascii;
-            ref_[left_most] = base;
-          }
-        }
-      }
-
-      pos = next_diff;
-    }
-    */
+     * final int length = ref_.length;
+     * 
+     * for (int pos = 0; pos < length;) { final byte base = ref_[pos];
+     * 
+     * int next_diff = pos + 1;
+     * 
+     * if (base != EnumBP.Gap.ascii && base == seq_[pos] && base != EnumBP.N.ascii && base != 'n') { int hp_length = 1; for (; next_diff < length &&
+     * (ref_[next_diff] == EnumBP.Gap.ascii || ref_[next_diff] == base); ++next_diff) { if (ref_[next_diff] == base) { ++hp_length; } }
+     * 
+     * if (hp_length >= min_length) { int left_most = pos; for (; left_most > 0 && ref_[left_most - 1] == EnumBP.Gap.ascii && seq_[left_most - 1] == base;
+     * --left_most) {} if (left_most != pos) { ref_[pos] = EnumBP.Gap.ascii; ref_[left_most] = base; } } }
+     * 
+     * pos = next_diff; }
+     */
   }
 
   private void spanLeftOnMatching() {
     int left_most_target = 0;
-    for (int pos = 0; pos < ref_.length ; ++pos) {
+    for (int pos = 0; pos < ref_.length; ++pos) {
       final byte base = ref_[pos];
-      if(base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
+      if (base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
       int left_most_match = pos;
-      for(int left_candidate = left_most_match - 1; left_candidate >= left_most_target && ref_[left_candidate] == EnumBP.Gap.ascii; --left_candidate) {
-        if(base == seq_[left_candidate]) {
+      for (int left_candidate = left_most_match - 1; left_candidate >= left_most_target && ref_[left_candidate] == EnumBP.Gap.ascii; --left_candidate) {
+        if (base == seq_[left_candidate]) {
           left_most_match = left_candidate;
         }
       }
-      if(left_most_match != pos) {
+      if (left_most_match != pos) {
         ref_[pos] = EnumBP.Gap.ascii;
         ref_[left_most_match] = base;
         // if a reference base has been shifted left, make sure the next base, if already matching, won't get shifted right next to it
-        if (pos + 1 < ref_.length && ref_[pos+1] != EnumBP.Gap.ascii && ref_[pos+1] == seq_[pos+1]) {
+        if (pos + 1 < ref_.length && ref_[pos + 1] != EnumBP.Gap.ascii && ref_[pos + 1] == seq_[pos + 1]) {
           left_most_target = left_most_match + 2;
-        }
-        else {
+        } else {
           left_most_target = left_most_match + 1;
         }
       }
@@ -478,23 +454,22 @@ public class CmpH5Alignment implements EventGroup {
   }
 
   private void spanRightOnMismatch() {
-    for (int pos = ref_.length - 1; pos >= 0 ; --pos) {
+    for (int pos = ref_.length - 1; pos >= 0; --pos) {
       final byte base = ref_[pos];
-      if( base == seq_[pos] || base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
+      if (base == seq_[pos] || base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
       int right_most_match = pos;
       int right_most_gap = pos;
-      for(int right_canadidate = right_most_match + 1; right_canadidate < ref_.length && ref_[right_canadidate] == EnumBP.Gap.ascii; ++right_canadidate ) {
-        if(base == seq_[right_canadidate]) {
+      for (int right_canadidate = right_most_match + 1; right_canadidate < ref_.length && ref_[right_canadidate] == EnumBP.Gap.ascii; ++right_canadidate) {
+        if (base == seq_[right_canadidate]) {
           right_most_match = right_canadidate;
         }
         right_most_gap = right_canadidate;
       }
 
-      if(right_most_match != pos) {
+      if (right_most_match != pos) {
         ref_[pos] = EnumBP.Gap.ascii;
         ref_[right_most_match] = base;
-      }
-      else if (right_most_gap != pos) {
+      } else if (right_most_gap != pos) {
         ref_[pos] = EnumBP.Gap.ascii;
         ref_[right_most_gap] = base;
       }
