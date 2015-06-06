@@ -4,6 +4,7 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -11,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.EnumBP;
+import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
@@ -19,7 +21,6 @@ import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
-import com.bina.lrsim.bioinfo.Heuristics;
 
 public class CmpH5Alignment implements EventGroup {
 
@@ -140,8 +141,11 @@ public class CmpH5Alignment implements EventGroup {
         if (bc.size() == 0) {
           event = EnumEvent.DELETION;
         } else if (bc.size() == 1) {
-          // no sane aligner will give the same base really
-          event = EnumEvent.SUBSTITUTION;
+          if(bc.get(0,EnumDat.BaseCall) == ref_[next_]){
+            event = EnumEvent.MATCH;
+          } else {
+            event = EnumEvent.SUBSTITUTION;
+          }
         } else {
           event = EnumEvent.INSERTION;
           if (bc.size() - 1 > Heuristics.MAX_INS_BP) {
@@ -460,7 +464,7 @@ public class CmpH5Alignment implements EventGroup {
       int right_most_match = pos;
       int right_most_gap = pos;
       for (int right_canadidate = right_most_match + 1; right_canadidate < ref_.length && ref_[right_canadidate] == EnumBP.Gap.ascii; ++right_canadidate) {
-        if (base == seq_[right_canadidate]) {
+        if (base == seq_[right_canadidate] || EnumBP.Gap.ascii == seq_[right_canadidate]) {
           right_most_match = right_canadidate;
         }
         right_most_gap = right_canadidate;

@@ -9,6 +9,8 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 
+import com.bina.lrsim.bioinfo.Kmerizer;
+import com.bina.lrsim.h5.pb.EnumDat;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -200,20 +202,24 @@ public class SamplesDrawer extends Samples {
         buffer.read(dis[src]);
 
         if (buffer.hp_len() == 1) {
-          /*
-           * if (buffer.event().equals(EnumEvent.DELETION) && buffer.size() != 0) throw new
-           * Exception("del with length " + buffer.size()); else if
-           * (buffer.event().equals(EnumEvent.SUBSTITUTION) ) { if(buffer.size() != 1) throw new
-           * Exception("sub with length " + buffer.size());
-           * if(Kmerizer.toByteArray(buffer.kmer(),left_flank
-           * ()+1+right_flank())[left_flank()]==buffer.get(0, EnumDat.BaseCall)) { throw new
-           * Exception("matching base for substitution event"); } } else if
-           * (buffer.event().equals(EnumEvent.MATCH) ) { if( buffer.size() != 1) throw new
-           * Exception("match with length " + buffer.size());
-           * if(Kmerizer.toByteArray(buffer.kmer(),left_flank
-           * ()+1+right_flank())[left_flank()]!=buffer.get(0, EnumDat.BaseCall)) { throw new
-           * Exception("unmatching base for match event"); } }
-           */
+          if (buffer.event().equals(EnumEvent.DELETION) && buffer.size() != 0) {
+            throw new RuntimeException("del with length " + buffer.size());
+          }
+          else if (buffer.event().equals(EnumEvent.SUBSTITUTION)) {
+            if (buffer.size() != 1) {
+              throw new RuntimeException("sub with length " + buffer.size());
+            }
+            if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] == buffer.get(0, EnumDat.BaseCall)) {
+              throw new RuntimeException("matching base for substitution event");
+            }
+          } else if (buffer.event().equals(EnumEvent.MATCH)) {
+            if (buffer.size() != 1) {
+              throw new RuntimeException("match with length " + buffer.size());
+            }
+            if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] != buffer.get(0, EnumDat.BaseCall)) {
+              throw new RuntimeException("unmatching base for match event");
+            }
+          }
 
           ++event_count[buffer.event().value];
           if (kmer_event_drawer_.get(buffer.event()).add(buffer)) {
