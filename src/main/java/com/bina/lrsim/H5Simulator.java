@@ -3,6 +3,7 @@ package com.bina.lrsim;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
@@ -48,10 +49,13 @@ public class H5Simulator {
       if (idsm.length != EnumEvent.values().length) {
         log.info(usage);
         log.info("event frequency must be a set of integers " + EnumEvent.getListDescription());
+        System.exit(1);
+      } else {
         events_frequency = new long[EnumEvent.values().length];
         for (int ii = 0; ii < events_frequency.length; ++ii) {
           events_frequency[ii] = Long.parseLong(idsm[ii]);
         }
+        log.info("custom event frequencies: " + Arrays.toString(events_frequency));
       }
     }
 
