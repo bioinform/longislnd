@@ -151,6 +151,11 @@ public class CmpH5Alignment implements EventGroup {
           if (bc.size() - 1 > Heuristics.MAX_INS_BP) {
             valid = false;
           }
+          else if (bc.get(0,EnumDat.BaseCall) != ref_[next_] || bc.get(1,EnumDat.BaseCall) != ref_[next_]) {
+//            log.info(new String(Arrays.copyOfRange(seq_,next_-10,next_+11)));
+//            log.info(new String(Arrays.copyOfRange(ref_,next_-10,next_+11)));
+//            log.info("      "+new String(key_));
+          }
         }
       } else if (seq_[next_] == EnumBP.Gap.ascii) {
         event = EnumEvent.DELETION;
@@ -414,8 +419,13 @@ public class CmpH5Alignment implements EventGroup {
   }
 
   private void spanAlignment(int min_length) {
+//    log.info(new String(seq_));
+//    log.info(new String(ref_));
     if (Heuristics.SPAN_LEFT_ON_MATCHES) spanLeftOnMatching();
     if (Heuristics.SPAN_RIGHT_ON_MISMATCHES) spanRightOnMismatch();
+    if (Heuristics.MERGE_INDELS) mergeIndels();
+//    log.info(new String(seq_));
+//    log.info(new String(ref_));
     /*
      * final int length = ref_.length;
      * 
@@ -452,6 +462,51 @@ public class CmpH5Alignment implements EventGroup {
           left_most_target = left_most_match + 2;
         } else {
           left_most_target = left_most_match + 1;
+        }
+      }
+    }
+  }
+
+  private void mergeIndels() {
+    for (int pos = 2; pos < ref_.length - 2; ++pos) {
+      final byte last2_base = ref_[pos - 2];
+      final byte last_base = ref_[pos - 1];
+      final byte base = ref_[pos];
+      final byte next_base = ref_[pos + 1];
+      final byte next2_base = ref_[pos + 2];
+      if (base == EnumBP.Gap.ascii) {
+        // AC G  --> AC G
+        // A TG  --> AT G
+        //  p
+        // CC T  --> CC T
+        // C TT  --> C TT
+        if (       last_base != EnumBP.Gap.ascii
+                && last_base == seq_[pos - 1]
+                && seq_[pos] != last_base
+                && next_base != EnumBP.Gap.ascii
+                && next_base != next2_base
+                && seq_[pos+1] == EnumBP.Gap.ascii
+                && next2_base != EnumBP.Gap.ascii
+                && next2_base == seq_[pos+2]
+                ) {
+          ref_[pos] = next_base;
+          ref_[pos + 1] = EnumBP.Gap.ascii;
+        }
+        // A CG  --> A CG
+        // AT G  --> A TG
+        //   p
+        // C TT  --> C TT
+        // CC T  --> CC T
+        else if (  last2_base != EnumBP.Gap.ascii
+                && last2_base == seq_[pos - 2]
+                && last_base != EnumBP.Gap.ascii
+                && last_base != last2_base
+                && seq_[pos - 1] == EnumBP.Gap.ascii
+                && seq_[pos] != next_base
+                && next_base != EnumBP.Gap.ascii
+                && next_base == seq_[pos + 1]) {
+          ref_[pos - 1] = EnumBP.Gap.ascii;
+          ref_[pos] = last_base;
         }
       }
     }
