@@ -273,7 +273,7 @@ public class SamplesDrawer extends Samples {
           }
           else {
             frequencies[ii] = 0;
-            log.info("warning: not enough samples for custom sampling frequency. considering more training data or shorter sampling flank to discover such rare event");
+//            log.info("warning: not enough samples for custom sampling frequency. considering more training data or shorter sampling flank to discover such rare event");
           }
         }
       }

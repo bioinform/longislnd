@@ -4,7 +4,6 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/2/15.
  */
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -16,7 +15,6 @@ import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.simulator.EnumEvent;
@@ -128,12 +126,12 @@ public class CmpH5Alignment implements EventGroup {
       if (ref_[next_ + 1] == EnumBP.Gap.ascii) {
         bc.reserve(10);
         if (seq_[next_] != EnumBP.Gap.ascii) {
-          fillbase(bc, next_);
+          fillBase(bc, next_);
         }
         for (int ins = next_ + 1; ref_[ins] == EnumBP.Gap.ascii; ++ins) {
           // this is a hack to accommodate spurious gap-to-gap alignment in pbalign's output
           if (seq_[ins] != EnumBP.Gap.ascii) {
-            fillbase(bc, ins);
+            fillBase(bc, ins);
           } else {
             // throw new RuntimeException("gap-vs-gap alignment");
           }
@@ -161,10 +159,10 @@ public class CmpH5Alignment implements EventGroup {
         event = EnumEvent.DELETION;
       } else if (seq_[next_] == ref_[next_]) {
         event = EnumEvent.MATCH;
-        fillbase(bc, next_);
+        fillBase(bc, next_);
       } else if (seq_[next_] != ref_[next_]) {
         event = EnumEvent.SUBSTITUTION;
-        fillbase(bc, next_);
+        fillBase(bc, next_);
       } else {
         throw new RuntimeException("parsing error");
       }
@@ -241,7 +239,7 @@ public class CmpH5Alignment implements EventGroup {
       try {
         for (int pos = start; pos < next_diff; ++pos) {
           if (seq_[pos] != EnumBP.Gap.ascii) {
-            fillbase(bc, pos);
+            fillBase(bc, pos);
           }
         }
       } catch (Exception e) {
@@ -286,13 +284,13 @@ public class CmpH5Alignment implements EventGroup {
       throw new UnsupportedOperationException("cannot remove elements");
     }
 
-    private void fillbase(BaseCalls bc, int index) {
-      final int begin = index_[EnumIdx.offset_begin.value];
-      int loc_idx = bc.size();
+    private void fillBase(BaseCalls bc, int index) {
+      final int loc_idx = bc.size();
+      final int seq_idx = seq_data_idx_[index];
       bc.push_back();
       bc.set(loc_idx, EnumDat.BaseCall, seq_[index]);
       for (EnumDat ed : spec.getNonBaseDataSet()) {
-        bc.set(loc_idx, ed, data_.get(ed)[begin + index]);
+        bc.set(loc_idx, ed, data_.get(ed)[seq_idx]);
       }
     }
 
@@ -359,30 +357,6 @@ public class CmpH5Alignment implements EventGroup {
     load(index, data);
   }
 
-  public PBReadBuffer toSeqRead() {
-    return toRead(seq_);
-  }
-
-  public PBReadBuffer toRefRead() {
-    return toRead(ref_);
-  }
-
-  private PBReadBuffer toRead(byte[] ba) {
-    final int begin = index_[EnumIdx.offset_begin.value];
-    PBReadBuffer buffer = new PBReadBuffer(spec, aln_length());
-    BaseCalls bc = new BaseCalls(spec, 1);
-    for (int ii = 0; ii < aln_length(); ++ii) {
-      if (ba[ii] != EnumBP.Gap.ascii) {
-        bc.set(0, EnumDat.BaseCall, ba[ii]);
-        for (EnumDat e : spec.getNonBaseDataSet()) {
-          bc.set(0, e, data_.get(e)[begin + ii]);
-        }
-        buffer.addLast(bc);
-      }
-    }
-    return buffer;
-  }
-
   public void load(int[] index, AlnData data) {
     final int begin = index[EnumIdx.offset_begin.value];
     final int end = index[EnumIdx.offset_end.value];
@@ -390,6 +364,7 @@ public class CmpH5Alignment implements EventGroup {
     byte[] ref_loc = new byte[length];
     byte[] seq_loc = new byte[length];
     int[] aln_loc = new int[length];
+    int[] seq_data_idx_loc = new int[length];
 
     byte[] aln = data.get(EnumDat.AlnArray);
 
@@ -409,19 +384,27 @@ public class CmpH5Alignment implements EventGroup {
         // throw new RuntimeException("gap-to-gap alignment " + aln[ii]);
         log.warn("' '-to-' ' alignment found in cmp.h5 alignment:" + aln[ii]);
       }
+
+      seq_data_idx_loc[ii] = (seq_loc[ii] != EnumBP.Gap.ascii) ? (begin + ii) : -1;
     }
 
     index_ = index;
     data_ = data;
     ref_ = ref_loc;
     seq_ = seq_loc;
+    seq_data_idx_ = seq_data_idx_loc;
     aln_ = aln_loc;
   }
 
   private void spanAlignment(int min_length) {
 //    log.info(new String(seq_));
 //    log.info(new String(ref_));
-    if (Heuristics.SPAN_LEFT_ON_MATCHES) spanLeftOnMatching();
+    if (Heuristics.SPAN_LEFT_ON_MATCHES) {
+      // try to push deletions to the right, also spread out deletions
+      spanLeftOnMatching(ref_, seq_, seq_data_idx_);
+      // try to push insertions to the right, also spread out insertions
+      spanLeftOnMatching(seq_, ref_, null);
+    }
     if (Heuristics.SPAN_RIGHT_ON_MISMATCHES) spanRightOnMismatch();
     if (Heuristics.MERGE_INDELS) mergeIndels();
 //    log.info(new String(seq_));
@@ -443,22 +426,27 @@ public class CmpH5Alignment implements EventGroup {
      */
   }
 
-  private void spanLeftOnMatching() {
+  private static void spanLeftOnMatching(final byte[] fixed, final byte[] movable, final int[] indices) {
+    if (fixed == movable) return;
     int left_most_target = 0;
-    for (int pos = 0; pos < ref_.length; ++pos) {
-      final byte base = ref_[pos];
+    for (int pos = 0; pos < movable.length; ++pos) {
+      final byte base = movable[pos];
       if (base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
       int left_most_match = pos;
-      for (int left_candidate = left_most_match - 1; left_candidate >= left_most_target && ref_[left_candidate] == EnumBP.Gap.ascii; --left_candidate) {
-        if (base == seq_[left_candidate]) {
+      for (int left_candidate = left_most_match - 1; left_candidate >= left_most_target && movable[left_candidate] == EnumBP.Gap.ascii; --left_candidate) {
+        if (base == fixed[left_candidate]) {
           left_most_match = left_candidate;
         }
       }
       if (left_most_match != pos) {
-        ref_[pos] = EnumBP.Gap.ascii;
-        ref_[left_most_match] = base;
-        // if a reference base has been shifted left, make sure the next base, if already matching, won't get shifted right next to it
-        if (pos + 1 < ref_.length && ref_[pos + 1] != EnumBP.Gap.ascii && ref_[pos + 1] == seq_[pos + 1]) {
+        movable[pos] = EnumBP.Gap.ascii;
+        movable[left_most_match] = base;
+        if (null != indices) {
+          indices[left_most_match] = indices[pos];
+          indices[pos] = -1;
+        }
+        // if a base has been shifted left, make sure the next base, if already matching, won't get shifted right next to it
+        if (pos + 1 < movable.length && movable[pos + 1] != EnumBP.Gap.ascii && movable[pos + 1] == fixed[pos + 1]) {
           left_most_target = left_most_match + 2;
         } else {
           left_most_target = left_most_match + 1;
@@ -474,7 +462,7 @@ public class CmpH5Alignment implements EventGroup {
       final byte base = ref_[pos];
       final byte next_base = ref_[pos + 1];
       final byte next2_base = ref_[pos + 2];
-      if (base == EnumBP.Gap.ascii) {
+      if (base == EnumBP.Gap.ascii && seq_[pos] != EnumBP.Gap.ascii) {
         // AC G  --> AC G
         // A TG  --> AT G
         //  p
@@ -543,5 +531,6 @@ public class CmpH5Alignment implements EventGroup {
   private int[] aln_ = null; // for diagnostic
   private byte[] ref_ = null;
   private byte[] seq_ = null;
+  private int[] seq_data_idx_ = null; // the index in raw data corresponding at this seq_ index
   private final static Logger log = Logger.getLogger(LRSim.class.getName());
 }
