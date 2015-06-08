@@ -1,5 +1,6 @@
 package com.bina.lrsim.h5.bax;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import ncsa.hdf.object.FileFormat;
@@ -32,21 +33,32 @@ public class BaxH5Reader implements RegionGroup {
 
   private class CCSRegionIterator implements Iterator<Region> {
     int curr = 0;
-    private float[] holeScore;
-    private byte[] holeStatus;
-    private int[] numEvents;
-    int min_hole = Integer.MAX_VALUE;
+    private final float[] holeScore;
+    private final byte[] holeStatus;
+    private final int[] numEvents;
 
     CCSRegionIterator() {
       curr = 0;
       try {
-        holeScore = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
         holeStatus = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
         numEvents = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/NumEvent");
-      } catch (Exception e) {
+      }  catch (IOException e) {
         throw new RuntimeException(e);
       }
-
+      float[] fp;
+      try {
+        fp = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
+      } catch (IOException e) {
+        fp = null;
+      }
+      try {
+        if(null == fp) {
+          fp = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/PredictedAccuracy");
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      holeScore = fp;
     }
 
     @Override
