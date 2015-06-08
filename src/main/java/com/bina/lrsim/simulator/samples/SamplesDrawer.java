@@ -9,13 +9,14 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 
-import com.bina.lrsim.bioinfo.Kmerizer;
-import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.bioinfo.Heuristics;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.bioinfo.Kmerizer;
+import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.EnumEvent;
@@ -263,7 +264,19 @@ public class SamplesDrawer extends Samples {
   private EnumEvent randomEvent(Context context, RandomGenerator gen) {
     if (context.hp_len() == 1) {
       final int shift = EnumEvent.values().length * context.kmer();
-      final long[] frequencies = (custom_frequency != null) ? custom_frequency : Arrays.copyOfRange(kmer_event_count_ref(), shift, shift + EnumEvent.values().length);
+
+      final long[] frequencies = Arrays.copyOfRange(kmer_event_count_ref(), shift, shift + EnumEvent.values().length);
+      if (null != custom_frequency) {
+        for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
+          if (frequencies[ii] > Heuristics.MIN_KMER_SAMPLES_FOR_NON_ZERO_CUSTOM_FREQUENCY) {
+            frequencies[ii] = custom_frequency[ii];
+          }
+          else {
+            frequencies[ii] = 0;
+            log.info("warning: not enough samples for custom sampling frequency. considering more training data or shorter sampling flank to discover such rare event");
+          }
+        }
+      }
 
       long sum = 0;
       for (int ii = 0; ii < EnumEvent.values().length; ++ii) {

@@ -19,4 +19,9 @@ public class Heuristics {
 
   // the minimum number of homopolymer samples required to treat it as full homopolymer context
   public static final int MIN_HP_SAMPLES = 20;
+
+  // the minimum number of kmer samples of an event, to treat that as one with non zero custom frequency
+  // useful if very little data is sampled
+  public static final int MIN_KMER_SAMPLES_FOR_NON_ZERO_CUSTOM_FREQUENCY = 0;
+
 }
