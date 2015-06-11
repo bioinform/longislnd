@@ -27,8 +27,8 @@ public class Kmerizer {
       out *= 4;
       int val = EnumBP.ascii2value(ascii[ii]);
       if ( val < 0 || val >=4 ) {
-        throw new RuntimeException("unsupported base call " + ascii[ii]);
-//        val = ThreadLocalRandom.current().nextInt(4);
+//        throw new RuntimeException("unsupported base call " + ascii[ii]);
+        val = ThreadLocalRandom.current().nextInt(4);
       }
       out += val;
     }

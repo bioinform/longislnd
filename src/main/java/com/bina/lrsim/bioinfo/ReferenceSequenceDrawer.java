@@ -64,20 +64,22 @@ public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
     final int ref_pos = (0 == ref_idx) ? (int) pos : (int) (pos - ref_cdf_.get(ref_idx - 1));
 
     if (ref_pos + length <= get(ref_idx).length) {
+      int number_of_n = 0;
       final byte[] chromosome = get(ref_idx);
       final byte[] sequence = new byte[length];
       if (rc) {
         for (int ss = 0, cc = chromosome.length - 1 - ref_pos; ss < length; ++ss, --cc) {
           sequence[ss] = EnumBP.ascii_rc(chromosome[cc]);
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') { return null; }
+          if (sequence[ss] == 'N' || sequence[ss] == 'n') { ++number_of_n; }
         }
 
       } else {
         for (int ss = 0; ss < length; ++ss) {
           sequence[ss] = chromosome[ref_pos + ss];
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') { return null; }
+          if (sequence[ss] == 'N' || sequence[ss] == 'n') { ++number_of_n; }
         }
       }
+      if (length * Heuristics.MAX_N_FRACTION_ON_READ < number_of_n) { return null; }
       // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
       // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
       return new HPIterator(sequence, 0, length, leftFlank, rightFlank, hp_anchor);
