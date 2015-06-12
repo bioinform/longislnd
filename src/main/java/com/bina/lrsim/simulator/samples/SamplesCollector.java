@@ -1,14 +1,15 @@
 package com.bina.lrsim.simulator.samples;
 
+import java.io.*;
+import java.util.Arrays;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
+
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
-import org.apache.log4j.Logger;
-
-import java.io.*;
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Created by bayo on 5/8/15.
@@ -83,10 +84,10 @@ public class SamplesCollector extends Samples implements Closeable {
    */
   public void process(EventGroupFactory groups, int min_length, int flank_mask) throws IOException {
     int ii = 0;
-    for (; ii < groups.size(); ++ii) {
-      EventGroup group = groups.getEventGroup(ii);
+    for (Iterator<EventGroup> itr = groups.getIterator(); itr.hasNext();) {
+      EventGroup group = itr.next();
       if (ii % 10000 == 0 && ii != 0) {
-        log.info("processing group " + ii + "/" + groups.size());
+        log.info("processing group " + ii);
         log.info(toString());
       }
       if (null == group) {
@@ -96,7 +97,7 @@ public class SamplesCollector extends Samples implements Closeable {
       if (group.seq_length() < min_length) {
         continue;
       }
-//      super.lengths_ref().add(group.seq_length());
+      // super.lengths_ref().add(group.seq_length());
       process(group.getEventIterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
     }
     log.info("processed " + ii + " groups");

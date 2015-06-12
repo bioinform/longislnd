@@ -5,21 +5,24 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/1/15.
  */
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import ncsa.hdf.object.FileFormat;
+import ncsa.hdf.object.h5.H5File;
+
+import org.apache.log4j.Logger;
+
 import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.interfaces.EventGroupFactory;
-import ncsa.hdf.object.FileFormat;
-import ncsa.hdf.object.h5.H5File;
-import org.apache.log4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class CmpH5Reader implements EventGroupFactory {
   private final static Logger log = Logger.getLogger(LRSim.class.getName());
-  private String filename_ = null;
   private H5File h5_ = null;
   private AlnIndex AlnIndex_ = null;
   private AlnGroup AlnGroup_ = null;
@@ -33,18 +36,43 @@ public class CmpH5Reader implements EventGroupFactory {
     load(filename);
   }
 
-  @Override
   public int size() {
     return AlnIndex_.size();
   }
 
   @Override
+  public Iterator<EventGroup> getIterator() {
+    return new EventGroupIterator();
+  }
+
+  private class EventGroupIterator implements Iterator<EventGroup> {
+    private int curr;
+
+    EventGroupIterator() {
+      curr = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return curr < size();
+    }
+
+    @Override
+    public EventGroup next() {
+      return getEventGroup(curr++);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("cannot remove elements");
+    }
+  }
+
   public CmpH5Alignment getEventGroup(int index) {
     String path = AlnGroup_.path(AlnIndex_.get(index, EnumIdx.AlnGroupID));
     if (path == null) return null;
     /*
-     * AlnData data_ref = path_data_.get(path); if (null == data_ref) { data_ref = new AlnData(h5_,
-     * path); path_data_.put(path, data_ref); }
+     * AlnData data_ref = path_data_.get(path); if (null == data_ref) { data_ref = new AlnData(h5_, path); path_data_.put(path, data_ref); }
      */
     if (last_path_ == null || !path.equals(last_path_)) {
       log.debug("loading alignment group " + path);
@@ -55,7 +83,6 @@ public class CmpH5Reader implements EventGroupFactory {
   }
 
   public void load(String filename) {
-    filename_ = filename;
     h5_ = new H5File(filename, FileFormat.READ);
     AlnIndex_ = new AlnIndex(h5_);
     AlnGroup_ = new AlnGroup(h5_);
