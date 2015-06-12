@@ -230,20 +230,29 @@ public abstract class Samples {
     fos.close();
   }
 
-
   private final void loadStats(String prefix) throws IOException {
     RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix), "r");
     FileChannel file = fos.getChannel();
     MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE / 8 * kmer_event_count_.length);
     StringBuilder sb = new StringBuilder();
     sb.append(" ");
+    long[] local_log = new long[EnumEvent.values().length];
     for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
-      if (ii % EnumEvent.values().length == 0) {
-        sb.append(Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
-      }
       kmer_event_count_[ii] = buf.getLong();
-      sb.append(" " + kmer_event_count_[ii]);
+      local_log[ii % EnumEvent.values().length] = kmer_event_count_[ii];
       if (ii % EnumEvent.values().length == 3) {
+        sb.append(Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
+        double total = 0;
+        for (long l : local_log) {
+          total += l;
+        }
+        for (long l : local_log) {
+          sb.append(String.format("%6.2f", 100 * l / total));
+        }
+        sb.append("       ");
+        for (long l : local_log) {
+          sb.append(String.format(" %d", l));
+        }
         sb.append("\n");
       }
     }
