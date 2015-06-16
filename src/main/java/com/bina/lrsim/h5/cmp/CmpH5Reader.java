@@ -41,7 +41,7 @@ public class CmpH5Reader implements EventGroupFactory {
   }
 
   @Override
-  public Iterator<EventGroup> getIterator() {
+  public Iterator<EventGroup> iterator() {
     return new EventGroupIterator();
   }
 
@@ -104,16 +104,6 @@ public class CmpH5Reader implements EventGroupFactory {
     for (int ii = 0; ii < 10; ++ii) {
       sb.append(" ");
       sb.append(bb[ii] & 0xff);
-    }
-    sb.append("\n");
-
-    CmpH5Alignment aa = getEventGroup(2);
-    sb.append(aa.toString());
-    int[] aln = aa.aln();
-    sb.append(aln.length + " " + aa.aln_begin() + " " + aa.aln_end() + "\n");
-    for (int ii = 0; ii < 10; ++ii) {
-      sb.append(" ");
-      sb.append(aln[ii]);
     }
     sb.append("\n");
 

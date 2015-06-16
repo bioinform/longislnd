@@ -84,8 +84,7 @@ public class SamplesCollector extends Samples implements Closeable {
    */
   public void process(EventGroupFactory groups, int min_length, int flank_mask) throws IOException {
     int ii = 0;
-    for (Iterator<EventGroup> itr = groups.getIterator(); itr.hasNext();) {
-      EventGroup group = itr.next();
+    for (EventGroup group : groups) {
       if (ii % 10000 == 0 && ii != 0) {
         log.info("processing group " + ii);
         log.info(toString());
@@ -98,7 +97,7 @@ public class SamplesCollector extends Samples implements Closeable {
         continue;
       }
       // super.lengths_ref().add(group.seq_length());
-      process(group.getEventIterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
+      process(group.iterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
     }
     log.info("processed " + ii + " groups");
   }
