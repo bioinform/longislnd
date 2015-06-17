@@ -20,10 +20,9 @@ public class PairwiseAlignment {
     this.seq_data_idx_ = seq_data_idx_;
   }
 
-  private static void spanLeftOnMatching(final byte[] fixed, final byte[] movable, final int[] indices) {
+  private static void spanLeftOnMatching(final byte[] fixed, final byte[] movable, final int[] indices, int left_most_target, int right_most_target) {
     if (fixed == movable) return;
-    int left_most_target = 0;
-    for (int pos = 0; pos < movable.length; ++pos) {
+    for (int pos = left_most_target; pos < right_most_target; ++pos) {
       final byte base = movable[pos];
       if (base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
       int left_most_match = pos;
@@ -40,7 +39,7 @@ public class PairwiseAlignment {
           indices[pos] = -1;
         }
         // if a base has been shifted left, make sure the next base, if already matching, won't get shifted right next to it
-        if (pos + 1 < movable.length && movable[pos + 1] != EnumBP.Gap.ascii && movable[pos + 1] == fixed[pos + 1]) {
+        if (pos + 1 < right_most_target && movable[pos + 1] != EnumBP.Gap.ascii && movable[pos + 1] == fixed[pos + 1]) {
           left_most_target = left_most_match + 2;
         } else {
           left_most_target = left_most_match + 1;
@@ -73,15 +72,21 @@ public class PairwiseAlignment {
   }
 
   private void spanAlignment(/* int min_length */) {
+    // if there are soft-clips, the left and right ends will have long stretches of non-gap seq
+    // the boundaries prevent spanning outside of the first and last non-gap ref
+    int left_boundary = 0;
+    for (; left_boundary < size() && ref_[left_boundary] == EnumBP.Gap.ascii; ++left_boundary) {}
+    int right_boundary = size();
+    for (; right_boundary > 0 && ref_[right_boundary - 1] == EnumBP.Gap.ascii; --right_boundary) {}
     // log.info(new String(seq_));
     // log.info(new String(ref_));
     if (Heuristics.SPAN_LEFT_ON_MATCHES) {
       // try to push deletions to the right, also spread out deletions
-      spanLeftOnMatching(ref_, seq_, seq_data_idx_);
+      spanLeftOnMatching(ref_, seq_, seq_data_idx_, left_boundary, right_boundary);
       // try to push insertions to the right, also spread out insertions
-      spanLeftOnMatching(seq_, ref_, null);
+      spanLeftOnMatching(seq_, ref_, null, left_boundary, right_boundary);
     }
-    if (Heuristics.SPAN_RIGHT_ON_MISMATCHES) spanRightOnMismatch();
+    if (Heuristics.SPAN_RIGHT_ON_MISMATCHES) spanRightOnMismatch(left_boundary, right_boundary);
     if (Heuristics.MERGE_INDELS) mergeIndels();
     // log.info(new String(seq_));
     // log.info(new String(ref_));
@@ -132,13 +137,13 @@ public class PairwiseAlignment {
     }
   }
 
-  private void spanRightOnMismatch() {
-    for (int pos = ref_.length - 1; pos >= 0; --pos) {
+  private void spanRightOnMismatch(int left_most_target, int right_most_target) {
+    for (int pos = right_most_target - 1; pos >= left_most_target; --pos) {
       final byte base = ref_[pos];
       if (base == seq_[pos] || base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
       int right_most_match = pos;
       int right_most_gap = pos;
-      for (int right_canadidate = right_most_match + 1; right_canadidate < ref_.length && ref_[right_canadidate] == EnumBP.Gap.ascii; ++right_canadidate) {
+      for (int right_canadidate = right_most_match + 1; right_canadidate < right_most_target && ref_[right_canadidate] == EnumBP.Gap.ascii; ++right_canadidate) {
         if (base == seq_[right_canadidate] || EnumBP.Gap.ascii == seq_[right_canadidate]) {
           right_most_match = right_canadidate;
         }
