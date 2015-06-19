@@ -57,16 +57,19 @@ public class H5Sampler {
 
 
     EventGroupFactory groupFactory = null;
+    final boolean writeEvents;
     if (in_file.endsWith(".sam") && args.length > 7) {
       log.info("sam mode");
       groupFactory = new SamReader(in_file, args[7]);
+      writeEvents = false;
     } else {
       groupFactory = new CmpH5Reader(in_file, spec);
+      writeEvents = true;
     }
 
-    try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor)) {
+    try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor, writeEvents)) {
       collector.process(groupFactory, min_length, flank_mask);
-      log.info(collector.toString());
+      log.info("\n" + collector.toString() + "\n");
     }
     log.info("finished");
   }

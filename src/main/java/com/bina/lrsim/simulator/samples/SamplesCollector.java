@@ -18,8 +18,8 @@ import com.bina.lrsim.simulator.Event;
  */
 public class SamplesCollector extends Samples implements Closeable {
   private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
-  private String outPrefix_;
-  private DataOutputStream eventOut_;
+  private final String outPrefix_;
+  private final DataOutputStream eventOut_;
 
   /**
    * Constructor
@@ -31,10 +31,10 @@ public class SamplesCollector extends Samples implements Closeable {
    *        context
    * @throws IOException
    */
-  public SamplesCollector(String outPrefix, int leftFlank, int rightFlank, int hp_anchor) throws IOException {
+  public SamplesCollector(String outPrefix, int leftFlank, int rightFlank, int hp_anchor, boolean writeEvents) throws IOException {
     super(leftFlank, rightFlank, hp_anchor);
     outPrefix_ = outPrefix;
-    eventOut_ = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_))));
+    eventOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_)))) : null;
     Arrays.fill(event_base_count_ref(), 0);
     Arrays.fill(event_count_ref(), 0);
     log.info("flanks=(" + left_flank() + "," + right_flank() + ") k=" + k() + " num_kmers=" + num_kmer());
@@ -42,7 +42,7 @@ public class SamplesCollector extends Samples implements Closeable {
 
   /**
    * Collect events based on sequencing context
-   * 
+   *
    * @param itr iterator of a group of events, eg an alignment
    * @throws IOException
    */
@@ -54,8 +54,8 @@ public class SamplesCollector extends Samples implements Closeable {
       }
 
       if (event.hp_len() == 1) {
-        if (event.event().recordEvery > 0 && kmer_event_count_ref()[EnumEvent.values().length * event.kmer()
-                                                                    + event.event().value] % event.event().recordEvery == 0) {
+        if (null!=eventOut_ && event.event().recordEvery > 0
+                && kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value] % event.event().recordEvery == 0) {
           event.write(eventOut_);
         }
         final int idx = event.event().value;
@@ -69,7 +69,7 @@ public class SamplesCollector extends Samples implements Closeable {
       } else {
         if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
           add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
-          event.write(eventOut_);
+          if (null != eventOut_) event.write(eventOut_);
         }
 
       }
@@ -78,7 +78,7 @@ public class SamplesCollector extends Samples implements Closeable {
 
   /**
    * Collect events based on sequencing context
-   * 
+   *
    * @param groups a collection of event groups, eg alignments
    * @throws IOException
    */
@@ -98,6 +98,7 @@ public class SamplesCollector extends Samples implements Closeable {
       }
       // super.lengths_ref().add(group.seq_length());
       process(group.iterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
+      ++ii;
     }
     log.info("processed " + ii + " groups");
   }
@@ -107,12 +108,15 @@ public class SamplesCollector extends Samples implements Closeable {
    */
   @Override
   public void close() throws IOException {
-    eventOut_.flush();
-    eventOut_.close();
+    log.info(this.stringifyKmerStats());
+
+    if (null != eventOut_) {
+      eventOut_.close();
+    }
 
     writeStats(outPrefix_);
     writeIdx(outPrefix_);
-//    writeLengths(outPrefix_);
+    // writeLengths(outPrefix_);
   }
 
 }

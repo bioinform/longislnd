@@ -236,12 +236,21 @@ public abstract class Samples {
     MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE / 8 * kmer_event_count_.length);
     StringBuilder sb = new StringBuilder();
     sb.append(" ");
-    long[] local_log = new long[EnumEvent.values().length];
     for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
       kmer_event_count_[ii] = buf.getLong();
+    }
+    base_log.debug(stringifyKmerStats());
+    file.close();
+    fos.close();
+  }
+
+  public final String stringifyKmerStats() {
+    StringBuilder sb = new StringBuilder();
+    long[] local_log = new long[EnumEvent.values().length];
+    for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
       local_log[ii % EnumEvent.values().length] = kmer_event_count_[ii];
-      if (ii % EnumEvent.values().length == 3) {
-        sb.append(Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
+      if (ii % EnumEvent.values().length + 1 == EnumEvent.values().length) {
+        sb.append("KMER_STATS: " + Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
         double total = 0;
         for (long l : local_log) {
           total += l;
@@ -256,9 +265,7 @@ public abstract class Samples {
         sb.append("\n");
       }
     }
-    base_log.debug(sb.toString());
-    file.close();
-    fos.close();
+    return sb.toString();
   }
   /*
   protected final void writeLengths(String prefix) throws IOException {
