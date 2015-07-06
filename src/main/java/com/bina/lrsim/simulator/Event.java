@@ -57,6 +57,10 @@ public class Event {
     return bc_.get(pos, e);
   }
 
+  public final void set(int pos, EnumDat e, byte b) {
+    bc_.set(pos, e, b);
+  }
+
   public byte[] data_cpy() {
     return bc_.toByteArray();
   }

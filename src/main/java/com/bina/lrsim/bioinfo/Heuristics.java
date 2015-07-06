@@ -27,4 +27,7 @@ public class Heuristics {
   // maximum fraction of N's to allow, relative to the length of the simulated reads
   public static final double MAX_N_FRACTION_ON_READ = 0.005;
 
+  // force inserted bases to be the same as adjucent bases
+  public static final boolean ARTIFICIAL_CLEAN_INS = false;
+
 }

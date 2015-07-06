@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Arrays;
 
+import com.bina.lrsim.bioinfo.Heuristics;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
@@ -75,7 +76,7 @@ public class H5Simulator {
         System.exit(1);
     }
 
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency);
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS);
 
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 

@@ -9,12 +9,12 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
 
-import com.bina.lrsim.bioinfo.Heuristics;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.Context;
+import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
@@ -45,13 +45,13 @@ public class SamplesDrawer extends Samples {
    * @param custom_frequency if not null, override per-kmer event frequency with this
    * @throws IOException
    */
-  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency) throws IOException {
-    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency);
+  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins) throws IOException {
+    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins);
     for (int ii = 1; ii < prefixes.length; ++ii) {
-      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency));
+      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins));
     }
     allocateEventDrawer(spec, max_sample);
-    loadEvents(prefixes, max_sample);
+    loadEvents(prefixes, max_sample, artificial_clean_ins);
   }
 
   /**
@@ -64,19 +64,18 @@ public class SamplesDrawer extends Samples {
    * @param custom_frequency if not null, override per-kmer event frequency with this
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency) throws IOException {
+  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins) throws IOException {
     super(prefix);
     this.spec = spec;
     this.custom_frequency = custom_frequency;
-    if(this.custom_frequency != null) {
+    if (this.custom_frequency != null) {
       log.info("using custom event frequencies");
-    }
-    else{
+    } else {
       log.info("using sampled event frequencies");
     }
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, max_sample);
-    loadEvents(prefix, max_sample);
+    loadEvents(prefix, max_sample, artificial_clean_ins);
   }
 
   private void allocateEventDrawer(PBSpec spec, int max_sample) {
@@ -167,8 +166,8 @@ public class SamplesDrawer extends Samples {
    * @param max_sample
    * @throws IOException
    */
-  private void loadEvents(String prefix, int max_sample) throws IOException {
-    loadEvents(new String[] {prefix}, max_sample);
+  private void loadEvents(String prefix, int max_sample, boolean artificial_clean_ins) throws IOException {
+    loadEvents(new String[] {prefix}, max_sample, artificial_clean_ins);
   }
 
   /**
@@ -177,7 +176,7 @@ public class SamplesDrawer extends Samples {
    * @param prefixes prefixes of the event files
    * @throws IOException
    */
-  private void loadEvents(String[] prefixes, int max_sample) throws IOException {
+  private void loadEvents(String[] prefixes, int max_sample, boolean artificial_clean_ins) throws IOException {
     log.info("loading events");
     if (max_sample < 1) return;
     final int num_src = prefixes.length;
@@ -219,6 +218,17 @@ public class SamplesDrawer extends Samples {
             }
             if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] != buffer.get(0, EnumDat.BaseCall)) {
               throw new RuntimeException("unmatching base for match event");
+            }
+          } else if (artificial_clean_ins && buffer.event().equals(EnumEvent.INSERTION)) {
+            final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
+            final byte center_base = kmer_sequence[left_flank()];
+            final byte next_base = kmer_sequence[left_flank() + 1];
+            final int mid_point = (buffer.size() + 1) / 2;
+            for (int index = 0; index < mid_point; ++index) {
+              buffer.set(index, EnumDat.BaseCall, center_base);
+            }
+            for (int index = mid_point; index < buffer.size(); ++index) {
+              buffer.set(index, EnumDat.BaseCall, next_base);
             }
           }
 
