@@ -1,5 +1,6 @@
 package com.bina.lrsim.simulator.samples;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -195,6 +196,9 @@ public class SamplesDrawer extends Samples {
 
     long num_hp_events = 0;
 
+    long raw_ins = 0;
+    long mod_ins = 0;
+
     final boolean[] src_done = new boolean[num_src];
 
     for (int src = 0, n_src_done = 0; n_src_done < num_src /*&& num_logged_event < max_logged_event*/; src = (src + 1) % num_src) {
@@ -224,11 +228,32 @@ public class SamplesDrawer extends Samples {
             final byte center_base = kmer_sequence[left_flank()];
             final byte next_base = kmer_sequence[left_flank() + 1];
             final int mid_point = (buffer.size() + 1) / 2;
+            final byte mid_point_base = buffer.get(mid_point,EnumDat.BaseCall);
+            final boolean mid_point_different = mid_point_base != center_base && mid_point_base != next_base;
+            boolean changed = false;
+//            log.info("bayo ins: " + new String(kmer_sequence) + " " + buffer.toString());
             for (int index = 0; index < mid_point; ++index) {
-              buffer.set(index, EnumDat.BaseCall, center_base);
+              final byte base = buffer.get(index, EnumDat.BaseCall);
+              if(base != center_base && base != next_base) {
+                buffer.set(index, EnumDat.BaseCall, center_base);
+                changed = true;
+              }
             }
             for (int index = mid_point; index < buffer.size(); ++index) {
-              buffer.set(index, EnumDat.BaseCall, next_base);
+              final byte base = buffer.get(index, EnumDat.BaseCall);
+              if(base != center_base && base != next_base) {
+                buffer.set(index, EnumDat.BaseCall, next_base);
+                changed = true;
+              }
+            }
+            ++raw_ins;
+            if(buffer.size() % 2 == 0 && mid_point_different) {
+              buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? center_base : next_base);
+              changed = true;
+            }
+            if(changed) {
+              ++mod_ins;
+//              log.info("bayo changed: " + new String(kmer_sequence) + " " + buffer.toString());
             }
           }
 
@@ -259,6 +284,7 @@ public class SamplesDrawer extends Samples {
 
     log.info("loaded " + count + " events");
     log.info("loaded " + num_hp_events + " hp events");
+    log.info("modified ins: " + mod_ins + "/" + raw_ins);
     for (int ii = 0; ii < num_src; ++ii) {
       dis[ii].close();
     }
