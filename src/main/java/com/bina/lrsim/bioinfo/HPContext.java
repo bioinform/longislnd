@@ -30,6 +30,7 @@ public final class HPContext extends Context {
     ascii_ = ascii;
   }
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for (byte entry : ascii_) {

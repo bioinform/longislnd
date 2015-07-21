@@ -1,5 +1,6 @@
 package com.bina.lrsim.simulator;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -186,6 +187,21 @@ public class EventIterator implements Iterator<Event> {
     // we don't look at the middle of homopolymer
     if (alignment_.getRef(start) == alignment_.getRef(start - 1)) return null;
     byte[] tmp = new byte[anchor + 1 + anchor];
+/*
+    int kk = anchor - 1;
+    for(int pos = start - 1; pos >=0 && kk >= 0; --pos) {
+      byte base = alignment_.getRef(pos);
+      if(base == EnumBP.N.ascii || base == 'n') {
+        return null;
+      }
+      else if (base != EnumBP.Gap.ascii) {
+        tmp[kk--] = base;
+      }
+    }
+    tmp[anchor] = alignment_.getRef(start);
+    if(tmp[anchor] == tmp[anchor-1]) return null;
+    kk = anchor + 1;
+    */
     int kk = 0;
 
     // make sure the left flank is "intact"
@@ -210,7 +226,17 @@ public class EventIterator implements Iterator<Event> {
 
     // homopolymer sampling is not needed if it's <= the flanking bases
     if (hp_length <= left_flank && hp_length <= right_flank) { return null; }
-
+/*
+    for (int pos = next_diff; kk < tmp.length && pos < alignment_.size(); ++pos) {
+      byte base = alignment_.getRef(pos);
+      if(base == EnumBP.N.ascii || base == 'n') {
+        return null;
+      }
+      else if (base != EnumBP.Gap.ascii) {
+        tmp[kk++] = base;
+      }
+    }
+    */
     // make sure the right flank is "intact"
     for (int pos = next_diff; kk < tmp.length && pos < alignment_.size(); ++pos) {
       if (alignment_.getRef(pos) != EnumBP.N.ascii && alignment_.getRef(pos) != EnumBP.Gap.ascii && alignment_.getSeq(pos) == alignment_.getRef(pos)) {
@@ -253,14 +279,33 @@ public class EventIterator implements Iterator<Event> {
 
     }
     /*
-     * { StringBuilder sb = new StringBuilder(); sb.append("homopolymer " +start + " " + next_diff+" " + anchor+"\n"); for(int pos = start - anchor ; pos <
-     * next_diff+anchor; ++pos) { sb.append((char)seq_[pos]); } sb.append("\n"); for(int pos = start - anchor ; pos < next_diff+anchor; ++pos) {
-     * sb.append((char)ref_[pos]); } sb.append("\n"); for(int pos = 0; pos<bc.size(); ++pos){ sb.append((char)bc.get(pos,EnumDat.BaseCall)); } sb.append(" ");
-     * for(int pos = start - anchor ; pos < start; ++pos) { sb.append((char)ref_[pos]); } sb.append(" "); for(int pos = next_diff ; pos < next_diff+anchor;
-     * ++pos) { sb.append((char)ref_[pos]); } sb.append("\n"); sb.append(Arrays.toString(tmp)+" "+ hp_length); log.info(sb.toString());
-     * 
-     * }
-     */
+    if (new String(tmp).equals("ATGTG") && hp_length == 6) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("homopolymer " + start + " " + next_diff + " " + anchor + "\n");
+      for (int pos = start - anchor; pos < next_diff + anchor; ++pos) {
+        sb.append((char) alignment_.getSeq(pos));
+      }
+      sb.append("\n");
+      for (int pos = start - anchor; pos < next_diff + anchor; ++pos) {
+        sb.append((char) alignment_.getRef(pos));
+      }
+      sb.append("\n");
+      for (int pos = 0; pos < bc.size(); ++pos) {
+        sb.append((char) bc.get(pos, EnumDat.BaseCall));
+      }
+      sb.append(" ");
+      for (int pos = start - anchor; pos < start; ++pos) {
+        sb.append((char) alignment_.getRef(pos));
+      }
+      sb.append(" ");
+      for (int pos = next_diff; pos < next_diff + anchor; ++pos) {
+        sb.append((char) alignment_.getRef(pos));
+      }
+      sb.append("\n");
+      sb.append(new String(tmp) + " " + hp_length);
+      log.info(sb.toString());
+    }
+    */
 
     return new Event(new Context(Kmerizer.fromASCII(tmp), hp_length), ev, bc);
   }
