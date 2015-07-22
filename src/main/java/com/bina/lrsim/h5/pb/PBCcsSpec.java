@@ -3,7 +3,6 @@ package com.bina.lrsim.h5.pb;
 import java.util.EnumSet;
 
 import com.bina.lrsim.h5.bax.EnumGroups;
-import com.bina.lrsim.h5.bax.EnumTypeIdx;
 
 /**
  * Created by bayo on 5/26/15.
@@ -21,8 +20,8 @@ public class PBCcsSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumTypeIdx> getTypeIdx() {
-    return EnumSet.of(EnumTypeIdx.TypeHQRegion);
+  public boolean writeAdapterInsert() {
+    return false;
   }
 
   @Override

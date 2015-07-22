@@ -1,7 +1,7 @@
 package com.bina.lrsim;
 
 import java.io.*;
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -10,7 +10,6 @@ import com.bina.lrsim.h5.bax.Region;
 import com.bina.lrsim.h5.pb.PBBaxSpec;
 import com.bina.lrsim.h5.pb.PBCcsSpec;
 import com.bina.lrsim.h5.pb.PBSpec;
-import com.bina.lrsim.interfaces.RegionGroup;
 import com.bina.lrsim.simulator.samples.Samples;
 
 /**
@@ -51,7 +50,8 @@ public class H5RegionSampler {
         System.exit(1);
     }
 
-    int count = 0;
+    int numReads = 0;
+    int numSubReads = 0;
     long base_count = 0;
 
     try (DataOutputStream len_out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.LENGTH.filename(out_prefix))));
@@ -65,16 +65,41 @@ public class H5RegionSampler {
           String filename = line.trim(); // for each listed file
           if (filename.length() > 0) {
             log.info("processing " + filename);
-            RegionGroup rg = new BaxH5Reader(filename, spec);
-            for (Iterator<Region> itr = rg.getRegionIterator(); itr.hasNext();) {
-              Region rr = itr.next();
-              if (!rr.isSequencing()) continue;
-              for (int insertLength : rr.getInsertLengths()) {
-                if (insertLength > 0 && rr.getReadScore() >= min_read_score) {
-                  len_out.writeInt(insertLength);
-                  score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
-                  ++count;
-                  base_count += insertLength;
+            for (Region rr : new BaxH5Reader(filename, spec)) {
+              if (rr.isSequencing() && rr.getReadScore() >= min_read_score) {
+                if (spec instanceof PBCcsSpec) {
+                  for (int insertLength : rr.getInsertLengths()) {
+                    if (insertLength > 0) {
+                      len_out.writeInt(1);
+                      len_out.writeInt(insertLength);
+                      score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
+                      base_count += insertLength;
+                      ++numReads;
+                      ++numSubReads;
+                    }
+                  }
+                } else {
+                  final ArrayList<Integer> len_list = rr.getInsertLengths();
+                  int numNonZero = 0;
+                  int max_ins = 0;
+                  for(Integer ins: len_list) {
+                    if(ins > 0) {
+                      ++numNonZero;
+                      max_ins = Math.max(max_ins,ins);
+                    }
+                  }
+                  if (max_ins > 0) {
+                    score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
+                    len_out.writeInt(numNonZero);
+                    for (Integer insertLength : len_list) {
+                      if (insertLength > 0) {
+                        len_out.writeInt(insertLength);
+                        base_count += insertLength;
+                        ++numSubReads;
+                      }
+                    }
+                    ++numReads;
+                  }
                 }
               }
             }
@@ -84,9 +109,9 @@ public class H5RegionSampler {
     }
     try (RandomAccessFile len_out = new RandomAccessFile(Samples.Suffixes.LENGTH.filename(out_prefix), "rws");
          RandomAccessFile score_out = new RandomAccessFile(Samples.Suffixes.SCORE.filename(out_prefix), "rws")) {
-      len_out.writeInt(count);
-      score_out.writeInt(count);
+      len_out.writeInt(numReads);
+      score_out.writeInt(numReads);
     }
-    log.info("number of reads: " + count + " number of bases " + base_count);
+    log.info("number of reads/subreads/bases: " + numReads + "/" + numSubReads + "/" + base_count);
   }
 }

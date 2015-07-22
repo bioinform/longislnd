@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -23,7 +24,7 @@ public abstract class Samples {
   private final long[] event_base_count_ = new long[EnumEvent.values().length];
   private final long[] event_count_ = new long[EnumEvent.values().length];
   private long[] kmer_event_count_;
-  private ArrayList<Integer> lengths_;
+  private ArrayList<int[]> lengths_;
   private ArrayList<Integer> scores_;
 
   private long[] kmer_rlen_slen_count_;
@@ -68,8 +69,8 @@ public abstract class Samples {
     return lengths_.size();
   }
 
-  public final int getLength(int index) {
-    return lengths_.get(index);
+  public final int[] getLength(int index) {
+    return Arrays.copyOf(lengths_.get(index), lengths_.get(index).length);
   }
 
   public final int getScore(int index) {
@@ -139,7 +140,7 @@ public abstract class Samples {
     num_kmer_ = 1 << (2 * k_);
     hp_anchor_ = hp_anchor;
     kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
-    lengths_ = new ArrayList<Integer>(1000);
+    lengths_ = new ArrayList<int[]>(1000);
     scores_ = new ArrayList<Integer>(1000);
     kmer_rlen_slen_count_ = new long[(1 << (2 * (2 * hp_anchor + 1))) * max_rlen_ * max_slen_];
   }
@@ -267,23 +268,18 @@ public abstract class Samples {
     }
     return sb.toString();
   }
-  /*
-  protected final void writeLengths(String prefix) throws IOException {
-    DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.LENGTH.filename(prefix))));
-    dos.writeInt(lengths_.size());
-    for (int ii = 0; ii < lengths_.size(); ++ii) {
-      dos.writeInt(lengths_.get(ii));
-    }
-    dos.close();
-  }
-  */
 
   protected final void loadLengths(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
     int new_size = dis.readInt();
-    lengths_ = new ArrayList<Integer>(new_size);
+    lengths_ = new ArrayList<int[]>(new_size);
     for (int ii = 0; ii < new_size; ++ii) {
-      lengths_.add(dis.readInt());
+      final int num_inserts = dis.readInt();
+      int[] tmp = new int[num_inserts];
+      for(int jj = 0; jj < num_inserts; ++jj) {
+        tmp[jj] = dis.readInt();
+      }
+      lengths_.add(tmp);
     }
     dis.close();
     base_log.info("loaded " + lengths_.size() + " length");

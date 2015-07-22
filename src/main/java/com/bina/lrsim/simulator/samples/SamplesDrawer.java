@@ -99,9 +99,9 @@ public class SamplesDrawer extends Samples {
    * @param gen random number generator
    * @return read length and region score
    */
-  public final Pair<Integer, Integer> getRandomLengthScore(RandomGenerator gen) {
+  public final Pair<int[], Integer> getRandomLengthScore(RandomGenerator gen) {
     final int index = gen.nextInt(getLengthSize());
-    return new Pair<Integer, Integer>(getLength(index), getScore(index));
+    return new Pair<int[], Integer>(getLength(index), getScore(index));
   }
 
   /**
