@@ -18,7 +18,7 @@ public abstract class PBSpec {
 
   public abstract EnumSet<EnumGroups> getGroupSet();
 
-  public abstract EnumSet<EnumTypeIdx> getTypeIdx();
+  public abstract boolean writeAdapterInsert();
 
   public abstract EnumGroups getBaseCallsEnum();
 

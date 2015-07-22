@@ -38,7 +38,7 @@ public final class HPIterator implements Iterator<Context> {
    * @param rightFlank number of bp after the position of interest
    * @param hpAnchor number of bp to anchor homopolymer
    */
-  HPIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, int hpAnchor) {
+  public HPIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, int hpAnchor) {
     leftFlank_ = leftFlank;
     rightFlank_ = rightFlank;
     hpAnchor_ = hpAnchor;

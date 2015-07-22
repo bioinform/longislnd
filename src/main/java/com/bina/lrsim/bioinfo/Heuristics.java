@@ -1,5 +1,8 @@
 package com.bina.lrsim.bioinfo;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 /**
  * Created by bayo on 6/4/15.
  */
@@ -30,4 +33,18 @@ public class Heuristics {
   // force inserted bases to be the same as adjucent bases
   public static final boolean ARTIFICIAL_CLEAN_INS = false;
 
+  // fraction of maximum insert, for an insert to be consider not a full insert in SMRT belt context
+  public static final double SMRT_INSERT_FRACTION = 0.5;
+
+  // approximation of SMRT belt adapter read out
+  public static final byte[] SMRT_ADAPTOR_STRING;
+  public static final byte[] SMRT_ADAPTOR_SCORE;
+  public static final byte[] SMRT_ADAPTOR_TAG;
+  static {
+    SMRT_ADAPTOR_STRING = "ATCTCTCTCTTTTCCTCCTCCTCCGTTGTTGTTGTTGAGAGAGAT".getBytes(StandardCharsets.US_ASCII);
+    SMRT_ADAPTOR_SCORE = new byte[SMRT_ADAPTOR_STRING.length];
+    Arrays.fill(SMRT_ADAPTOR_SCORE, (byte) 15); // all Q15, probably ok
+    SMRT_ADAPTOR_TAG = new byte[SMRT_ADAPTOR_STRING.length];
+    Arrays.fill(SMRT_ADAPTOR_TAG, EnumBP.N.ascii);
+  }
 }

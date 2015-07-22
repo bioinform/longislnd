@@ -3,7 +3,6 @@ package com.bina.lrsim.sam;
 import java.util.EnumSet;
 
 import com.bina.lrsim.h5.bax.EnumGroups;
-import com.bina.lrsim.h5.bax.EnumTypeIdx;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBSpec;
 
@@ -23,8 +22,8 @@ public class PBFastqSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumTypeIdx> getTypeIdx() {
-    return EnumSet.of(EnumTypeIdx.TypeInsert, EnumTypeIdx.TypeHQRegion);
+  public boolean writeAdapterInsert() {
+    return true;
   }
 
   @Override

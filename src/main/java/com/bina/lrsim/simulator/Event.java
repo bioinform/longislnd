@@ -48,7 +48,7 @@ public class Event {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(context_.toString() + " " + event_.toString() + "\n");
+    sb.append(context_.toString() + " " + event_.toString() + " " + bc_.size() + "\n");
     if (null != bc_) sb.append(bc_.toString());
     return sb.toString();
   }

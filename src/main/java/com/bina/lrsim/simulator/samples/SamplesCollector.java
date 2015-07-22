@@ -16,7 +16,7 @@ import com.bina.lrsim.simulator.Event;
  * <p/>
  * Class for going through, eg, alignment data to collect samples of sequence context-based output
  */
-public class SamplesCollector extends Samples implements Closeable {
+public class SamplesCollector extends Samples implements Closeable, com.bina.lrsim.interfaces.EventGroupsProcessor {
   private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
   private final String outPrefix_;
   private final DataOutputStream eventOut_;
@@ -82,6 +82,7 @@ public class SamplesCollector extends Samples implements Closeable {
    * @param groups a collection of event groups, eg alignments
    * @throws IOException
    */
+  @Override
   public void process(EventGroupFactory groups, int min_length, int flank_mask) throws IOException {
     int ii = 0;
     for (EventGroup group : groups) {

@@ -5,7 +5,7 @@ package com.bina.lrsim.h5.bax;
  */
 
 import java.io.IOException;
-import java.util.EnumSet;
+import java.util.ArrayList;
 
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.object.FileFormat;
@@ -57,8 +57,8 @@ public class BaxH5Writer {
     }
   }
 
-  public void addLast(PBReadBuffer read, int score) {
-    buffer_.addLast(read, score);
+  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score) {
+    buffer_.addLast(read, readLengths, score);
   }
 
   private void writeGroups(H5File h5, AttributesFactory af) throws IOException {
@@ -172,22 +172,39 @@ public class BaxH5Writer {
   }
 
   public int size() {
-    return buffer_.size();
+    return buffer_.getNumReads();
+  }
+
+  private static void writeRegions(int[] buffer, int shift, int hole, int type, int start, int end, int score) {
+    buffer[shift + EnumRegionsIdx.HoleNumber.value] = hole;
+    buffer[shift + EnumRegionsIdx.RegionType.value] = type;
+    buffer[shift + EnumRegionsIdx.RegionStart.value] = start;
+    buffer[shift + EnumRegionsIdx.RegionEnd.value] = end;
+    buffer[shift + EnumRegionsIdx.RegionScore.value] = score;
   }
 
   private void writeRegions(H5File h5, int firsthole) throws IOException {
-    final EnumSet<EnumTypeIdx> typeSet = spec.getTypeIdx();
-    int[] buffer = new int[size() * EnumRegionsIdx.values().length * typeSet.size()];
+    final int numEntries = size() + (spec.writeAdapterInsert() ? buffer_.getNumAdapterInsert() : 0);
+    final int[] buffer = new int[numEntries * EnumRegionsIdx.values().length];
     int shift = 0;
     for (int rr = 0; rr < size(); ++rr) {
-      for (EnumTypeIdx e : typeSet) {
-        buffer[shift + EnumRegionsIdx.HoleNumber.value] = firsthole + rr;
-        buffer[shift + EnumRegionsIdx.RegionType.value] = e.value;
-        buffer[shift + EnumRegionsIdx.RegionStart.value] = 0;
-        buffer[shift + EnumRegionsIdx.RegionEnd.value] = buffer_.getLength(rr);
-        buffer[shift + EnumRegionsIdx.RegionScore.value] = buffer_.getScore(rr);
+      final int hole = firsthole + rr;
+      final int score = buffer_.getScore(rr);
+      ArrayList<Integer> read_lengths = buffer_.getReadLengths(rr);
+      if (spec.writeAdapterInsert()) {
+        writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, 0, read_lengths.get(0), score);
         shift += EnumRegionsIdx.values().length;
+        for (int ii = 2; ii < read_lengths.size(); ii += 2) {
+          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, read_lengths.get(ii - 1), read_lengths.get(ii), score);
+          shift += EnumRegionsIdx.values().length;
+        }
+        for (int ii = 1; ii < read_lengths.size(); ii += 2) {
+          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeAdapter.value, read_lengths.get(ii - 1), read_lengths.get(ii), score);
+          shift += EnumRegionsIdx.values().length;
+        }
       }
+      writeRegions(buffer, shift, hole, EnumTypeIdx.TypeHQRegion.value, 0, read_lengths.get(read_lengths.size() - 1), score);
+      shift += EnumRegionsIdx.values().length;
     }
     long[] dims = new long[] {buffer.length / EnumRegionsIdx.values().length, EnumRegionsIdx.values().length};
     final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path + "/Regions", buffer, dims, true);

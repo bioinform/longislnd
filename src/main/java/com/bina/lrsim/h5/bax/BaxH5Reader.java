@@ -27,7 +27,7 @@ public class BaxH5Reader implements RegionGroup {
   }
 
   @Override
-  public Iterator<Region> getRegionIterator() {
+  public Iterator<Region> iterator() {
     return (spec.getZMWEnum().equals(EnumGroups.CZMW)) ? new CCSRegionIterator() : new RegionIterator();
   }
 

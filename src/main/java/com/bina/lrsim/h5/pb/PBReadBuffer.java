@@ -5,10 +5,10 @@ package com.bina.lrsim.h5.pb;
  */
 
 
-import org.apache.log4j.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.util.EnumMap;
+
+import org.apache.log4j.Logger;
 
 public class PBReadBuffer {
   private static final int INITIAL_SIZE = 1000;
@@ -46,6 +46,21 @@ public class PBReadBuffer {
   public void clear() {
     for (EnumDat e : spec.getDataSet()) {
       data_.get(e).reset();
+    }
+  }
+
+  public void addASCIIBases(byte[] asciiSeq, byte[] defaultSeq, byte[] defaultScores) {
+    for (EnumDat e : spec.getDataSet()) {
+      final byte[] buffer;
+      if (e.equals(EnumDat.BaseCall)) {
+        buffer = asciiSeq;
+      } else if (e.isScore) {
+        buffer = defaultScores;
+      }
+      else {
+        buffer = defaultSeq;
+      }
+      data_.get(e).write(buffer, 0, asciiSeq.length);
     }
   }
 

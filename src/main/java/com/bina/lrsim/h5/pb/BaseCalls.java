@@ -65,13 +65,14 @@ public class BaseCalls {
     StringBuilder sb = new StringBuilder();
     for (EnumDat e : spec.getDataSet()) {
       for (int ii = 0; ii < size(); ++ii) {
-        if (e.equals(EnumDat.BaseCall)) {
+        if (e.equals(EnumDat.BaseCall) || e.equals(EnumDat.DeletionTag) || e.equals(EnumDat.SubstitutionTag)) {
           sb.append((char) (0xff & this.get(ii, e)));
         } else {
           sb.append(get(ii, e));
         }
         sb.append("\t");
       }
+      sb.append(e.path);
       sb.append("\n");
     }
     return sb.toString();

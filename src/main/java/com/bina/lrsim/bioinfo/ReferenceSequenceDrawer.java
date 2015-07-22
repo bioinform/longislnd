@@ -2,7 +2,6 @@ package com.bina.lrsim.bioinfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.math3.random.RandomGenerator;
@@ -46,15 +45,15 @@ public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
   }
 
   @Override
-  public Iterator<Context> getSequence(int length, int leftFlank, int rightFlank, int hp_anchor, RandomGenerator gen) {
-    Iterator<Context> itr = null;
-    while (null == itr) {
-      itr = getSequenceImpl(length, leftFlank, rightFlank, hp_anchor, gen);
+  public byte[] getSequence(int length, RandomGenerator gen) {
+    byte[] out = null;
+    while (null == out) {
+      out = getSequenceImpl(length, gen);
     }
-    return itr;
+    return out;
   }
 
-  private Iterator<Context> getSequenceImpl(int length, int leftFlank, int rightFlank, int hp_anchor, RandomGenerator gen) {
+  private byte[] getSequenceImpl(int length, RandomGenerator gen) {
     final boolean rc = gen.nextBoolean();
     final long num_bases = ref_cdf_.get(ref_cdf_.size() - 1);
     final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : gen.nextLong() % num_bases;
@@ -70,19 +69,22 @@ public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
       if (rc) {
         for (int ss = 0, cc = chromosome.length - 1 - ref_pos; ss < length; ++ss, --cc) {
           sequence[ss] = EnumBP.ascii_rc(chromosome[cc]);
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') { ++number_of_n; }
+          if (sequence[ss] == 'N' || sequence[ss] == 'n') {
+            ++number_of_n;
+          }
         }
-
       } else {
         for (int ss = 0; ss < length; ++ss) {
           sequence[ss] = chromosome[ref_pos + ss];
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') { ++number_of_n; }
+          if (sequence[ss] == 'N' || sequence[ss] == 'n') {
+            ++number_of_n;
+          }
         }
       }
       if (length * Heuristics.MAX_N_FRACTION_ON_READ < number_of_n) { return null; }
       // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
       // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
-      return new HPIterator(sequence, 0, length, leftFlank, rightFlank, hp_anchor);
+      return sequence;
     }
     return null;
   }

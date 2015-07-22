@@ -67,6 +67,13 @@ public class H5Sampler {
       writeEvents = true;
     }
 
+/*
+    {
+      EventGroupsProcessor inspector = new AdHocProcessor(6, 30, 2);
+      inspector.process(groupFactory, min_length, flank_mask);
+    }
+    */
+
     try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor, writeEvents)) {
       collector.process(groupFactory, min_length, flank_mask);
       log.info("\n" + collector.toString() + "\n");
