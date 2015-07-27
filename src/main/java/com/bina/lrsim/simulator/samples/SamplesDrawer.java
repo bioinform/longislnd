@@ -51,6 +51,7 @@ public class SamplesDrawer extends Samples {
     for (int ii = 1; ii < prefixes.length; ++ii) {
       accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins));
     }
+    log.info(this.stringifyKmerStats());
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefixes, max_sample, artificial_clean_ins);
   }

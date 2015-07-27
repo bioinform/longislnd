@@ -24,7 +24,7 @@ class DataBuffer {
     reads_.addLast(read);
     score_.add(score);
     read_lengths_.add(readLengths);
-    numAdapterInsert += read_lengths_.size();
+    numAdapterInsert += readLengths.size();
     if (read.size() != readLengths.get(readLengths.size() - 1)) { throw new RuntimeException("something's wrong with insertion length"); }
   }
 

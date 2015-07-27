@@ -187,15 +187,16 @@ public class BaxH5Writer {
     final int numEntries = size() + (spec.writeAdapterInsert() ? buffer_.getNumAdapterInsert() : 0);
     final int[] buffer = new int[numEntries * EnumRegionsIdx.values().length];
     int shift = 0;
+    final int ins_score = -1; //insert score seems to be -1 in real data
     for (int rr = 0; rr < size(); ++rr) {
       final int hole = firsthole + rr;
       final int score = buffer_.getScore(rr);
       ArrayList<Integer> read_lengths = buffer_.getReadLengths(rr);
       if (spec.writeAdapterInsert()) {
-        writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, 0, read_lengths.get(0), score);
+        writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, 0, read_lengths.get(0), ins_score);
         shift += EnumRegionsIdx.values().length;
         for (int ii = 2; ii < read_lengths.size(); ii += 2) {
-          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, read_lengths.get(ii - 1), read_lengths.get(ii), score);
+          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, read_lengths.get(ii - 1), read_lengths.get(ii), ins_score);
           shift += EnumRegionsIdx.values().length;
         }
         for (int ii = 1; ii < read_lengths.size(); ii += 2) {
