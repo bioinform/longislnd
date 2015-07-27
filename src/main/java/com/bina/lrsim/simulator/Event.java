@@ -1,19 +1,19 @@
 package com.bina.lrsim.simulator;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.BaseCalls;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBSpec;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 /**
  * Created by bayo on 5/8/15.
  */
 
-public class Event {
+public final class Event {
   private Context context_;
   private EnumEvent event_;
   private final BaseCalls bc_;
@@ -32,6 +32,10 @@ public class Event {
 
   public int size() {
     return bc_.size();
+  }
+
+  public void resize(int s) {
+    bc_.resize(s);
   }
 
   public EnumEvent event() {
@@ -64,7 +68,6 @@ public class Event {
   public byte[] data_cpy() {
     return bc_.toByteArray();
   }
-
 
   // there are 4-byte per 12-byte match event here, which is huge overhead
   // we can save 4 byte by storing 2byte hp-length and 2byte base length if needed

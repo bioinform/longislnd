@@ -33,6 +33,12 @@ public class Heuristics {
   // force inserted bases to be the same as adjucent bases
   public static final boolean ARTIFICIAL_CLEAN_INS = false;
 
+  // limit insertion size to this value
+  public static final int MAX_INS_LENGTH = Integer.MAX_VALUE / 2;
+
+  // discard dirty homopolymer samples
+  public static final boolean DISCARD_DIRTY_HOMOPOLYMER_SAMPLES = false;
+
   // fraction of maximum insert, for an insert to be consider not a full insert in SMRT belt context
   public static final double SMRT_INSERT_FRACTION = 0.5;
 

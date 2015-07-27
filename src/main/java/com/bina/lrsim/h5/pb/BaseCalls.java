@@ -39,9 +39,15 @@ public class BaseCalls {
   }
 
   public final void resize(int size) {
-    this.reserve(size);
-    for (int ii = this.size() * bytePerBase; ii < size * bytePerBase; ++ii) {
-      data_.add(EnumBP.Invalid.ascii);
+    if (this.size() > size) {
+      while (data_.size() > size * bytePerBase) {
+        data_.remove(data_.size() - 1);
+      }
+    } else if (this.size() < size) {
+      this.reserve(size);
+      for (int ii = this.size() * bytePerBase; ii < size * bytePerBase; ++ii) {
+        data_.add(EnumBP.Invalid.ascii);
+      }
     }
   }
 

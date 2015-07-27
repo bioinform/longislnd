@@ -5,6 +5,7 @@ import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class KmerBCPool extends BaseCallsPool {
 
   // this might have significat memory overhead
+  private final static Logger log = Logger.getLogger(KmerBCPool.class.getName());
 
   private List<List<byte[]>> data_;
 
