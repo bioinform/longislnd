@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -91,13 +92,11 @@ public class Simulator {
             read.addASCIIBases(Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_SCORE);
             section_ends.add(read.size());
           }
+          AppendState deletion = null;
           for (Iterator<Context> itr = new HPIterator(fw_rc.get(ins_idx % 2), begin, end, drawer.left_flank(), drawer.right_flank(), drawer.hp_anchor()); itr.hasNext();) {
             final Context con = itr.next();
             if (null != con) {
-              long[] change_counters = drawer.appendTo(read, con, gen);
-              for (int ii = 0; ii < change_counters.length; ++ii) {
-                base_counter_[ii] += change_counters[ii];
-              }
+              deletion = drawer.appendTo(read, con, deletion, gen, base_counter_);
             }
           }
           section_ends.add(read.size());

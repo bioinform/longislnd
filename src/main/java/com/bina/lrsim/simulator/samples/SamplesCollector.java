@@ -71,7 +71,6 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
           add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
           if (null != eventOut_) event.write(eventOut_);
         }
-
       }
     }
   }

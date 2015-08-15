@@ -22,6 +22,7 @@ import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
+import com.bina.lrsim.simulator.samples.pool.AppendState;
 import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
 import com.bina.lrsim.simulator.samples.pool.HPBCPool;
 
@@ -112,53 +113,63 @@ public class SamplesDrawer extends Samples {
    * @param buffer visitor to take the randomly generated sequence
    * @param context sequencing context
    * @param gen random number generator
-   * @return an array whose EnumEvent.value() element is the number of simulated bp of that event
+   * @param base_counter base counter for ins/del/sub/mat
+   * @return about current state
    */
-  public long[] appendTo(PBReadBuffer buffer, Context context, RandomGenerator gen) {
-    long[] counters = new long[EnumEvent.values().length];
+  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState deletion, RandomGenerator gen, long[] base_counter) {
     final int old_length = buffer.size();
     if (context.hp_len() == 1) {
       EnumEvent ev = randomEvent(context, gen);
-      kmer_event_drawer_.get(ev).appendTo(buffer, context, gen);
-      ++counters[ev.value];
+      //ignore the previous event if it's already a deletion
+      AppendState result = kmer_event_drawer_.get(ev).appendTo(buffer, context, ev.equals(EnumEvent.DELETION) ? null : deletion, gen);
+      ++base_counter[ev.value];
       if (ev.equals(EnumEvent.INSERTION)) {
-        counters[ev.value] += buffer.size() - old_length - 2;
+        base_counter[ev.value] += buffer.size() - old_length - 2;
       }
+      if (!result.success) { throw new RuntimeException("kmer draw"); }
+      // return a signal for deletion event
+      return (ev.equals(EnumEvent.DELETION) && result.last_event != null && result.last_event.length > 0) ? result : null;
     } else {
       // do not do full hp if custom frequency is provided
       // custom hp drawing is possible improvement
-      if (custom_frequency == null && hp_event_drawer_.appendTo(buffer, context, gen)) {
+      final boolean hp_sampling;
+      if (custom_frequency == null) {
+        final AppendState result = hp_event_drawer_.appendTo(buffer, context, deletion, gen);
+        hp_sampling = result.success;
+      }
+      else {
+        // might want to do something with remodeling homopolymer indels -- uniform error does not work
+        hp_sampling = false;
+      }
+      if (hp_sampling) {
         final int differential = buffer.size() - old_length - context.hp_len();
         if (differential == 0) {
-          counters[EnumEvent.MATCH.value] += context.hp_len();
+          base_counter[EnumEvent.MATCH.value] += context.hp_len();
           // log.info("homo match");
         } else if (differential < 0) {
-          counters[EnumEvent.DELETION.value] += -differential;
+          base_counter[EnumEvent.DELETION.value] += -differential;
           // log.info("homo del");
 
         } else {
-          counters[EnumEvent.MATCH.value] += context.hp_len() - 1;
-          counters[EnumEvent.INSERTION.value] += differential;
+          base_counter[EnumEvent.MATCH.value] += context.hp_len() - 1;
+          base_counter[EnumEvent.INSERTION.value] += differential;
           // log.info("homo ins");
-
         }
+        return null; // homopolyer does not pash deletion tag
       } else {
         int count = 0;
+        // decompose extended kmer to kmer
         for (Iterator<Context> itr = context.decompose(left_flank(), right_flank()); itr.hasNext();) {
-          long[] tmp = this.appendTo(buffer, itr.next(), gen);
-          for (int ii = 0; ii < tmp.length; ++ii) {
-            counters[ii] += tmp[ii];
-          }
+          deletion = this.appendTo(buffer, itr.next(), deletion, gen, base_counter);
           ++count;
         }
         if (count != context.hp_len()) {
           log.info(count + " vs " + context.hp_len());
           throw new RuntimeException("bad decomposition");
-
         }
+        return deletion;
       }
     }
-    return counters;
   }
 
   /**
@@ -207,7 +218,7 @@ public class SamplesDrawer extends Samples {
         buffer.read(dis[src]);
 
         if (buffer.hp_len() == 1) {
-          if (buffer.event().equals(EnumEvent.DELETION) && buffer.size() != 0) {
+          if (buffer.event().equals(EnumEvent.DELETION) && buffer.size() > 1) {
             throw new RuntimeException("del with length " + buffer.size());
           }
           else if (buffer.event().equals(EnumEvent.SUBSTITUTION)) {

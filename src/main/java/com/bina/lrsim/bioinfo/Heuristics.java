@@ -7,6 +7,12 @@ import java.util.Arrays;
  * Created by bayo on 6/4/15.
  */
 public class Heuristics {
+
+  public static final int SAMPLE_PERIOD_INS = 1; // ~10% insertion, but can be multi-bp, so let's suck it up for now
+  public static final int SAMPLE_PERIOD_DEL = 1; // ~6% deletion rate take all delection samples
+  public static final int SAMPLE_PERIOD_SUB = 1; // < %1 substitution rate
+  public static final int SAMPLE_PERIOD_MAT = 10;// > 85% matches, down-sample 10-fold, must use compression
+
   // span alignment to the left if a base has matches, there're many subtle reasons for doing this
   public static final boolean SPAN_LEFT_ON_MATCHES = true;
 

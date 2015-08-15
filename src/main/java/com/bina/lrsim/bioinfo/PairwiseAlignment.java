@@ -159,4 +159,13 @@ public class PairwiseAlignment {
       }
     }
   }
+
+  @Override public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(new String(this.seq_));
+    sb.append('\n');
+    sb.append(new String(this.ref_));
+    sb.append('\n');
+    return sb.toString();
+  }
 }

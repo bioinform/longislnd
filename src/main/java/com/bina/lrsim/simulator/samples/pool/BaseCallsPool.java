@@ -1,16 +1,18 @@
 package com.bina.lrsim.simulator.samples.pool;
 
+import org.apache.commons.math3.random.RandomGenerator;
+
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.h5.pb.EnumDat;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
-import org.apache.commons.math3.random.RandomGenerator;
 
 /**
  * Created by bayo on 5/10/15.
  */
 public abstract class BaseCallsPool {
+
 
   protected static final int BYTE_PER_BC = EnumDat.numBytes;
   protected final int entryPerKmer_;
@@ -21,8 +23,7 @@ public abstract class BaseCallsPool {
    * constrcutor
    * 
    * @param numKmers number of kmer identifier, typically 1<<(2*num_base)
-   * @param entryPerKmer a hint of maximum number of entries per kmer, <1 means some default
-   *        behavior
+   * @param entryPerKmer a hint of maximum number of entries per kmer, <1 means some default behavior
    */
   protected BaseCallsPool(PBSpec spec, int numKmers, int entryPerKmer) {
     numKmers_ = numKmers;
@@ -38,7 +39,7 @@ public abstract class BaseCallsPool {
    * @param gen random number generator
    * @return success or not
    */
-  public abstract boolean appendTo(PBReadBuffer pb, Context context, RandomGenerator gen);
+  public abstract AppendState appendTo(PBReadBuffer pb, Context context, AppendState as, RandomGenerator gen);
 
   /**
    * add an event to be drawn from later

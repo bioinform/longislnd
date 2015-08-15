@@ -1,6 +1,6 @@
 package com.bina.lrsim.simulator;
 
-import com.bina.lrsim.simulator.samples.pool.EmptyBCPool;
+import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.simulator.samples.pool.KmerBCPool;
 import com.bina.lrsim.simulator.samples.pool.SingleBCPool;
 
@@ -14,13 +14,11 @@ import java.util.EnumSet;
  */
 public enum EnumEvent {
   // value, description, recording period, sample pool implementation
-  INSERTION(0, "i", 1, KmerBCPool.class), // ~10% insertion, but can be multi-bp, so let's suck it
-                                          // up for now
-  DELETION(1, "d", -1, EmptyBCPool.class), // skip all deletion samples, emptybcpool has no memory
-                                           // overhead
-  SUBSTITUTION(2, "s", 1, KmerBCPool.class), // ~1% mismatch so memory is not too bad
-  MATCH(3, "m", 10, SingleBCPool.class); // 85% matches, down-sample 10-fold, must use
-                                         // SingleBCPoolCompression
+  INSERTION(0, "i", Heuristics.SAMPLE_PERIOD_INS, KmerBCPool.class),
+  DELETION(1, "d", Heuristics.SAMPLE_PERIOD_DEL, SingleBCPool.class),
+  SUBSTITUTION(2, "s", Heuristics.SAMPLE_PERIOD_SUB, KmerBCPool.class),
+  MATCH(3, "m", Heuristics.SAMPLE_PERIOD_MAT, SingleBCPool.class);
+
   private static final EnumEvent[] value2enum_ = {INSERTION, DELETION, SUBSTITUTION, MATCH};
   public static String getListDescription() {
     StringBuilder sb = new StringBuilder();

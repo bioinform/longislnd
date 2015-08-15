@@ -116,4 +116,7 @@ public class CmpH5Alignment implements EventGroup {
   public int size() {
     return pairwiseAlignment.size();
   }
+  @Override public String toString() {
+    return pairwiseAlignment.toString();
+  }
 }

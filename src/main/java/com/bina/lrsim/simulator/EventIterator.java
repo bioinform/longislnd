@@ -1,6 +1,5 @@
 package com.bina.lrsim.simulator;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -143,6 +142,11 @@ public class EventIterator implements Iterator<Event> {
         }
       }
     } else if (alignment_.getSeq(next_) == EnumBP.Gap.ascii) {
+      int next_call = next_;
+      for (; next_call < alignment_.size() && alignment_.getSeq(next_call) == EnumBP.Gap.ascii; ++next_call) {}
+      if(next_call < alignment_.size()) {
+        fillBase(bc, next_call);
+      }
       event = EnumEvent.DELETION;
     } else if (alignment_.getSeq(next_) == alignment_.getRef(next_)) {
       event = EnumEvent.MATCH;
