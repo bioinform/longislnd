@@ -67,9 +67,19 @@ public class Simulator {
         if (len > max_len) max_len = len;
       }
 
+      final byte[] sequence = seqGen_.getSequence(max_len, gen);
+      // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
+      if (sequence.length < max_len) {
+        final float ratio = (float) sequence.length / (float) max_len;
+        max_len = sequence.length;
+        for (int ii = 0; ii < insert_lengths.length; ++ii) {
+          insert_lengths[ii] *= ratio;
+        }
+      }
+
       // draw a sequence according to max insert length, make RC if belt is long enough
       ArrayList<byte[]> fw_rc = new ArrayList<byte[]>(2);
-      fw_rc.add(seqGen_.getSequence(max_len, gen));
+      fw_rc.add(sequence);
       if (insert_lengths.length > 1) {
         final byte[] fw = fw_rc.get(0);
         final byte[] rc = new byte[fw.length];
@@ -88,7 +98,7 @@ public class Simulator {
         final boolean isShort = insert_length < Heuristics.SMRT_INSERT_FRACTION * max_len && ins_idx != 0 && ins_idx + 1 != insert_lengths.length;
         if (!isShort || !skipIfShort) {
           if (ins_idx != 0) {
-            //prepend with a "perfect" adaptor sequence
+            // prepend with a "perfect" adaptor sequence
             read.addASCIIBases(Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_SCORE);
             section_ends.add(read.size());
           }

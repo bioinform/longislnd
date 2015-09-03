@@ -6,10 +6,10 @@ import java.util.Calendar;
 import java.util.Arrays;
 
 import com.bina.lrsim.bioinfo.Heuristics;
+import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
 import com.bina.lrsim.h5.pb.PBBaxSpec;
 import com.bina.lrsim.h5.pb.PBCcsSpec;
 import com.bina.lrsim.h5.pb.PBSpec;
@@ -23,7 +23,7 @@ import com.bina.lrsim.util.Monitor;
  */
 public class H5Simulator {
   private final static Logger log = Logger.getLogger(H5Simulator.class.getName());
-  private final static String usage = "parameters: out_dir movie_id read_type fasta model_prefix total_bases sample_per seed [" + EnumEvent.getListDescription() + "]";
+  private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [" + EnumEvent.getListDescription() + "]";
 
   /**
    * create a file of simulated reads based on the given FASTA and model
@@ -31,22 +31,23 @@ public class H5Simulator {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length < 8) {
+    if (args.length < 9) {
       log.info(usage);
       System.exit(1);
     }
     final String out_dir = args[0];
     final String identifier = args[1].trim();
     final String read_type = args[2];
-    final String fasta = args[3];
-    final String model_prefixes = args[4];
-    final long total_bases = Long.parseLong(args[5]);
-    final int sample_per = Integer.parseInt(args[6]);
-    final int seed = Integer.parseInt(args[7]);
+    final String sequencing_mode = args[3];
+    final String fasta = args[4];
+    final String model_prefixes = args[5];
+    final long total_bases = Long.parseLong(args[6]);
+    final int sample_per = Integer.parseInt(args[7]);
+    final int seed = Integer.parseInt(args[8]);
 
     long[] events_frequency = null;
-    if (args.length > 8) {
-      String[] idsm = args[8].split(":");
+    if (args.length > 9) {
+      String[] idsm = args[9].split(":");
       if (idsm.length != EnumEvent.values().length) {
         log.info(usage);
         log.info("event frequency must be a set of integers " + EnumEvent.getListDescription());
@@ -76,11 +77,9 @@ public class H5Simulator {
         System.exit(1);
     }
 
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS);
 
-    log.info("Memory usage: " + Monitor.PeakMemoryUsage());
-
-    final ReferenceSequenceDrawer wr = new ReferenceSequenceDrawer(fasta);
+    final ReferenceSequenceDrawer wr = ReferenceSequenceDrawer.Factory(sequencing_mode, fasta);
+    if (wr == null) System.exit(1);
 
     final Simulator sim = new Simulator(wr);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
@@ -94,6 +93,9 @@ public class H5Simulator {
     log.info("each file will have ~" + target_chunk + " bases");
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
+
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS);
+    log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     // the following can be parallelized
     for (long simulated_bases = 0; simulated_bases <= total_bases; ++current_file_index) {

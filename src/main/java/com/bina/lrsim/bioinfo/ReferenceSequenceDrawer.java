@@ -1,38 +1,40 @@
 package com.bina.lrsim.bioinfo;
 
+import com.bina.lrsim.interfaces.RandomSequenceGenerator;
+import htsjdk.samtools.reference.FastaSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequence;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.log4j.Logger;
-
-import com.bina.lrsim.interfaces.RandomSequenceGenerator;
-
-import htsjdk.samtools.reference.FastaSequenceFile;
-import htsjdk.samtools.reference.ReferenceSequence;
-
 /**
- * Created by bayo on 5/7/15.
- *
- * This class is obvious hacked up and need some clean up
+ * Created by laub2 on 9/2/15.
  */
-public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
+public abstract class ReferenceSequenceDrawer implements RandomSequenceGenerator {
   private final static Logger log = Logger.getLogger(ReferenceSequenceDrawer.class.getName());
   final Map<String, Chromosome> name_chromosome = new HashMap<String, Chromosome>();
-  final ArrayList<String> name_ = new ArrayList<String>();
-  final ArrayList<Long> ref_cdf_ = new ArrayList<Long>();
-  FastaSequenceFile reference_;
+  final ArrayList<String> name_ = new ArrayList<String>();FastaSequenceFile reference_;
+
+  public static ReferenceSequenceDrawer Factory(String mode, String fasta) {
+    switch (mode) {
+      case "shotgun":
+        return new ShotgunSequenceDrawer(fasta);
+      case "fragment":
+        return new FragmentSequenceDrawer(fasta);
+    }
+    log.error("sequencing type must be shotgun or fragment, given" + mode);
+    return null;
+  }
 
   public ReferenceSequenceDrawer(String filename) {
     reference_ = new FastaSequenceFile(new java.io.File(filename), true);
-    long num_bases = 0;
     for (ReferenceSequence rr = reference_.nextSequence(); null != rr; rr = reference_.nextSequence()) {
       name_.add(rr.getName());
       name_chromosome.put(rr.getName(), new Chromosome(rr));
       log.info("read " + rr.getName());
-      num_bases += get(name_.size() - 1).length;
-      ref_cdf_.add(num_bases);
     }
   }
 
@@ -53,51 +55,17 @@ public class ReferenceSequenceDrawer implements RandomSequenceGenerator {
     return out;
   }
 
-  private byte[] getSequenceImpl(int length, RandomGenerator gen) {
-    final boolean rc = gen.nextBoolean();
-    final long num_bases = ref_cdf_.get(ref_cdf_.size() - 1);
-    final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : gen.nextLong() % num_bases;
+  protected abstract byte[] getSequenceImpl(int length, RandomGenerator gen);
 
-    int ref_idx = 0;
-    for (; ref_idx < ref_cdf_.size() && pos >= ref_cdf_.get(ref_idx); ++ref_idx) {}
-    final int ref_pos = (0 == ref_idx) ? (int) pos : (int) (pos - ref_cdf_.get(ref_idx - 1));
-
-    if (ref_pos + length <= get(ref_idx).length) {
-      int number_of_n = 0;
-      final byte[] chromosome = get(ref_idx);
-      final byte[] sequence = new byte[length];
-      if (rc) {
-        for (int ss = 0, cc = chromosome.length - 1 - ref_pos; ss < length; ++ss, --cc) {
-          sequence[ss] = EnumBP.ascii_rc(chromosome[cc]);
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') {
-            ++number_of_n;
-          }
-        }
-      } else {
-        for (int ss = 0; ss < length; ++ss) {
-          sequence[ss] = chromosome[ref_pos + ss];
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') {
-            ++number_of_n;
-          }
-        }
-      }
-      if (length * Heuristics.MAX_N_FRACTION_ON_READ < number_of_n) { return null; }
-      // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
-      // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
-      return sequence;
-    }
-    return null;
-  }
-
-  public byte[] get(String name) {
+  protected byte[] get(String name) {
     return name_chromosome.get(name).seq().getBases();
   }
 
-  public byte[] get(int id) {
+  protected byte[] get(int id) {
     return get(name_.get(id));
   }
 
-  private static class Chromosome {
+  protected static class Chromosome {
     ReferenceSequence seq_;
     int num_non_n_;
 
