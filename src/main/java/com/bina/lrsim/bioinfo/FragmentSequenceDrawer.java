@@ -16,30 +16,36 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
   }
 
   @Override
-  protected byte[] getSequenceImpl(int length, RandomGenerator gen) {
+  protected Fragment getSequenceImpl(int length, RandomGenerator gen) {
     final boolean rc = gen.nextBoolean();
 
     // select a fragment with equal probability
-    final byte[] fragment = get(gen.nextInt(name_.size()));
+    final Fragment fragment = get(gen.nextInt(name_.size()));
+    final byte[] ref_seq = fragment.getSeq(); // this is a reference don't modify it
 
     // if fragment is shorter than indicated length, return the whole fragment
-    final int begin, end;
-    if (fragment.length <= length) {
+    int begin, end;
+    if (ref_seq.length <= length) {
       begin = 0;
-      end = fragment.length;
+      end = ref_seq.length;
     } else {
       // otherwise, assume that long fragment is sheared into such length
-      begin = gen.nextInt(fragment.length - length + 1);
+      begin = gen.nextInt(ref_seq.length - length + 1);
       end = begin + length;
     }
+
+    final byte[] sequence;
     if (rc) {
-      final byte[] sequence = new byte[end - begin];
-      for (int ss = 0, cc = fragment.length - 1 - begin; ss < sequence.length; ++ss, --cc) {
-        sequence[ss] = EnumBP.ascii_rc(fragment[cc]);
+      sequence = new byte[end - begin];
+      for (int ss = 0, cc = ref_seq.length - 1 - begin; ss < sequence.length; ++ss, --cc) {
+        sequence[ss] = EnumBP.ascii_rc(ref_seq[cc]);
       }
-      return sequence;
+      // shift begin/end back to forward strain's coordinate to describe locus
+      end = ref_seq.length - begin;
+      begin = end - sequence.length;
     } else {
-      return Arrays.copyOfRange(fragment, begin, end);
+      sequence = Arrays.copyOfRange(ref_seq, begin, end);
     }
+    return new Fragment(sequence, new Locus(fragment.getLocus().getChrom(), begin, end, rc));
   }
 }

@@ -2,20 +2,19 @@ package com.bina.lrsim.simulator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
+import com.bina.lrsim.bioinfo.*;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.bioinfo.EnumBP;
-import com.bina.lrsim.bioinfo.HPIterator;
-import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
-import com.bina.lrsim.interfaces.RandomSequenceGenerator;
+import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
 
@@ -26,14 +25,15 @@ public class Simulator {
   private final static Logger log = Logger.getLogger(Simulator.class.getName());
   private final long[] base_counter_ = new long[EnumEvent.values().length];
   private final long[] event_counter_ = new long[EnumEvent.values().length];
-  private RandomSequenceGenerator seqGen_;
+  final ConcurrentHashMap<String, AtomicLong> name_counter = new ConcurrentHashMap<String, AtomicLong>();
+  private RandomFragmentGenerator seqGen_;
 
   /**
    * Constructor
    * 
    * @param seqGen a random sequence generator
    */
-  public Simulator(RandomSequenceGenerator seqGen) {
+  public Simulator(RandomFragmentGenerator seqGen) {
     seqGen_ = seqGen;
   }
 
@@ -67,7 +67,10 @@ public class Simulator {
         if (len > max_len) max_len = len;
       }
 
-      final byte[] sequence = seqGen_.getSequence(max_len, gen);
+      final Fragment fragment = seqGen_.getFragment(max_len, gen);
+      name_counter.putIfAbsent(fragment.getLocus().getChrom(), new AtomicLong((long) 0));
+      name_counter.get( fragment.getLocus().getChrom()).incrementAndGet();
+      final byte[] sequence = fragment.getSeq();
       // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
       if (sequence.length < max_len) {
         final float ratio = (float) sequence.length / (float) max_len;
@@ -139,6 +142,13 @@ public class Simulator {
     sb.append(EnumEvent.getPrettyStats(base_counter_));
     sb.append("\n");
     sb.append(EnumEvent.getPrettyStats(event_counter_));
+    sb.append("\n");
+    for(ConcurrentHashMap.Entry<String, AtomicLong> entry: name_counter.entrySet()) {
+      sb.append(entry.getKey());
+      sb.append(" ");
+      sb.append(entry.getValue().get());
+      sb.append("\n");
+    }
     return sb.toString();
   }
 }

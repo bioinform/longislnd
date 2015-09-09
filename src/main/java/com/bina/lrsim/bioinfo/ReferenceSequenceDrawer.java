@@ -1,6 +1,6 @@
 package com.bina.lrsim.bioinfo;
 
-import com.bina.lrsim.interfaces.RandomSequenceGenerator;
+import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import htsjdk.samtools.reference.FastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -11,12 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by laub2 on 9/2/15.
+ * Created by bayolau on 9/2/15.
  */
-public abstract class ReferenceSequenceDrawer implements RandomSequenceGenerator {
+public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator {
   private final static Logger log = Logger.getLogger(ReferenceSequenceDrawer.class.getName());
   final Map<String, Chromosome> name_chromosome = new HashMap<String, Chromosome>();
-  final ArrayList<String> name_ = new ArrayList<String>();FastaSequenceFile reference_;
+  final ArrayList<String> name_ = new ArrayList<String>();
+  FastaSequenceFile reference_;
 
   public static ReferenceSequenceDrawer Factory(String mode, String fasta) {
     switch (mode) {
@@ -47,21 +48,22 @@ public abstract class ReferenceSequenceDrawer implements RandomSequenceGenerator
   }
 
   @Override
-  public byte[] getSequence(int length, RandomGenerator gen) {
-    byte[] out = null;
+  public Fragment getFragment(int length, RandomGenerator gen) {
+    Fragment out = null;
     while (null == out) {
       out = getSequenceImpl(length, gen);
     }
     return out;
   }
 
-  protected abstract byte[] getSequenceImpl(int length, RandomGenerator gen);
+  protected abstract Fragment getSequenceImpl(int length, RandomGenerator gen);
 
-  protected byte[] get(String name) {
-    return name_chromosome.get(name).seq().getBases();
+  protected Fragment get(String name) {
+    final byte[] seq = name_chromosome.get(name).seq().getBases();
+    return (seq != null) ? new Fragment(seq, new Locus(name, 0, seq.length, false)) : null;
   }
 
-  protected byte[] get(int id) {
+  protected Fragment get(int id) {
     return get(name_.get(id));
   }
 

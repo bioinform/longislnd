@@ -23,7 +23,7 @@ import com.bina.lrsim.util.Monitor;
  */
 public class H5Simulator {
   private final static Logger log = Logger.getLogger(H5Simulator.class.getName());
-  private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [" + EnumEvent.getListDescription() + "]";
+  private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [max fragment length] [" + EnumEvent.getListDescription() + "]";
 
   /**
    * create a file of simulated reads based on the given FASTA and model
@@ -45,9 +45,15 @@ public class H5Simulator {
     final int sample_per = Integer.parseInt(args[7]);
     final int seed = Integer.parseInt(args[8]);
 
+    final int max_fragment_length = (args.length > 9) ? Integer.parseInt(args[9]) : Integer.MAX_VALUE;
+    if (max_fragment_length < 1) {
+      log.info("maximum fragment length cannot be non-positive");
+      System.exit(1);
+    }
+
     long[] events_frequency = null;
-    if (args.length > 9) {
-      String[] idsm = args[9].split(":");
+    if (args.length > 10) {
+      String[] idsm = args[10].split(":");
       if (idsm.length != EnumEvent.values().length) {
         log.info(usage);
         log.info("event frequency must be a set of integers " + EnumEvent.getListDescription());
@@ -94,7 +100,7 @@ public class H5Simulator {
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS);
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS, max_fragment_length);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     // the following can be parallelized

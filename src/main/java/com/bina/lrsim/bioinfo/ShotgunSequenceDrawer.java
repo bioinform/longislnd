@@ -20,36 +20,40 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
     super(filename);
     long num_bases = 0;
     for (String entry : name_) {
-      num_bases += get(entry).length;
+      num_bases += get(entry).getSeq().length;
       ref_cdf_.add(num_bases);
     }
     log.info("length cdf: " + Joiner.on(" ").join(ref_cdf_));
   }
 
   @Override
-  protected byte[] getSequenceImpl(int length, RandomGenerator gen) {
+  protected Fragment getSequenceImpl(int length, RandomGenerator gen) {
     final boolean rc = gen.nextBoolean();
     final long num_bases = ref_cdf_.get(ref_cdf_.size() - 1);
     final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : gen.nextLong() % num_bases;
 
     int ref_idx = 0;
     for (; ref_idx < ref_cdf_.size() && pos >= ref_cdf_.get(ref_idx); ++ref_idx) {}
-    final int ref_pos = (0 == ref_idx) ? (int) pos : (int) (pos - ref_cdf_.get(ref_idx - 1));
 
-    if (ref_pos + length <= get(ref_idx).length) {
+    final Fragment ref_frag = get(ref_idx);
+    final byte[] ref_seq = ref_frag.getSeq();
+
+    if (length <= ref_seq.length) {
+      int begin = gen.nextInt(ref_seq.length - length + 1);
       int number_of_n = 0;
-      final byte[] chromosome = get(ref_idx);
       final byte[] sequence = new byte[length];
       if (rc) {
-        for (int ss = 0, cc = chromosome.length - 1 - ref_pos; ss < length; ++ss, --cc) {
-          sequence[ss] = EnumBP.ascii_rc(chromosome[cc]);
+        for (int ss = 0, cc = ref_seq.length - 1 - begin; ss < length; ++ss, --cc) {
+          sequence[ss] = EnumBP.ascii_rc(ref_seq[cc]);
           if (sequence[ss] == 'N' || sequence[ss] == 'n') {
             ++number_of_n;
           }
         }
+        // shift begin/end back to forward strain's coordinate to describe locus
+        begin = ref_seq.length - begin - length;
       } else {
         for (int ss = 0; ss < length; ++ss) {
-          sequence[ss] = chromosome[ref_pos + ss];
+          sequence[ss] = ref_seq[begin + ss];
           if (sequence[ss] == 'N' || sequence[ss] == 'n') {
             ++number_of_n;
           }
@@ -58,7 +62,9 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
       if (length * Heuristics.MAX_N_FRACTION_ON_READ < number_of_n) { return null; }
       // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
       // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
-      return sequence;
+      return new Fragment(sequence, new Locus(ref_frag.getLocus().getChrom(), begin, begin + length, rc));
+    } else {
+      log.warn("skipping fragment of length " + length + " from being shotguned from reference " + ref_frag.getLocus().getChrom() + ". Consider fragment mode.");
     }
     return null;
   }
