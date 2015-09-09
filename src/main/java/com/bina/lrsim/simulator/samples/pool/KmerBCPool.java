@@ -31,9 +31,13 @@ public class KmerBCPool extends BaseCallsPool {
   }
 
   @Override
-  public boolean add(Event ev) {
+  public boolean add(Event ev, AddBehavior ab) {
     if (entryPerKmer_ < 0 || data_.get(ev.kmer()).size() < entryPerKmer_) {
-      data_.get(ev.kmer()).add(ev.data_cpy());
+      byte[] tmp = ev.data_cpy();
+      for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
+        tmp[idx] += ab.delta_q;
+      }
+      data_.get(ev.kmer()).add(tmp);
       return true;
     }
     return false;
@@ -44,7 +48,7 @@ public class KmerBCPool extends BaseCallsPool {
     if (context.hp_len() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
     int draw = gen.nextInt(data_.get(context.kmer()).size());
     final byte[] b = data_.get(context.kmer()).get(draw);
-    if(as != null && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
+    if (as != null && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
       b[EnumDat.QualityValue.value] = as.last_event[EnumDat.QualityValue.value];
       b[EnumDat.DeletionQV.value] = as.last_event[EnumDat.DeletionQV.value];
       b[EnumDat.DeletionTag.value] = as.last_event[EnumDat.DeletionTag.value];

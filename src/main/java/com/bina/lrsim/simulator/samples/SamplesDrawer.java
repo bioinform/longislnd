@@ -10,6 +10,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.bina.lrsim.simulator.samples.pool.AddBehavior;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -39,6 +40,8 @@ public class SamplesDrawer extends Samples {
   private final long[] custom_frequency;
   private final int max_fragment_length;
 
+  private int delta_q = 0;
+
   /**
    * Constructor
    * 
@@ -54,9 +57,12 @@ public class SamplesDrawer extends Samples {
     for (int ii = 1; ii < prefixes.length; ++ii) {
       accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, max_fragment_length));
     }
+    delta_q = calculateDeltaQ(custom_frequency);
+    log.info("after accumulation delta-q " + delta_q);
+    log.info(this.toString());
     log.info(this.stringifyKmerStats());
     allocateEventDrawer(spec, max_sample);
-    loadEvents(prefixes, max_sample, artificial_clean_ins);
+    loadEvents(prefixes, max_sample, artificial_clean_ins, new AddBehavior(delta_q));
   }
 
   /**
@@ -75,14 +81,29 @@ public class SamplesDrawer extends Samples {
     this.spec = spec;
     this.custom_frequency = custom_frequency;
     this.max_fragment_length = max_fragment_length;
+    delta_q = calculateDeltaQ(custom_frequency);
     if (this.custom_frequency != null) {
-      log.info("using custom event frequencies");
+      log.info("using custom event frequencies, approximating delta-q to be " + delta_q);
     } else {
       log.info("using sampled event frequencies");
     }
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, max_sample);
-    loadEvents(prefix, max_sample, artificial_clean_ins);
+    loadEvents(prefix, max_sample, artificial_clean_ins, new AddBehavior(delta_q));
+  }
+
+  private int calculateDeltaQ(long[] custom_frequency) {
+    double custom = 0;
+    for (long entry : custom_frequency)
+      custom += entry;
+    custom = 1.0 - custom_frequency[EnumEvent.MATCH.value] / custom;
+
+    double intrinsic = 0;
+    for (long entry : super.event_base_count_ref())
+      intrinsic += entry;
+    intrinsic = 1.0 - super.event_base_count_ref()[EnumEvent.MATCH.value] / intrinsic;
+
+    return (int) (10 * Math.log10(intrinsic / custom) + 0.5);
   }
 
   private void allocateEventDrawer(PBSpec spec, int max_sample) {
@@ -188,8 +209,8 @@ public class SamplesDrawer extends Samples {
    * @param max_sample
    * @throws IOException
    */
-  private void loadEvents(String prefix, int max_sample, boolean artificial_clean_ins) throws IOException {
-    loadEvents(new String[] {prefix}, max_sample, artificial_clean_ins);
+  private void loadEvents(String prefix, int max_sample, boolean artificial_clean_ins, AddBehavior ab) throws IOException {
+    loadEvents(new String[] {prefix}, max_sample, artificial_clean_ins, ab);
   }
 
   /**
@@ -198,7 +219,7 @@ public class SamplesDrawer extends Samples {
    * @param prefixes prefixes of the event files
    * @throws IOException
    */
-  private void loadEvents(String[] prefixes, int max_sample, boolean artificial_clean_ins) throws IOException {
+  private void loadEvents(String[] prefixes, int max_sample, boolean artificial_clean_ins, AddBehavior ab) throws IOException {
     log.info("loading events");
     if (max_sample < 1) return;
     final int num_src = prefixes.length;
@@ -279,7 +300,7 @@ public class SamplesDrawer extends Samples {
           }
 
           ++event_count[buffer.event().value];
-          if (kmer_event_drawer_.get(buffer.event()).add(buffer)) {
+          if (kmer_event_drawer_.get(buffer.event()).add(buffer, ab)) {
             ++logged_event_count[buffer.event().value];
             // ++num_logged_event;
           }
@@ -294,11 +315,11 @@ public class SamplesDrawer extends Samples {
               }
             }
             if (2 * match >= buffer.size()) {
-              hp_event_drawer_.add(buffer);
+              hp_event_drawer_.add(buffer, ab);
               ++num_hp_events;
             }
           } else {
-            hp_event_drawer_.add(buffer);
+            hp_event_drawer_.add(buffer, ab);
             ++num_hp_events;
           }
         }

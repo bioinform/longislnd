@@ -33,7 +33,7 @@ public class HPBCPool extends BaseCallsPool {
   }
 
   @Override
-  public boolean add(Event ev) {
+  public boolean add(Event ev, AddBehavior ab) {
     final int kmer = ev.kmer();
     final int hp_len = ev.hp_len();
 
@@ -42,6 +42,12 @@ public class HPBCPool extends BaseCallsPool {
     }
     if (null == data_.get(kmer).get(hp_len)) {
       data_.get(kmer).set(hp_len, new ArrayList<byte[]>());
+    }
+
+    byte[] tmp = ev.data_cpy();
+
+    for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
+      tmp[idx] += ab.delta_q;
     }
 
     data_.get(kmer).get(hp_len).add(ev.data_cpy());
@@ -58,7 +64,7 @@ public class HPBCPool extends BaseCallsPool {
       List<byte[]> pool = data_.get(kmer).get(hp_len);
       if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
-        if(as != null && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
+        if (as != null && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
           b[EnumDat.QualityValue.value] = as.last_event[EnumDat.QualityValue.value];
           b[EnumDat.DeletionQV.value] = as.last_event[EnumDat.DeletionQV.value];
           b[EnumDat.DeletionTag.value] = as.last_event[EnumDat.DeletionTag.value];
