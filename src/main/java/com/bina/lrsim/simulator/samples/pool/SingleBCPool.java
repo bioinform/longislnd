@@ -40,7 +40,7 @@ public class SingleBCPool extends BaseCallsPool {
       for (EnumDat e : spec.getDataSet()) {
         data_[shift + e.value] = ev.get(0, e);
       }
-      data_[shift + EnumDat.QualityValue.value] += ab.delta_q;
+      data_[shift + EnumDat.QualityValue.value] = (byte) ab.newQV(data_[shift + EnumDat.QualityValue.value]);
       end_[ev.kmer()] += BYTE_PER_BC;
       return true;
     }

@@ -40,8 +40,6 @@ public class SamplesDrawer extends Samples {
   private final long[] custom_frequency;
   private final int max_fragment_length;
 
-  private int delta_q = 0;
-
   /**
    * Constructor
    * 
@@ -57,12 +55,10 @@ public class SamplesDrawer extends Samples {
     for (int ii = 1; ii < prefixes.length; ++ii) {
       accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, max_fragment_length));
     }
-    delta_q = calculateDeltaQ(custom_frequency);
-    log.info("after accumulation delta-q " + delta_q);
     log.info(this.toString());
     log.info(this.stringifyKmerStats());
     allocateEventDrawer(spec, max_sample);
-    loadEvents(prefixes, max_sample, artificial_clean_ins, new AddBehavior(delta_q));
+    loadEvents(prefixes, max_sample, artificial_clean_ins);
   }
 
   /**
@@ -81,29 +77,33 @@ public class SamplesDrawer extends Samples {
     this.spec = spec;
     this.custom_frequency = custom_frequency;
     this.max_fragment_length = max_fragment_length;
-    delta_q = calculateDeltaQ(custom_frequency);
     if (this.custom_frequency != null) {
-      log.info("using custom event frequencies, approximating delta-q to be " + delta_q);
+      log.info("using custom event frequencies");
     } else {
       log.info("using sampled event frequencies");
     }
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, max_sample);
-    loadEvents(prefix, max_sample, artificial_clean_ins, new AddBehavior(delta_q));
+    loadEvents(prefix, max_sample, artificial_clean_ins);
   }
 
-  private int calculateDeltaQ(long[] custom_frequency) {
+  private AddBehavior calculateAddBehavior(long[] custom_frequency) {
+    if (null == custom_frequency) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
     double custom = 0;
     for (long entry : custom_frequency)
       custom += entry;
     custom = 1.0 - custom_frequency[EnumEvent.MATCH.value] / custom;
+    final int custom_q = (int) (-10 * Math.log10(custom) + 0.5);
 
     double intrinsic = 0;
     for (long entry : super.event_base_count_ref())
       intrinsic += entry;
     intrinsic = 1.0 - super.event_base_count_ref()[EnumEvent.MATCH.value] / intrinsic;
+    final int intrinsic_q = (int) (-10 * Math.log10(intrinsic) + 0.5);
 
-    return (int) (10 * Math.log10(intrinsic / custom) + 0.5);
+    final int delta_q = (int) (10 * Math.log10(intrinsic / custom) + 0.5);
+
+    return new AddBehavior(delta_q, 0, Math.max(custom_q, intrinsic_q));
   }
 
   private void allocateEventDrawer(PBSpec spec, int max_sample) {
@@ -209,8 +209,8 @@ public class SamplesDrawer extends Samples {
    * @param max_sample
    * @throws IOException
    */
-  private void loadEvents(String prefix, int max_sample, boolean artificial_clean_ins, AddBehavior ab) throws IOException {
-    loadEvents(new String[] {prefix}, max_sample, artificial_clean_ins, ab);
+  private void loadEvents(String prefix, int max_sample, boolean artificial_clean_ins) throws IOException {
+    loadEvents(new String[] {prefix}, max_sample, artificial_clean_ins);
   }
 
   /**
@@ -219,7 +219,8 @@ public class SamplesDrawer extends Samples {
    * @param prefixes prefixes of the event files
    * @throws IOException
    */
-  private void loadEvents(String[] prefixes, int max_sample, boolean artificial_clean_ins, AddBehavior ab) throws IOException {
+  private void loadEvents(String[] prefixes, int max_sample, boolean artificial_clean_ins) throws IOException {
+    AddBehavior ab = calculateAddBehavior(this.custom_frequency);
     log.info("loading events");
     if (max_sample < 1) return;
     final int num_src = prefixes.length;

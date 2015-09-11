@@ -35,7 +35,7 @@ public class KmerBCPool extends BaseCallsPool {
     if (entryPerKmer_ < 0 || data_.get(ev.kmer()).size() < entryPerKmer_) {
       byte[] tmp = ev.data_cpy();
       for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
-        tmp[idx] += ab.delta_q;
+        tmp[idx] = (byte) ab.newQV(tmp[idx]);
       }
       data_.get(ev.kmer()).add(tmp);
       return true;

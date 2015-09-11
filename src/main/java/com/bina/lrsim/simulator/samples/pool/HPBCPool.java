@@ -47,7 +47,7 @@ public class HPBCPool extends BaseCallsPool {
     byte[] tmp = ev.data_cpy();
 
     for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
-      tmp[idx] += ab.delta_q;
+      tmp[idx] = (byte) ab.newQV(tmp[idx]);
     }
 
     data_.get(kmer).get(hp_len).add(ev.data_cpy());
