@@ -1,6 +1,7 @@
 package com.bina.lrsim.simulator;
 
 import com.bina.lrsim.bioinfo.Heuristics;
+import com.bina.lrsim.simulator.samples.pool.DeletedSingleBCPool;
 import com.bina.lrsim.simulator.samples.pool.KmerBCPool;
 import com.bina.lrsim.simulator.samples.pool.SingleBCPool;
 
@@ -15,7 +16,7 @@ import java.util.EnumSet;
 public enum EnumEvent {
   // value, description, recording period, sample pool implementation
   INSERTION(0, "i", Heuristics.SAMPLE_PERIOD_INS, KmerBCPool.class),
-  DELETION(1, "d", Heuristics.SAMPLE_PERIOD_DEL, SingleBCPool.class),
+  DELETION(1, "d", Heuristics.SAMPLE_PERIOD_DEL, DeletedSingleBCPool.class),
   SUBSTITUTION(2, "s", Heuristics.SAMPLE_PERIOD_SUB, KmerBCPool.class),
   MATCH(3, "m", Heuristics.SAMPLE_PERIOD_MAT, SingleBCPool.class);
 

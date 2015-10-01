@@ -16,8 +16,8 @@ import com.bina.lrsim.simulator.Event;
  */
 public class SingleBCPool extends BaseCallsPool {
   private final static Logger log = Logger.getLogger(SingleBCPool.class.getName());
-  private byte[] data_;
-  private int[] end_;
+  protected byte[] data_;
+  protected int[] end_;
 
   public SingleBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
@@ -28,7 +28,7 @@ public class SingleBCPool extends BaseCallsPool {
     }
   }
 
-  private int begin(int kmer) {
+  protected int begin(int kmer) {
     return kmer * entryPerKmer_ * BYTE_PER_BC;
   }
 
