@@ -152,7 +152,17 @@ public class SamplesDrawer extends Samples {
     if (context.hp_len() == 1) {
       EnumEvent ev = randomEvent(context, gen);
       // ignore the previous event if it's already a deletion
+      final int org_length = buffer.size();
       AppendState result = kmer_event_drawer_.get(ev).appendTo(buffer, context, ev.equals(EnumEvent.DELETION) ? null : deletion, gen);
+      if(ev.equals(EnumEvent.DELETION) && buffer.size() != org_length) {
+        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
+      }
+      if( (ev.equals(EnumEvent.SUBSTITUTION) || ev.equals(EnumEvent.MATCH)) && buffer.size() != org_length + 1) {
+        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
+      }
+      if(ev.equals(EnumEvent.INSERTION) && buffer.size() <= org_length + 1) {
+        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
+      }
       ++base_counter[ev.value];
       if (ev.equals(EnumEvent.INSERTION)) {
         base_counter[ev.value] += buffer.size() - old_length - 2;
