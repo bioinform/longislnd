@@ -4,9 +4,12 @@ package com.bina.lrsim.h5.bax;
  * Created by bayo on 5/4/15.
  */
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.bina.lrsim.bioinfo.Locus;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
@@ -26,10 +29,34 @@ public class BaxH5Writer {
   private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
   private final DataBuffer buffer_;
   private final PBSpec spec;
+  private final ArrayList<Locus> loci_;
 
   public BaxH5Writer(PBSpec spec) {
     this.spec = spec;
     buffer_ = new DataBuffer(spec, 100000);
+    this.loci_ = new ArrayList<Locus>();
+  }
+
+  public void writeLociBed(String prefix, String moviename, int firsthole) {
+    try (FileWriter fw = new FileWriter(new File(prefix + ".bed"))) {
+      int shift = 0;
+      for (Locus entry : this.loci_) {
+        fw.write(entry.getChrom());
+        fw.write('\t');
+        fw.write(String.valueOf(entry.getBegin0()));
+        fw.write('\t');
+        fw.write(String.valueOf(entry.getEnd0()));
+        fw.write('\t');
+        fw.write(moviename);
+        fw.write('/');
+        fw.write(String.valueOf(firsthole + shift));
+        fw.write("\t500\t");
+        fw.write(entry.isRc() ? '-' : '+');
+        ++shift;
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public void write(String filename, String moviename, int firsthole) {
@@ -43,6 +70,7 @@ public class BaxH5Writer {
       writeZWM(h5, firsthole);
       writeRegions(h5, firsthole);
       h5.close();
+      writeLociBed(filename, moviename, firsthole);
     } catch (IOException e) {
       // The HDF5 API throws the base class Exception, so let's just catch them all and rethrow
       // run-time exception
@@ -57,8 +85,9 @@ public class BaxH5Writer {
     }
   }
 
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score) {
+  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus) {
     buffer_.addLast(read, readLengths, score);
+    loci_.add(locus);
   }
 
   private void writeGroups(H5File h5, AttributesFactory af) throws IOException {
@@ -187,7 +216,7 @@ public class BaxH5Writer {
     final int numEntries = size() + (spec.writeAdapterInsert() ? buffer_.getNumAdapterInsert() : 0);
     final int[] buffer = new int[numEntries * EnumRegionsIdx.values().length];
     int shift = 0;
-    final int ins_score = -1; //insert score seems to be -1 in real data
+    final int ins_score = -1; // insert score seems to be -1 in real data
     for (int rr = 0; rr < size(); ++rr) {
       final int hole = firsthole + rr;
       final int score = buffer_.getScore(rr);

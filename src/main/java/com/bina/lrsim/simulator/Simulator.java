@@ -68,8 +68,9 @@ public class Simulator {
       }
 
       final Fragment fragment = seqGen_.getFragment(max_len, gen);
-      name_counter.putIfAbsent(fragment.getLocus().getChrom(), new AtomicLong((long) 0));
-      name_counter.get( fragment.getLocus().getChrom()).incrementAndGet();
+      final Locus locus = fragment.getLocus();
+      name_counter.putIfAbsent(locus.getChrom(), new AtomicLong((long) 0));
+      name_counter.get(locus.getChrom()).incrementAndGet();
       final byte[] sequence = fragment.getSeq();
       // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
       if (sequence.length < max_len) {
@@ -122,7 +123,7 @@ public class Simulator {
         }
       }
 
-      writer.addLast(read, section_ends, len_score.getSecond());
+      writer.addLast(read, section_ends, len_score.getSecond(), locus);
       num_bases += read.size();
       if (writer.size() % 10000 == 1) {
         log.info(toString());
@@ -143,7 +144,7 @@ public class Simulator {
     sb.append("\n");
     sb.append(EnumEvent.getPrettyStats(event_counter_));
     sb.append("\n");
-    for(ConcurrentHashMap.Entry<String, AtomicLong> entry: name_counter.entrySet()) {
+    for (ConcurrentHashMap.Entry<String, AtomicLong> entry : name_counter.entrySet()) {
       sb.append(entry.getKey());
       sb.append(" ");
       sb.append(entry.getValue().get());
