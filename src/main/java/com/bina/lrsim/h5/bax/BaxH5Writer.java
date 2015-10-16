@@ -52,6 +52,7 @@ public class BaxH5Writer {
         fw.write(String.valueOf(firsthole + shift));
         fw.write("\t500\t");
         fw.write(entry.isRc() ? '-' : '+');
+        fw.write(System.lineSeparator());
         ++shift;
       }
     } catch (IOException e) {

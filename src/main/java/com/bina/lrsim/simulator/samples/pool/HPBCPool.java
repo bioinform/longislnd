@@ -11,11 +11,13 @@ import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.h5.pb.PBReadBuffer;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
+import org.apache.log4j.Logger;
 
 /**
  * Created by bayo on 5/14/15.
  */
 public class HPBCPool extends BaseCallsPool {
+  private final static Logger log = Logger.getLogger(HPBCPool.class.getName());
 
   // this is a hack until we have a proper full-blown homopolyer error rate scaling
   private final static int MIN_POOL_SIZE = 20;
@@ -50,7 +52,7 @@ public class HPBCPool extends BaseCallsPool {
       tmp[idx] = (byte) ab.newQV(tmp[idx]);
     }
 
-    data_.get(kmer).get(hp_len).add(ev.data_cpy());
+    data_.get(kmer).get(hp_len).add(tmp);
 
     return true;
   }
@@ -64,7 +66,7 @@ public class HPBCPool extends BaseCallsPool {
       List<byte[]> pool = data_.get(kmer).get(hp_len);
       if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
-        if (as != null && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
+        if (as != null && b.length > 0 && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
           b[EnumDat.QualityValue.value] = as.last_event[EnumDat.QualityValue.value];
           b[EnumDat.DeletionQV.value] = as.last_event[EnumDat.DeletionQV.value];
           b[EnumDat.DeletionTag.value] = as.last_event[EnumDat.DeletionTag.value];

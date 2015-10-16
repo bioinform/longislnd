@@ -92,12 +92,14 @@ public class SamplesDrawer extends Samples {
     double custom = 0;
     for (long entry : custom_frequency)
       custom += entry;
+    if (custom_frequency[EnumEvent.MATCH.value] == custom) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
     custom = 1.0 - custom_frequency[EnumEvent.MATCH.value] / custom;
     final int custom_q = (int) (-10 * Math.log10(custom) + 0.5);
 
     double intrinsic = 0;
     for (long entry : super.event_base_count_ref())
       intrinsic += entry;
+    if (super.event_base_count_ref()[EnumEvent.MATCH.value] == intrinsic) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
     intrinsic = 1.0 - super.event_base_count_ref()[EnumEvent.MATCH.value] / intrinsic;
     final int intrinsic_q = (int) (-10 * Math.log10(intrinsic) + 0.5);
 

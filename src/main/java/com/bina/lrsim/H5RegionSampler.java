@@ -26,7 +26,7 @@ public class H5RegionSampler {
    * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length != 4) {
+    if (args.length < 4) {
       log.info(usage);
       System.exit(1);
     }
@@ -34,6 +34,7 @@ public class H5RegionSampler {
     final String in_file = args[1];
     final String read_type = args[2];
     final float min_read_score = Float.parseFloat(args[3]);
+    final int min_passes = (args.length > 4) ? Integer.parseInt(args[4]) : 0;
 
     final PBSpec spec;
     switch (read_type) {
@@ -88,7 +89,7 @@ public class H5RegionSampler {
                       max_ins = Math.max(max_ins,ins);
                     }
                   }
-                  if (max_ins > 0) {
+                  if (numNonZero >= min_passes && max_ins > 0) {
                     score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
                     len_out.writeInt(numNonZero);
                     for (Integer insertLength : len_list) {
