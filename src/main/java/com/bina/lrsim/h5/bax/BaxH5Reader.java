@@ -1,21 +1,27 @@
 package com.bina.lrsim.h5.bax;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.*;
 
+import com.bina.lrsim.h5.Attributes;
+import htsjdk.samtools.fastq.FastqRecord;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
 import com.bina.lrsim.h5.H5ScalarDSIO;
 import com.bina.lrsim.h5.pb.PBSpec;
 import com.bina.lrsim.interfaces.RegionGroup;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.log4j.Logger;
 
 /**
  * Created by bayo on 5/27/15.
  */
 public class BaxH5Reader implements RegionGroup {
+  private final static Logger log = Logger.getLogger(BaxH5Reader.class.getName());
   private H5File h5_ = null;
   private final PBSpec spec;
+  private String movieName_ = null;
 
   public BaxH5Reader(String filename, PBSpec spec) {
     this.load(filename);
@@ -24,6 +30,69 @@ public class BaxH5Reader implements RegionGroup {
 
   public void load(String filename) {
     h5_ = new H5File(filename, FileFormat.READ);
+    movieName_ = null;
+    try {
+      movieName_ = ((String[]) Attributes.extract(h5_.get(EnumGroups.RunInfo.path), "MovieName"))[0];
+    } catch (Exception e) {
+      log.warn("failed to retrieve movie name from " + filename);
+    }
+    if (null == movieName_) {
+      movieName_ = "";
+    }
+  }
+
+  public Iterator<FastqRecord> reads() {
+    return new ReadIterator(this.iterator());
+  }
+
+  private class ReadIterator implements Iterator<FastqRecord> {
+    private final Iterator<Region> regions;
+    private final int[] holeNumber;
+    private final int[] numEvents;
+    private final byte[] seq;
+    private final byte[] qual;
+    private int shift = 0;
+    private int base_shift = 0;
+    private Queue<FastqRecord> queue = new LinkedList<>();
+
+    ReadIterator(Iterator<Region> r) {
+      regions = r;
+      try {
+        holeNumber = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/HoleNumber");
+        numEvents = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/NumEvent");
+        seq = H5ScalarDSIO.<byte[]>Read(h5_, spec.getBaseCallsEnum().path + "/Basecall");
+        byte[] tmp = H5ScalarDSIO.<byte[]>Read(h5_, spec.getBaseCallsEnum().path + "/QualityValue");
+        qual = Arrays.copyOf(tmp, tmp.length); // to be shifted by 33
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public boolean hasNext() {
+      while (queue.isEmpty() && regions.hasNext()) {
+        Region reg = regions.next();
+        if (reg.isSequencing()) {
+          for (Pair<Integer, Integer> entry : reg.getBeginEnd()) {
+            final int b = entry.getLeft();
+            final int e = entry.getRight();
+            final int len = e - b;
+            for (int ii = b; ii < e; ++ii) {
+              qual[base_shift + ii] += 33;
+            }
+            queue.add(new FastqRecord(new String(movieName_ + "/" + holeNumber[shift] + "/" + b + "_" + e), new String(seq, base_shift + b, len), null, new String(qual, base_shift + b, len)));
+          }
+        }
+        base_shift += numEvents[shift];
+        ++shift;
+      }
+      return !queue.isEmpty();
+    }
+
+    @Override
+    public FastqRecord next() {
+      return this.hasNext() ? queue.remove() : null;
+    }
   }
 
   @Override
@@ -42,7 +111,7 @@ public class BaxH5Reader implements RegionGroup {
       try {
         holeStatus = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
         numEvents = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/NumEvent");
-      }  catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
       float[] fp;
@@ -52,7 +121,7 @@ public class BaxH5Reader implements RegionGroup {
         fp = null;
       }
       try {
-        if(null == fp) {
+        if (null == fp) {
           fp = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/PredictedAccuracy");
         }
       } catch (IOException e) {

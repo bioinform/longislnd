@@ -9,8 +9,7 @@ import java.util.Arrays;
 public class LRSim {
 
   private static String VERSION = "LRSim " + LRSim.class.getPackage().getImplementationVersion();
-  private static String usage = "java -jar LRSim.jar <mode> [parameters] \n" + "       mode    -- simulate/sample/region\n"
-                                + "       parameters -- see mode description by not specifying parameters\n";
+  private static String usage = "java -jar LRSim.jar <mode> [parameters] \n" + "       mode    -- simulate/sample/region\n" + "       parameters -- see mode description by not specifying parameters\n";
 
   public static void main(String[] args) throws IOException {
 
@@ -34,6 +33,14 @@ public class LRSim {
 
       case "region": // run sampling of regions
         H5RegionSampler.main(pass_args);
+        break;
+
+      case "h5fastq": // run sampling of regions
+        H5Fastq.main(pass_args);
+        break;
+
+      case "fastqh5": // run sampling of regions
+        FastqH5.main(pass_args);
         break;
 
       default:

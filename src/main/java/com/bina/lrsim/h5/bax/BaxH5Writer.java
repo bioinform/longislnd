@@ -38,21 +38,31 @@ public class BaxH5Writer {
   }
 
   public void writeLociBed(String prefix, String moviename, int firsthole) {
+    boolean writing = false;
+    for (Locus entry : this.loci_) {
+      if (null != entry) {
+        writing = true;
+        break;
+      }
+    }
+    if (!writing) return;
     try (FileWriter fw = new FileWriter(new File(prefix + ".bed"))) {
       int shift = 0;
       for (Locus entry : this.loci_) {
-        fw.write(entry.getChrom());
-        fw.write('\t');
-        fw.write(String.valueOf(entry.getBegin0()));
-        fw.write('\t');
-        fw.write(String.valueOf(entry.getEnd0()));
-        fw.write('\t');
-        fw.write(moviename);
-        fw.write('/');
-        fw.write(String.valueOf(firsthole + shift));
-        fw.write("\t500\t");
-        fw.write(entry.isRc() ? '-' : '+');
-        fw.write(System.lineSeparator());
+        if (null != entry) {
+          fw.write(entry.getChrom());
+          fw.write('\t');
+          fw.write(String.valueOf(entry.getBegin0()));
+          fw.write('\t');
+          fw.write(String.valueOf(entry.getEnd0()));
+          fw.write('\t');
+          fw.write(moviename);
+          fw.write('/');
+          fw.write(String.valueOf(firsthole + shift));
+          fw.write("\t500\t");
+          fw.write(entry.isRc() ? '-' : '+');
+          fw.write(System.lineSeparator());
+        }
         ++shift;
       }
     } catch (IOException e) {
