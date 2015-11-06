@@ -35,12 +35,16 @@ public class LRSim {
         H5RegionSampler.main(pass_args);
         break;
 
-      case "h5fastq": // run sampling of regions
+      case "h5fastq": // h5 to fastq conversion
         H5Fastq.main(pass_args);
         break;
 
-      case "fastqh5": // run sampling of regions
+      case "fastqh5": // fastq to h5 conversion
         FastqH5.main(pass_args);
+        break;
+
+      case "samh5": // sam to h5 conversion
+        SamH5.main(pass_args);
         break;
 
       default:

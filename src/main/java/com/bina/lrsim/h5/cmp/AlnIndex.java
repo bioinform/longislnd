@@ -4,10 +4,13 @@ package com.bina.lrsim.h5.cmp;
  * Created by bayo on 5/1/15.
  */
 
+import com.bina.lrsim.h5.H5ScalarDSIO;
+import ncsa.hdf.object.HObject;
 import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5ScalarDS;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 class AlnIndex {
@@ -17,8 +20,30 @@ class AlnIndex {
   private int num_rows_;
   private int num_cols_;
 
+  public AlnIndex() {
+    num_rows_ = 0;
+    num_cols_ = EnumIdx.values().length;
+    data_ = new int[num_cols_ * 1000];
+  }
+
   public AlnIndex(H5File h5) {
     load(h5);
+  }
+
+  public void add(int[] single) {
+    while (data_.length < (num_rows_ + 1) * num_cols_) { // just to be safe, but no sane situation will do it twice
+      data_ = Arrays.copyOf(data_, (data_.length + num_cols_) * 2);
+    }
+    final int shift = num_cols_ * num_rows_;
+    for (int cc = 0; cc < num_cols_; ++cc) {
+      data_[shift + cc] = single[cc];
+    }
+    ++num_rows_;
+  }
+
+  public void save(H5File h5, String path) throws IOException {
+    final long[] dims = new long[] {(long) num_rows_, (long) num_cols_};
+    H5ScalarDSIO.Write(h5, path, data_, dims, false);
   }
 
   public int size() {
@@ -33,6 +58,7 @@ class AlnIndex {
     final int begin = alignment_index * num_cols_;
     return Arrays.copyOfRange(data_, begin, begin + num_cols_);
   }
+
 
   public boolean load(H5File h5) {
     try {
@@ -49,7 +75,7 @@ class AlnIndex {
       int[] d = (int[]) obj.getData();
       if (d.length != nr * nc) throw new RuntimeException("bad AlnIndex data_ref");
 
-      data_ = d;
+      data_ = Arrays.copyOf(d, d.length);
       num_rows_ = nr;
       num_cols_ = nc;
     } catch (Exception e) {
