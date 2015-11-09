@@ -13,7 +13,7 @@ public enum EnumBP {
   C(1, 2, 67, 'C'),
   G(2, 4, 71, 'G'),
   T(3, 8, 84, 'T'),
-  N(4, 15, 78, 'N'),
+  N(4, 15, 78, 'N'), // includes any wild card
   Gap(5, 0, 32, ' '),
   Invalid(6, -1, -1, '-');
 
@@ -69,6 +69,30 @@ public enum EnumBP {
     ascii2value_['g'] = G.value;
     ascii2value_['t'] = T.value;
     ascii2value_['n'] = N.value;
+
+    ascii2value_['U'] = T.value;
+    ascii2value_['u'] = T.value;
+
+    ascii2value_['R'] = N.value;
+    ascii2value_['r'] = N.value;
+    ascii2value_['Y'] = N.value;
+    ascii2value_['y'] = N.value;
+    ascii2value_['K'] = N.value;
+    ascii2value_['k'] = N.value;
+    ascii2value_['M'] = N.value;
+    ascii2value_['m'] = N.value;
+    ascii2value_['S'] = N.value;
+    ascii2value_['s'] = N.value;
+    ascii2value_['W'] = N.value;
+    ascii2value_['w'] = N.value;
+    ascii2value_['B'] = N.value;
+    ascii2value_['b'] = N.value;
+    ascii2value_['D'] = N.value;
+    ascii2value_['d'] = N.value;
+    ascii2value_['H'] = N.value;
+    ascii2value_['h'] = N.value;
+    ascii2value_['V'] = N.value;
+    ascii2value_['v'] = N.value;
 
     Arrays.fill(ascii_rc_, Invalid.value);
     ascii_rc_[A.ascii] = T.ascii;

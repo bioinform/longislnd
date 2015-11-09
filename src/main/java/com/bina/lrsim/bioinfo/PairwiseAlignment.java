@@ -24,7 +24,7 @@ public class PairwiseAlignment {
     if (fixed == movable) return;
     for (int pos = left_most_target; pos < right_most_target; ++pos) {
       final byte base = movable[pos];
-      if (base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
+      if (base == EnumBP.Gap.ascii || EnumBP.ascii2value(base) == EnumBP.N.value) continue;
       int left_most_match = pos;
       for (int left_candidate = left_most_match - 1; left_candidate >= left_most_target && movable[left_candidate] == EnumBP.Gap.ascii; --left_candidate) {
         if (base == fixed[left_candidate]) {
@@ -140,7 +140,7 @@ public class PairwiseAlignment {
   private void spanRightOnMismatch(int left_most_target, int right_most_target) {
     for (int pos = right_most_target - 1; pos >= left_most_target; --pos) {
       final byte base = ref_[pos];
-      if (base == seq_[pos] || base == EnumBP.Gap.ascii || base == EnumBP.N.ascii || base == 'n') continue;
+      if (base == seq_[pos] || base == EnumBP.Gap.ascii || EnumBP.ascii2value(base) == EnumBP.N.value) continue;
       int right_most_match = pos;
       int right_most_gap = pos;
       for (int right_canadidate = right_most_match + 1; right_canadidate < right_most_target && ref_[right_canadidate] == EnumBP.Gap.ascii; ++right_canadidate) {
@@ -160,7 +160,8 @@ public class PairwiseAlignment {
     }
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(new String(this.seq_));
     sb.append('\n');

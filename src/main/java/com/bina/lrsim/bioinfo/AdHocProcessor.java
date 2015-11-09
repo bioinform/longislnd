@@ -202,7 +202,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
     }
 
     private int getNext(int curr) {
-      for (++curr; curr < end && (group.getRef(curr) == EnumBP.Gap.ascii || group.getRef(curr) == EnumBP.N.ascii || group.getRef(curr) == 'n'); ++curr) {}
+      for (++curr; curr < end && (group.getRef(curr) == EnumBP.Gap.ascii || EnumBP.ascii2value(group.getRef(curr)) == EnumBP.N.value ); ++curr) {}
       return curr;
     }
 

@@ -164,7 +164,7 @@ public class EventIterator implements Iterator<Event> {
     }
 
     for (byte entry : key_) {
-      if (EnumBP.N.ascii == entry) {
+      if (EnumBP.N.value == EnumBP.ascii2value(entry)) {
         valid = false;
         break;
       }
@@ -210,7 +210,7 @@ public class EventIterator implements Iterator<Event> {
 
     // make sure the left flank is "intact"
     for (int pos = start - anchor; pos < start; ++pos) {
-      if (alignment_.getRef(pos) != EnumBP.N.ascii && alignment_.getRef(pos) != EnumBP.Gap.ascii && alignment_.getSeq(pos) == alignment_.getRef(pos)) {
+      if (EnumBP.ascii2value(alignment_.getRef(pos)) != EnumBP.N.value && alignment_.getRef(pos) != EnumBP.Gap.ascii && alignment_.getSeq(pos) == alignment_.getRef(pos)) {
         tmp[kk++] = alignment_.getRef(pos);
       } else {
         return null;
@@ -243,7 +243,7 @@ public class EventIterator implements Iterator<Event> {
     */
     // make sure the right flank is "intact"
     for (int pos = next_diff; kk < tmp.length && pos < alignment_.size(); ++pos) {
-      if (alignment_.getRef(pos) != EnumBP.N.ascii && alignment_.getRef(pos) != EnumBP.Gap.ascii && alignment_.getSeq(pos) == alignment_.getRef(pos)) {
+      if (EnumBP.ascii2value(alignment_.getRef(pos)) != EnumBP.N.value && alignment_.getRef(pos) != EnumBP.Gap.ascii && alignment_.getSeq(pos) == alignment_.getRef(pos)) {
         tmp[kk++] = alignment_.getRef(pos);
       } else {
         return null;

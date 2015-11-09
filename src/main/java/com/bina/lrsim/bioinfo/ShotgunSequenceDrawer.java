@@ -45,7 +45,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
       if (rc) {
         for (int ss = 0, cc = ref_seq.length - 1 - begin; ss < length; ++ss, --cc) {
           sequence[ss] = EnumBP.ascii_rc(ref_seq[cc]);
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') {
+          if (EnumBP.ascii2value(sequence[ss]) == EnumBP.N.value) {
             ++number_of_n;
           }
         }
@@ -54,7 +54,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
       } else {
         for (int ss = 0; ss < length; ++ss) {
           sequence[ss] = ref_seq[begin + ss];
-          if (sequence[ss] == 'N' || sequence[ss] == 'n') {
+          if (EnumBP.ascii2value(sequence[ss]) == EnumBP.N.value) {
             ++number_of_n;
           }
         }
