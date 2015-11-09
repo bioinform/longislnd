@@ -93,6 +93,11 @@ public class BaxH5Reader implements RegionGroup {
     public FastqRecord next() {
       return this.hasNext() ? queue.remove() : null;
     }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   @Override
