@@ -3,11 +3,13 @@ package com.bina.lrsim.h5.cmp;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.h5.H5AppendableByteArray;
 import com.bina.lrsim.h5.H5ScalarDSIO;
+import com.bina.lrsim.h5.Attributes;
 import htsjdk.samtools.*;
 import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
+import ncsa.hdf.object.h5.H5Group;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -40,6 +42,15 @@ public class CmpH5Writer implements Closeable {
 
   public CmpH5Writer(String filename, File fasta) {
     this.h5 = new H5File(filename, FileFormat.CREATE);
+    try {
+      H5Group grp = (H5Group) h5.get("/");
+      Attributes att = new Attributes();
+      att.add("Version", new String[] {"2.0.0"}, null, false);
+      att.add("ReadType", new String[] {"standard"}, null, false);
+      att.writeTo(grp);
+    } catch (Exception e) {
+      throw new RuntimeException("failed to create group /");
+    }
     try {
       this.references = new IndexedFastaSequenceFile(fasta);
     } catch (FileNotFoundException e) {
@@ -96,7 +107,8 @@ public class CmpH5Writer implements Closeable {
     final int second_slash = record.getReadName().indexOf('/', first_slash + 1);
     final int minus = record.getReadName().indexOf('-', first_slash + 1);
 
-    final int hole = Integer.valueOf(record.getReadName().substring(first_slash + 1, (second_slash >= 0) ? second_slash : minus));
+//    final int hole = Integer.valueOf(record.getReadName().substring(first_slash + 1, (second_slash >= 0) ? second_slash : minus));
+    final int hole = Integer.valueOf(record.getReadName().substring(first_slash + 1, (second_slash >= 0) ? second_slash : (minus >= 0 ? minus : record.getReadName().length())));
 
     final int pass = (minus >= 0) ? Integer.valueOf(record.getReadName().substring(minus + 1)) : 0; // this is to pick up cobbsalad ccs notation
 
@@ -214,7 +226,7 @@ public class CmpH5Writer implements Closeable {
     index[EnumIdx.MoleculeID.value] = hole;
     index[EnumIdx.rStart.value] = rStart;
     index[EnumIdx.rEnd.value] = rEnd;
-    index[EnumIdx.MapQV.value] = 254;
+    index[EnumIdx.MapQV.value] = record.getMappingQuality();
     index[EnumIdx.nM.value] = match;
     index[EnumIdx.nMM.value] = mismatch;
     index[EnumIdx.nIns.value] = ins;
@@ -303,11 +315,31 @@ public class CmpH5Writer implements Closeable {
       H5ScalarDSIO.Write(h5, "/RefInfo/FullName", sBuffer, dims, false);
       for (int ii = 1; ii <= last_index; ++ii) {
         iBuffer[ii - 1] = this.references.getSequenceDictionary().getSequence(sBuffer[ii-1]).getSequenceLength();
+        sBuffer[ii - 1] = "Fake"+String.valueOf(ii);
       }
       H5ScalarDSIO.Write(h5, "/RefInfo/Length", iBuffer, dims, false);
+      H5ScalarDSIO.Write(h5, "/RefInfo/MD5", sBuffer, dims, false);
     } catch (Exception e) {
       e.printStackTrace();
       log.error("failed to write RefInfo");
+    }
+    // FileLog
+    try {
+      h5.createGroup("/FileLog", null);
+      final long[] dims = new long[] {(long) 1};
+      String[] sBuffer = new String[1];
+      int[] iBuffer = new int[1];
+      sBuffer[0] = "fake";
+      iBuffer[0] = 1;
+
+      H5ScalarDSIO.Write(h5, "/FileLog/CommandLine", sBuffer, dims, false);
+      H5ScalarDSIO.Write(h5, "/FileLog/ID", iBuffer, dims, false);
+      H5ScalarDSIO.Write(h5, "/FileLog/Log", sBuffer, dims, false);
+      H5ScalarDSIO.Write(h5, "/FileLog/Program", sBuffer, dims, false);
+      H5ScalarDSIO.Write(h5, "/FileLog/Timestamp", sBuffer, dims, false);
+      H5ScalarDSIO.Write(h5, "/FileLog/Version", sBuffer, dims, false);
+    } catch (Exception e) {
+      log.error("failed to write FileLog");
     }
     try {
       h5.close();
