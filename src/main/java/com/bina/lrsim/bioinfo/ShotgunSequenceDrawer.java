@@ -30,7 +30,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
   protected Fragment getSequenceImpl(int length, RandomGenerator gen) {
     final boolean rc = gen.nextBoolean();
     final long num_bases = ref_cdf_.get(ref_cdf_.size() - 1);
-    final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : gen.nextLong() % num_bases;
+    final long pos = (num_bases <= Integer.MAX_VALUE) ? gen.nextInt((int) num_bases) : (gen.nextLong() % num_bases + num_bases) % num_bases;
 
     int ref_idx = 0;
     for (; ref_idx < ref_cdf_.size() && pos >= ref_cdf_.get(ref_idx); ++ref_idx) {}
