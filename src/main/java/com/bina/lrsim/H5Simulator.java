@@ -100,7 +100,10 @@ public class H5Simulator {
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS, max_fragment_length);
+
+    final int min_fragment_length = 800; // this is a last-minute crazy hack need to fix before release
+    final int max_num_passes = 15; // this is a last-minute crazy hack need to fix before release
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS, min_fragment_length, max_fragment_length, max_num_passes);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     // the following can be parallelized

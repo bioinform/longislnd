@@ -38,7 +38,9 @@ public class SamplesDrawer extends Samples {
   private HPBCPool hp_event_drawer_;
   private final PBSpec spec;
   private final long[] custom_frequency;
+  private final int min_fragment_length;
   private final int max_fragment_length;
+  private final int max_num_passes;
 
   /**
    * Constructor
@@ -50,10 +52,10 @@ public class SamplesDrawer extends Samples {
    * @param max_fragment_length restrict the fragment length that can be drawn
    * @throws IOException
    */
-  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, int max_fragment_length) throws IOException {
-    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, max_fragment_length);
+  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, int min_fragment_length, int max_fragment_length, int max_num_passes) throws IOException {
+    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, min_fragment_length, max_fragment_length, max_num_passes);
     for (int ii = 1; ii < prefixes.length; ++ii) {
-      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, max_fragment_length));
+      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, min_fragment_length, max_fragment_length, max_num_passes));
     }
     log.info(this.toString());
     log.info(this.stringifyKmerStats());
@@ -72,11 +74,13 @@ public class SamplesDrawer extends Samples {
    * @param max_fragment_length restrict the fragment length that can be drawn
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, int max_fragment_length) throws IOException {
+  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, int min_fragment_length, int max_fragment_length, int max_num_passes) throws IOException {
     super(prefix);
     this.spec = spec;
     this.custom_frequency = custom_frequency;
+    this.min_fragment_length = min_fragment_length;
     this.max_fragment_length = max_fragment_length;
+    this.max_num_passes = max_num_passes;
     if (this.custom_frequency != null) {
       log.info("using custom event frequencies");
     } else {
@@ -129,12 +133,16 @@ public class SamplesDrawer extends Samples {
    */
   public final Pair<int[], Integer> getRandomLengthScore(RandomGenerator gen) {
     final int index = gen.nextInt(getLengthSize());
-    final Pair<int[], Integer> ret = new Pair<int[], Integer>(getLength(index), getScore(index));
+    int[] local_length = getLength(index);
+    if(local_length.length > max_num_passes) {
+      local_length = Arrays.copyOf(local_length, max_num_passes);
+    }
+    final Pair<int[], Integer> ret = new Pair<int[], Integer>(local_length, getScore(index));
 
     // this is just a for(auto& :) in c++, don't know if there's better way in java
     final int[] ref = ret.getFirst();
     for (int ii = 0; ii < ref.length; ++ii) {
-      ref[ii] = Math.min(max_fragment_length, ref[ii]);
+      ref[ii] = Math.max(min_fragment_length, Math.min(max_fragment_length, ref[ii]));
     }
 
     return ret;
