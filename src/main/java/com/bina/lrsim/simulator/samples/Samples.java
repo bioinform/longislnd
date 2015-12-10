@@ -6,6 +6,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.Kmerizer;
@@ -15,8 +16,7 @@ import com.bina.lrsim.util.ArrayUtils;
 /**
  * Created by bayo on 5/10/15.
  * 
- * Base class which unifies I/O of sampling mechanism, see SampleCollector (write) and SampleDrawer
- * (read)
+ * Base class which unifies I/O of sampling mechanism, see SampleCollector (write) and SampleDrawer (read)
  */
 public abstract class Samples {
   private final static Logger base_log = Logger.getLogger(Samples.class.getName());
@@ -276,7 +276,7 @@ public abstract class Samples {
     for (int ii = 0; ii < new_size; ++ii) {
       final int num_inserts = dis.readInt();
       int[] tmp = new int[num_inserts];
-      for(int jj = 0; jj < num_inserts; ++jj) {
+      for (int jj = 0; jj < num_inserts; ++jj) {
         tmp[jj] = dis.readInt();
       }
       lengths_.add(tmp);
@@ -296,6 +296,27 @@ public abstract class Samples {
     base_log.info("loaded " + scores_.size() + " score");
   }
 
+  protected final void filterScoreLength(LengthLimits limits) {
+    ArrayList<int[]> new_lengths_ = new ArrayList<int[]>(lengths_.size());
+    ArrayList<Integer> new_scores_ = new ArrayList<Integer>(scores_.size());
+
+    for (int idx = 0; idx < lengths_.size(); ++idx) {
+      final int num_passes = lengths_.get(idx).length;
+      if (num_passes < limits.min_num_passes || num_passes > limits.max_num_passes) {
+        continue;
+      }
+      final int local_max = NumberUtils.max(lengths_.get(idx));
+      if (local_max < limits.min_fragment_length || local_max > limits.max_fragment_length) {
+        continue;
+      }
+      new_lengths_.add(lengths_.get(idx));
+      new_scores_.add(scores_.get(idx));
+    }
+    base_log.info("length distribution filtering decreased samples from " + lengths_.size() + " to " + new_lengths_.size());
+    lengths_ = new_lengths_;
+    scores_ = new_scores_;
+  }
+
   public enum Suffixes {
     EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr");
     private String suffix_;
@@ -306,6 +327,20 @@ public abstract class Samples {
 
     public String filename(String prefix) {
       return prefix + suffix_;
+    }
+  }
+
+  static public class LengthLimits {
+    public final int min_fragment_length;
+    public final int max_fragment_length;
+    public final int min_num_passes;
+    public final int max_num_passes;
+
+    public LengthLimits(int min_fragment_length, int max_fragment_length, int min_num_passes, int max_num_passes) {
+      this.min_fragment_length = min_fragment_length;
+      this.max_fragment_length = max_fragment_length;
+      this.min_num_passes = min_num_passes;
+      this.max_num_passes = max_num_passes;
     }
   }
 }

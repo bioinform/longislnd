@@ -38,9 +38,6 @@ public class SamplesDrawer extends Samples {
   private HPBCPool hp_event_drawer_;
   private final PBSpec spec;
   private final long[] custom_frequency;
-  private final int min_fragment_length;
-  private final int max_fragment_length;
-  private final int max_num_passes;
 
   /**
    * Constructor
@@ -49,18 +46,19 @@ public class SamplesDrawer extends Samples {
    * @param spec specification of data fields, etc
    * @param max_sample maximum number of samples stored in compressed way
    * @param custom_frequency if not null, override per-kmer event frequency with this
-   * @param max_fragment_length restrict the fragment length that can be drawn
+   * @param len_limits restrict length properties
    * @throws IOException
    */
-  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, int min_fragment_length, int max_fragment_length, int max_num_passes) throws IOException {
-    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, min_fragment_length, max_fragment_length, max_num_passes);
+  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, LengthLimits len_limits) throws IOException {
+    this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, len_limits);
     for (int ii = 1; ii < prefixes.length; ++ii) {
-      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, min_fragment_length, max_fragment_length, max_num_passes));
+      accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, len_limits));
     }
     log.info(this.toString());
     log.info(this.stringifyKmerStats());
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefixes, max_sample, artificial_clean_ins);
+    super.filterScoreLength(len_limits);
   }
 
   /**
@@ -71,16 +69,13 @@ public class SamplesDrawer extends Samples {
    * @param spec specification of data fields, etc
    * @param max_sample maximum number of samples stored in compressed way
    * @param custom_frequency if not null, override per-kmer event frequency with this
-   * @param max_fragment_length restrict the fragment length that can be drawn
+   * @param len_limits restrict length properties
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, int min_fragment_length, int max_fragment_length, int max_num_passes) throws IOException {
+  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, LengthLimits len_limits) throws IOException {
     super(prefix);
     this.spec = spec;
     this.custom_frequency = custom_frequency;
-    this.min_fragment_length = min_fragment_length;
-    this.max_fragment_length = max_fragment_length;
-    this.max_num_passes = max_num_passes;
     if (this.custom_frequency != null) {
       log.info("using custom event frequencies");
     } else {
@@ -89,6 +84,7 @@ public class SamplesDrawer extends Samples {
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefix, max_sample, artificial_clean_ins);
+    super.filterScoreLength(len_limits);
   }
 
   private AddBehavior calculateAddBehavior(long[] custom_frequency) {
@@ -133,19 +129,7 @@ public class SamplesDrawer extends Samples {
    */
   public final Pair<int[], Integer> getRandomLengthScore(RandomGenerator gen) {
     final int index = gen.nextInt(getLengthSize());
-    int[] local_length = getLength(index);
-    if(local_length.length > max_num_passes) {
-      local_length = Arrays.copyOf(local_length, max_num_passes);
-    }
-    final Pair<int[], Integer> ret = new Pair<int[], Integer>(local_length, getScore(index));
-
-    // this is just a for(auto& :) in c++, don't know if there's better way in java
-    final int[] ref = ret.getFirst();
-    for (int ii = 0; ii < ref.length; ++ii) {
-      ref[ii] = Math.max(min_fragment_length, Math.min(max_fragment_length, ref[ii]));
-    }
-
-    return ret;
+    return new Pair<int[], Integer>(getLength(index), getScore(index));
   }
 
   /**

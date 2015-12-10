@@ -23,7 +23,7 @@ import com.bina.lrsim.util.Monitor;
  */
 public class H5Simulator {
   private final static Logger log = Logger.getLogger(H5Simulator.class.getName());
-  private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [max fragment length] [" + EnumEvent.getListDescription() + "]";
+  private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [min fragment length ] [max fragment length] [min passes] [max passes] [" + EnumEvent.getListDescription() + "]";
 
   /**
    * create a file of simulated reads based on the given FASTA and model
@@ -45,15 +45,21 @@ public class H5Simulator {
     final int sample_per = Integer.parseInt(args[7]);
     final int seed = Integer.parseInt(args[8]);
 
-    final int max_fragment_length = (args.length > 9) ? Integer.parseInt(args[9]) : Integer.MAX_VALUE;
+    final int min_fragment_length = (args.length > 9) ? Integer.parseInt(args[9]) : 0;
+
+    final int max_fragment_length = (args.length > 10) ? Integer.parseInt(args[10]) : Integer.MAX_VALUE;
     if (max_fragment_length < 1) {
       log.info("maximum fragment length cannot be non-positive");
       System.exit(1);
     }
 
+    final int min_num_passes = (args.length > 11) ? Integer.parseInt(args[11]) : 0;
+
+    final int max_num_passes = (args.length > 12) ? Integer.parseInt(args[12]) : Integer.MAX_VALUE;
+
     long[] events_frequency = null;
-    if (args.length > 10) {
-      String[] idsm = args[10].split(":");
+    if (args.length > 13) {
+      String[] idsm = args[13].split(":");
       if (idsm.length != EnumEvent.values().length) {
         log.info(usage);
         log.info("event frequency must be a set of integers " + EnumEvent.getListDescription());
@@ -100,10 +106,8 @@ public class H5Simulator {
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 
-
-    final int min_fragment_length = 800; // this is a last-minute crazy hack need to fix before release
-    final int max_num_passes = 15; // this is a last-minute crazy hack need to fix before release
-    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS, min_fragment_length, max_fragment_length, max_num_passes);
+    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(min_fragment_length, max_fragment_length, min_num_passes, max_num_passes);
+    final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     // the following can be parallelized
