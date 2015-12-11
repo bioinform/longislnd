@@ -9,7 +9,7 @@ import java.util.Arrays;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.bioinfo.Kmerizer;
+import com.bina.lrsim.bioinfo.*;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.util.ArrayUtils;
 
@@ -301,12 +301,12 @@ public abstract class Samples {
     ArrayList<Integer> new_scores_ = new ArrayList<Integer>(scores_.size());
 
     for (int idx = 0; idx < lengths_.size(); ++idx) {
-      final int num_passes = lengths_.get(idx).length;
-      if (num_passes < limits.min_num_passes || num_passes > limits.max_num_passes) {
-        continue;
-      }
       final int local_max = NumberUtils.max(lengths_.get(idx));
-      if (local_max < limits.min_fragment_length || local_max > limits.max_fragment_length) {
+      int num_passes = 0;
+      for(int length: lengths_.get(idx)) {
+        if (length > Heuristics.SMRT_INSERT_FRACTION * local_max) { ++num_passes; } // ugly hack, should be done something else, no time to fix
+      }
+      if ( num_passes < limits.min_num_passes || num_passes > limits.max_num_passes || local_max > limits.max_fragment_length || local_max < limits.min_fragment_length) {
         continue;
       }
       new_lengths_.add(lengths_.get(idx));
