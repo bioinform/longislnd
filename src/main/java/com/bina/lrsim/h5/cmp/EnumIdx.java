@@ -29,13 +29,9 @@ enum EnumIdx {
     nBackRead   (20),
     nBackOverlap(21);
 
-    public int value() {
-        return value_;
-    }
+  EnumIdx(int value) {
+    this.value = value;
+  }
 
-    EnumIdx(int value) {
-        value_ = value;
-    }
-
-    private final int value_;
+  public final int value;
 }

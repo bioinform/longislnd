@@ -4,51 +4,27 @@ package com.bina.lrsim.h5.pb;
  * Created by bayo on 5/2/15.
  */
 
-import java.util.EnumSet;
-
 public enum EnumDat {
-    BaseCall       (0, "/Basecall"), //for bax
-    AlnArray       (0, "/AlnArray"), //for cmp
-    DeletionQV     (1, "/DeletionQV"),
-    DeletionTag    (2, "/DeletionTag"),
-    InsertionQV    (3, "/InsertionQV"),
-    MergeQV        (4, "/MergeQV"),
-    QualityValue   (5, "/QualityValue"),
-    SubstitutionQV (6, "/SubstitutionQV"),
-    SubstitutionTag(7, "/SubstitutionTag");
+  BaseCall(0, "/Basecall", false, false), // for bax
+  AlnArray(0, "/AlnArray", false, false), // for cmp
+  DeletionQV(1, "/DeletionQV", false, true),
+  DeletionTag(2, "/DeletionTag", false, false),
+  InsertionQV(3, "/InsertionQV", false, true),
+  MergeQV(4, "/MergeQV", false, true),
+  QualityValue(5, "/QualityValue", false, true),
+  SubstitutionQV(6, "/SubstitutionQV", false, true),
+  SubstitutionTag(7, "/SubstitutionTag", false, false);
+  public static int numBytes = 8;
 
-    static public String[] getContentDescription(){
-        return new String[]
-                {"Basecall","DeletionQV","DeletionTag","InsertionQV","MergeQV","QualityValue","SubstitutionQV","SubstitutionTag"
-                ,"uint8",   "uint8",     "uint8",      "uint8",      "uint8",  "uint8",       "uint8",         "uint8"};
+  public final int value;
+  public final String path;
+  public final boolean isSigned;
+  public final boolean isScore;
 
-    }
-
-    static public EnumSet<EnumDat> getBaxSet() {
-        return EnumSet.complementOf(EnumSet.of(AlnArray));
-    }
-
-    static public EnumSet<EnumDat> getCmpSet() {
-        return EnumSet.complementOf(EnumSet.of(BaseCall));
-    }
-
-    static public EnumSet<EnumDat> getNonBaseSet() {
-        return EnumSet.complementOf(EnumSet.of(BaseCall, AlnArray));
-    }
-
-    public int value() {
-        return value_;
-    }
-
-    public String path() {
-        return path_;
-    }
-
-    EnumDat(int value, String path) {
-        value_ = value;
-        path_ = path;
-    }
-
-    private final int value_;
-    private final String path_;
+  EnumDat(int value, String path, boolean isSigned, boolean isScore) {
+    this.value = value;
+    this.path = path;
+    this.isSigned = isSigned;
+    this.isScore = isScore;
+  }
 }

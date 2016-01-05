@@ -1,29 +1,44 @@
 package com.bina.lrsim.bioinfo;
 
+import java.util.Iterator;
 
 /**
- * Created by bayo on 5/11/15.
+ * Created by bayo on 5/13/15.
+ * <p/>
+ * a sequencing Context, eg a base call at position p plus flanking sequences
+ * <p/>
+ * kmer, hpLen are just common names of integers with unique mapping to a sequencing context
  */
 public class Context {
-    Context(byte[] ascii, int middle, int left_flank, int right_flank, boolean rc) throws Exception{
-        if(rc){
-            //obvious not the smartest, should use running sum, but let's refactor after homopolymer is in
-            final byte[] tmp = new byte[left_flank+right_flank+1];
+  private final int kmer_;
+  private final int hp_len_;
 
-            int curr = ascii.length - 1 - (middle - left_flank);
-            for(int idx = 0 ; idx < tmp.length ; ++idx, --curr) {
-                tmp[idx] = EnumBP.ascii_rc(ascii[curr]);
-            }
-            kmer_ = Kmerizer.fromASCII(tmp);
-        }
-        else {
-            kmer_ = Kmerizer.fromASCII(ascii, middle-left_flank, middle+right_flank+1);
-        }
-    }
+  public Context(int kmer, int hp_len) {
+    kmer_ = kmer;
+    hp_len_ = hp_len;
+  }
 
-    private int kmer_;
+  public final int kmer() {
+    return kmer_;
+  }
 
-    public int kmer() {
-        return kmer_;
-    }
+  public final int hp_len() {
+    return hp_len_;
+  }
+
+  public String toString() {
+    return String.valueOf(kmer()) + " " + String.valueOf(hp_len());
+  }
+
+
+  /**
+   * decompose a possibly complicated context into a series of simpler contexts
+   * 
+   * @param leftFlank left flank of the resulting iterator
+   * @param rightFlank right flank of the resulting iterator
+   * @return
+   */
+  public Iterator<Context> decompose(int leftFlank, int rightFlank) {
+    throw new UnsupportedOperationException("cannot find a simpler decomposition");
+  }
 }

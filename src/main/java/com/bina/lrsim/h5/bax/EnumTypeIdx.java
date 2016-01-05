@@ -3,30 +3,18 @@ package com.bina.lrsim.h5.bax;
 /**
  * Created by bayo on 5/6/15.
  */
-enum EnumTypeIdx {
-    TypeAdapter (0,"Adapter"),
-    TypeInsert(1, "Insert"),
-    TypeHQRegion(2, "HQRegion");
+public enum EnumTypeIdx {
+  TypeAdapter(0, "Adapter"), TypeInsert(1, "Insert"), TypeHQRegion(2, "HQRegion");
 
-    static String[] getDescriptionArray() {
-        return new String[]{ TypeAdapter.description()
-                           , TypeInsert.description()
-                           , TypeHQRegion.description()};
-    }
+  static String[] getDescriptionArray() {
+    return new String[] {TypeAdapter.description, TypeInsert.description, TypeHQRegion.description};
+  }
 
-    public int value() {
-        return value_;
-    }
+  EnumTypeIdx(int value, String description) {
+    this.value = value;
+    this.description = description;
+  }
 
-    public String description() {
-        return description_;
-    }
-
-    EnumTypeIdx(int value, String description) {
-        value_ = value;
-        description_ = description;
-    }
-
-    private final String description_;
-    private final int value_;
+  public final String description;
+  public final int value;
 }

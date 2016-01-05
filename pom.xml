@@ -2,12 +2,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.bina.hdf5</groupId>
-    <artifactId>hdf5</artifactId>
+    <groupId>com.bina.lrsim</groupId>
+    <artifactId>lrsim</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
-    <name>hdf5</name>
+    <name>lrsim</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -58,11 +58,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputFile>H5Test.jar</outputFile>
+                            <outputFile>LRSim.jar</outputFile>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.bina.lrsim.H5Test
+                                    <mainClass>com.bina.lrsim.LRSim
                                     </mainClass>
                                 </transformer>
                             </transformers>
@@ -72,21 +72,40 @@
 
                 </executions>
             </plugin>
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.8</version>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.maven.surefire</groupId>
+                    <!-- Use the older JUnit 4 provider -->
+                    <artifactId>surefire-junit4</artifactId>
+                    <version>2.8</version>
+                </dependency>
+            </dependencies>
+            </plugin>
+
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.5</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.seqdoop</groupId>
+            <groupId>com.github.samtools</groupId>
             <artifactId>htsjdk</artifactId>
-            <version>1.118</version>
+            <version>1.129</version>
         </dependency>
         <dependency>
             <groupId>args4j</groupId>
@@ -130,14 +149,8 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.2.3</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.scala-saddle</groupId>
-            <artifactId>saddle-hdf5_2.11</artifactId>
-            <version>1.3.3</version>
-        </dependency>
-        -->
 
+<!--
         <dependency>
             <groupId>com.bina.foobar</groupId>
             <artifactId>hdf5</artifactId>
@@ -168,10 +181,88 @@
             <artifactId>slf4j-api-1.7.5</artifactId>
             <version>SNAPSHOT-1.0.0</version>
         </dependency>
+-->
+<!--
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarnc2obj</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarh4obj</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+-->
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarh5obj</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+<!--
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>fits</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>netcdf</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>slf4jnop</artifactId>
+            <version>1.7.5-SNAPSHOT</version>
+        </dependency>
+-->
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarhdf5</artifactId>
+            <version>2.11.0-SNAPSHOT</version>
+        </dependency>
+<!--
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarfitsobj</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>slf4japi</artifactId>
+            <version>1.7.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarhdf</artifactId>
+            <version>2.11.0-SNAPSHOT</version>
+        </dependency>
+-->
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jarhdfobj</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+<!--
+        <dependency>
+            <groupId>com.bina</groupId>
+            <artifactId>jhdfview</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+-->
+
         <dependency>
             <groupId>org.biojava</groupId>
             <artifactId>biojava-genome</artifactId>
             <version>4.0.0</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
+    </repositories>
+
 </project>
