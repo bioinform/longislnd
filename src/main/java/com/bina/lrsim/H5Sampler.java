@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.h5.cmp.CmpH5Reader;
-import com.bina.lrsim.pb.PBBaxSpec;
+import com.bina.lrsim.pb.PBBaxSampleSpec;
 import com.bina.lrsim.pb.PBCcsSpec;
 import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroupFactory;
@@ -43,7 +43,7 @@ public class H5Sampler {
 
     switch (read_type) {
       case "bax":
-        spec = new PBBaxSpec();
+        spec = new PBBaxSampleSpec();
         break;
       case "ccs":
         spec = new PBCcsSpec();
