@@ -120,7 +120,6 @@ public class SimulatorDriver {
       simulated_bases += target + 1;
     }
 
-
     log.info("finished.");
   }
 

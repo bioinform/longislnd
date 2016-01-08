@@ -24,17 +24,23 @@ import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.pb.PBSpec;
 
-public class BaxH5Writer {
+public class BaxH5Writer implements AutoCloseable{
 
   private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
   private final DataBuffer buffer_;
   private final PBSpec spec;
   private final ArrayList<Locus> loci_;
+  private final String filename_;
+  private final String moviename_;
+  private final int firsthole_;
 
-  public BaxH5Writer(PBSpec spec) {
+  public BaxH5Writer(PBSpec spec, String filename, String moviename, int firsthole) {
     this.spec = spec;
     buffer_ = new DataBuffer(spec, 100000);
     this.loci_ = new ArrayList<Locus>();
+    this.filename_ = filename;
+    this.moviename_ = moviename;
+    this.firsthole_ = firsthole;
   }
 
   public void writeLociBed(String prefix, String moviename, int firsthole) {
@@ -70,18 +76,19 @@ public class BaxH5Writer {
     }
   }
 
-  public void write(String filename, String moviename, int firsthole) {
-    log.info("Writing to " + filename + " as movie " + moviename);
-    H5File h5 = new H5File(filename, FileFormat.CREATE);
+  @Override
+  public void close() throws IOException {
+    log.info("Writing to " + this.filename_ + " as movie " + this.moviename_);
+    H5File h5 = new H5File(this.filename_, FileFormat.CREATE);
     try {
       h5.open();
-      AttributesFactory af = new AttributesFactory(size(), moviename, spec);
+      AttributesFactory af = new AttributesFactory(size(), this.moviename_, spec);
       writeGroups(h5, af);
       writeBaseCalls(h5, af);
-      writeZWM(h5, firsthole);
-      writeRegions(h5, firsthole);
+      writeZWM(h5, this.firsthole_);
+      writeRegions(h5, this.firsthole_);
       h5.close();
-      writeLociBed(filename, moviename, firsthole);
+      writeLociBed(this.filename_, this.moviename_, this.firsthole_);
     } catch (IOException e) {
       // The HDF5 API throws the base class Exception, so let's just catch them all and rethrow
       // run-time exception
@@ -336,4 +343,5 @@ public class BaxH5Writer {
       att.writeTo(obj);
     }
   }
+
 }
