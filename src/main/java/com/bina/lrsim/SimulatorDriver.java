@@ -21,8 +21,8 @@ import com.bina.lrsim.util.Monitor;
 /**
  * Created by bayo on 5/11/15.
  */
-public class H5Simulator {
-  private final static Logger log = Logger.getLogger(H5Simulator.class.getName());
+public class SimulatorDriver {
+  private final static Logger log = Logger.getLogger(SimulatorDriver.class.getName());
   private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [min fragment length ] [max fragment length] [min passes] [max passes] [" + EnumEvent.getListDescription() + "]";
 
   /**

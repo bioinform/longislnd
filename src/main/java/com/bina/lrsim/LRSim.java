@@ -24,7 +24,7 @@ public class LRSim {
 
     switch (args[0]) {
       case "simulate": // run simulator
-        H5Simulator.main(pass_args);
+        SimulatorDriver.main(pass_args);
         break;
 
       case "sample": // run sampling
