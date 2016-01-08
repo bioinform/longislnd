@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
 
 import com.bina.lrsim.h5.Attributes;
 import com.bina.lrsim.h5.H5ScalarDSIO;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 
 public class BaxH5Writer {
 

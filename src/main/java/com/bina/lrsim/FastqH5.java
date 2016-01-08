@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.bina.lrsim.h5.bax.BaxH5Writer;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.sam.PBFastqSpec;
 import htsjdk.samtools.fastq.FastqReader;
 import htsjdk.samtools.fastq.FastqRecord;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/11/15.

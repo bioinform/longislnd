@@ -5,7 +5,7 @@ package com.bina.lrsim.h5.cmp;
  */
 
 import com.bina.lrsim.h5.H5ScalarDSIO;
-import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.pb.EnumDat;
 import ncsa.hdf.object.h5.H5File;
 
 class AlnData {

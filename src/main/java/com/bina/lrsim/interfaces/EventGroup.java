@@ -2,8 +2,8 @@ package com.bina.lrsim.interfaces;
 
 import java.util.Iterator;
 
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 
 /**

@@ -6,8 +6,8 @@ import java.util.Calendar;
 import java.util.EnumMap;
 
 import com.bina.lrsim.h5.Attributes;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/7/15.

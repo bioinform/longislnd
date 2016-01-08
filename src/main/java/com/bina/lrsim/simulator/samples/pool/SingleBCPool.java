@@ -6,9 +6,9 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 
 /**

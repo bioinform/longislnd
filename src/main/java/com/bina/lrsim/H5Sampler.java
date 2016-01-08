@@ -5,9 +5,9 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.h5.cmp.CmpH5Reader;
-import com.bina.lrsim.h5.pb.PBBaxSpec;
-import com.bina.lrsim.h5.pb.PBCcsSpec;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBBaxSpec;
+import com.bina.lrsim.pb.PBCcsSpec;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 import com.bina.lrsim.sam.SamReader;
 import com.bina.lrsim.simulator.samples.SamplesCollector;

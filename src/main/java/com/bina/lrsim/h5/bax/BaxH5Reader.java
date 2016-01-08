@@ -9,7 +9,7 @@ import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
 import com.bina.lrsim.h5.H5ScalarDSIO;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.RegionGroup;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;

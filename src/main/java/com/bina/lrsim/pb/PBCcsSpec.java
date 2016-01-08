@@ -1,13 +1,13 @@
-package com.bina.lrsim.h5.pb;
+package com.bina.lrsim.pb;
 
 import java.util.EnumSet;
 
 import com.bina.lrsim.h5.bax.EnumGroups;
 
 /**
- * Created by bayo on 5/25/15.
+ * Created by bayo on 5/26/15.
  */
-public class PBBaxSpec extends PBSpec {
+public class PBCcsSpec extends PBSpec {
   @Override
   public String[] getDataDescription() {
     return new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"};
@@ -16,42 +16,41 @@ public class PBBaxSpec extends PBSpec {
 
   @Override
   public EnumSet<EnumGroups> getGroupSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses));
+    return EnumSet.complementOf(EnumSet.of(EnumGroups.ZMW, EnumGroups.ZMWMetrics));
   }
 
   @Override
   public boolean writeAdapterInsert() {
-    return true;
+    return false;
   }
 
   @Override
   public EnumGroups getBaseCallsEnum() {
-    return EnumGroups.BaseCalls;
+    return EnumGroups.CBaseCalls;
   }
 
   @Override
   public EnumGroups getZMWEnum() {
-    return EnumGroups.ZMW;
+    return EnumGroups.CZMW;
   }
 
   @Override
   public EnumGroups getZMWMetricsEnum() {
-    return EnumGroups.ZMWMetrics;
+    return EnumGroups.CZMWMetrics;
   }
 
   @Override
   public String getSuffix() {
-    return ".bax.h5";
+    return ".ccs.h5";
   }
 
   @Override
   public EnumSet<EnumDat> getDataSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray));
+    return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV));
   }
 
   @Override
   public EnumSet<EnumDat> getNonBaseDataSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray));
+    return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.MergeQV));
   }
-
 }

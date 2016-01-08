@@ -3,8 +3,8 @@ package com.bina.lrsim.simulator.samples.pool;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 
 /**

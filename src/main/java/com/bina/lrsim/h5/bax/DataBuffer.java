@@ -2,8 +2,8 @@ package com.bina.lrsim.h5.bax;
 
 import java.util.ArrayList;
 
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/6/15.

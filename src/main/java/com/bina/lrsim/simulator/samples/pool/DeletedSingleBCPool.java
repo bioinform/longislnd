@@ -1,9 +1,8 @@
 package com.bina.lrsim.simulator.samples.pool;
 
 import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.Arrays;

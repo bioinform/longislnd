@@ -1,4 +1,4 @@
-package com.bina.lrsim.h5.pb;
+package com.bina.lrsim.pb;
 
 import org.apache.commons.math3.util.Pair;
 
