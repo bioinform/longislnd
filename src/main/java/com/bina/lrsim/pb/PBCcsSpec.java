@@ -46,11 +46,11 @@ public class PBCcsSpec extends PBSpec {
 
   @Override
   public EnumSet<EnumDat> getDataSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV));
+    return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1));
   }
 
   @Override
   public EnumSet<EnumDat> getNonBaseDataSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.MergeQV));
+    return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1));
   }
 }

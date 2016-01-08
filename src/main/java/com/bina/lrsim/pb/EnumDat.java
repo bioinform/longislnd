@@ -13,8 +13,9 @@ public enum EnumDat {
   MergeQV(4, "/MergeQV", false, true, new Identity()),
   QualityValue(5, "/QualityValue", false, true, new Identity()),
   SubstitutionQV(6, "/SubstitutionQV", false, true, new Identity()),
-  SubstitutionTag(7, "/SubstitutionTag", false, false, new Identity());
-  public static int numBytes = 8;
+  SubstitutionTag(7, "/SubstitutionTag", false, false, new Identity()),
+  IDPV1(8, "/PreBaseFrames", false, false, new IDPCodecV1Compression());
+  public static int numBytes = 9;
 
   public final int value;
   public final String path;

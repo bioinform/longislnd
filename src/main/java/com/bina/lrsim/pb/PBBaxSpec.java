@@ -11,7 +11,6 @@ public class PBBaxSpec extends PBSpec {
   @Override
   public String[] getDataDescription() {
     return new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"};
-
   }
 
   @Override
@@ -46,12 +45,12 @@ public class PBBaxSpec extends PBSpec {
 
   @Override
   public EnumSet<EnumDat> getDataSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray));
+    return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IDPV1));
   }
 
   @Override
   public EnumSet<EnumDat> getNonBaseDataSet() {
-    return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray));
+    return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.IDPV1));
   }
 
 }
