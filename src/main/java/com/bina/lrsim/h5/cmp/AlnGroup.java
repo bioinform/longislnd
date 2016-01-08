@@ -29,8 +29,8 @@ class AlnGroup {
 
   public boolean load(H5File h5) {
     try {
-      final int[] d = H5ScalarDSIO.<int[]>Read(h5, "/AlnGroup/ID");
-      final String[] s = H5ScalarDSIO.<String[]>Read(h5, "/AlnGroup/Path");
+      final int[] d = (int[]) H5ScalarDSIO.Read(h5, "/AlnGroup/ID");
+      final String[] s = (String[]) H5ScalarDSIO.Read(h5, "/AlnGroup/Path");
 
       if (d.length != s.length) throw new RuntimeException("inconsistent AlnGroup");
 

@@ -58,10 +58,10 @@ public class BaxH5Reader implements RegionGroup {
     ReadIterator(Iterator<Region> r) {
       regions = r;
       try {
-        holeNumber = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/HoleNumber");
-        numEvents = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/NumEvent");
-        seq = H5ScalarDSIO.<byte[]>Read(h5_, spec.getBaseCallsEnum().path + "/Basecall");
-        byte[] tmp = H5ScalarDSIO.<byte[]>Read(h5_, spec.getBaseCallsEnum().path + "/QualityValue");
+        holeNumber = (int[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/HoleNumber");
+        numEvents = (int[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/NumEvent");
+        seq = (byte[]) H5ScalarDSIO.Read(h5_, spec.getBaseCallsEnum().path + "/Basecall");
+        byte[] tmp = (byte[]) H5ScalarDSIO.Read(h5_, spec.getBaseCallsEnum().path + "/QualityValue");
         qual = Arrays.copyOf(tmp, tmp.length); // to be shifted by 33
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -114,20 +114,20 @@ public class BaxH5Reader implements RegionGroup {
     CCSRegionIterator() {
       curr = 0;
       try {
-        holeStatus = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
-        numEvents = H5ScalarDSIO.<int[]>Read(h5_, spec.getZMWEnum().path + "/NumEvent");
+        holeStatus = (byte[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
+        numEvents = (int[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/NumEvent");
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
       float[] fp;
       try {
-        fp = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
+        fp = (float[]) H5ScalarDSIO.Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
       } catch (IOException e) {
         fp = null;
       }
       try {
         if (null == fp) {
-          fp = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/PredictedAccuracy");
+          fp = (float[]) H5ScalarDSIO.Read(h5_, spec.getZMWMetricsEnum().path + "/PredictedAccuracy");
         }
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -163,9 +163,9 @@ public class BaxH5Reader implements RegionGroup {
     RegionIterator() {
       curr = 0;
       try {
-        regionData = H5ScalarDSIO.<int[]>Read(h5_, EnumGroups.PulseData.path + "/Regions");
-        holeScore = H5ScalarDSIO.<float[]>Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
-        holeStatus = H5ScalarDSIO.<byte[]>Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
+        regionData = (int[]) H5ScalarDSIO.Read(h5_, EnumGroups.PulseData.path + "/Regions");
+        holeScore = (float[]) H5ScalarDSIO.Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
+        holeStatus = (byte[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

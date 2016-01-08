@@ -23,7 +23,7 @@ class AlnData {
   public byte[] get(EnumDat f) {
     try {
       if (null == data_[f.value]) {
-        data_[f.value] = H5ScalarDSIO.<byte[]>Read(h5_, path_ + f.path);
+        data_[f.value] = f.mapper.execute(H5ScalarDSIO.Read(h5_, path_ + f.path));
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
