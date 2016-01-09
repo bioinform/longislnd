@@ -1,6 +1,6 @@
 package com.bina.lrsim.pb;
 
-import com.bina.lrsim.h5.bax.EnumGroups;
+import com.bina.lrsim.pb.h5.bax.EnumGroups;
 
 import java.util.EnumSet;
 

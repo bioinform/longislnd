@@ -14,7 +14,6 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.h5.bax.BaxH5Writer;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.RandomFragmentGenerator;

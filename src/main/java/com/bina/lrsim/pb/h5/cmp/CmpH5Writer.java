@@ -1,9 +1,9 @@
-package com.bina.lrsim.h5.cmp;
+package com.bina.lrsim.pb.h5.cmp;
 
 import com.bina.lrsim.bioinfo.EnumBP;
-import com.bina.lrsim.h5.H5AppendableByteArray;
-import com.bina.lrsim.h5.H5ScalarDSIO;
-import com.bina.lrsim.h5.Attributes;
+import com.bina.lrsim.pb.h5.H5AppendableByteArray;
+import com.bina.lrsim.pb.h5.H5ScalarDSIO;
+import com.bina.lrsim.pb.h5.Attributes;
 import htsjdk.samtools.*;
 import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;

@@ -1,4 +1,4 @@
-package com.bina.lrsim.h5.cmp;
+package com.bina.lrsim.pb.h5.cmp;
 
 /**
  * Created by bayo on 5/2/15.

@@ -1,4 +1,4 @@
-package com.bina.lrsim.h5.bax;
+package com.bina.lrsim.pb.h5.bax;
 
 /**
  * Created by bayo on 5/21/15.

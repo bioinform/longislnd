@@ -1,4 +1,4 @@
-package com.bina.lrsim.h5.bax;
+package com.bina.lrsim.pb.h5.bax;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;

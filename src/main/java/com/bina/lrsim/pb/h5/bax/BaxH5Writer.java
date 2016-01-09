@@ -1,11 +1,9 @@
-package com.bina.lrsim.h5.bax;
+package com.bina.lrsim.pb.h5.bax;
 
 /**
  * Created by bayo on 5/4/15.
  */
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -18,8 +16,8 @@ import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.h5.Attributes;
-import com.bina.lrsim.h5.H5ScalarDSIO;
+import com.bina.lrsim.pb.h5.Attributes;
+import com.bina.lrsim.pb.h5.H5ScalarDSIO;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.pb.PBSpec;

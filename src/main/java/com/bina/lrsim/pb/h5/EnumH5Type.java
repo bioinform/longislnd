@@ -1,4 +1,4 @@
-package com.bina.lrsim.h5;
+package com.bina.lrsim.pb.h5;
 
 import ncsa.hdf.object.Datatype;
 import ncsa.hdf.object.h5.H5Datatype;

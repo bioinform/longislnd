@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.h5.cmp.CmpH5Reader;
+import com.bina.lrsim.pb.h5.cmp.CmpH5Reader;
 import com.bina.lrsim.pb.PBBaxSampleSpec;
 import com.bina.lrsim.pb.PBCcsSpec;
 import com.bina.lrsim.pb.PBSpec;

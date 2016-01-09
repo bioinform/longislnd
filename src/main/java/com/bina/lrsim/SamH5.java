@@ -3,8 +3,7 @@ package com.bina.lrsim;
 import java.io.File;
 import java.io.IOException;
 
-import com.bina.lrsim.h5.H5Append;
-import com.bina.lrsim.h5.cmp.CmpH5Writer;
+import com.bina.lrsim.pb.h5.cmp.CmpH5Writer;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReaderFactory;
 import org.apache.log4j.Logger;

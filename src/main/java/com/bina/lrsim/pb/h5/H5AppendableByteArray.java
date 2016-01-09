@@ -1,4 +1,4 @@
-package com.bina.lrsim.h5;
+package com.bina.lrsim.pb.h5;
 
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;

@@ -1,6 +1,6 @@
 package com.bina.lrsim;
 
-import com.bina.lrsim.h5.bax.BaxH5Reader;
+import com.bina.lrsim.pb.h5.bax.BaxH5Reader;
 import com.bina.lrsim.pb.PBBaxSpec;
 import com.bina.lrsim.pb.PBCcsSpec;
 import com.bina.lrsim.pb.PBSpec;

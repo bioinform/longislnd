@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.bina.lrsim.h5.bax.BaxH5Writer;
+import com.bina.lrsim.pb.h5.bax.BaxH5Writer;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.sam.PBFastqSpec;
 import htsjdk.samtools.fastq.FastqReader;

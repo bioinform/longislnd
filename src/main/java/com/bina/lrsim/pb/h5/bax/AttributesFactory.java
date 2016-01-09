@@ -1,11 +1,11 @@
-package com.bina.lrsim.h5.bax;
+package com.bina.lrsim.pb.h5.bax;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.EnumMap;
 
-import com.bina.lrsim.h5.Attributes;
+import com.bina.lrsim.pb.h5.Attributes;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBSpec;
 
