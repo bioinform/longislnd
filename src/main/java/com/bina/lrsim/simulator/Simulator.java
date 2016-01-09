@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.bina.lrsim.bioinfo.*;
+import com.bina.lrsim.pb.ReadsWriter;
+import com.bina.lrsim.pb.ReadsWriterFactory;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
@@ -49,11 +51,11 @@ public class Simulator {
    * @param gen random number generator
    */
   public int simulate(final String path, final String movie_name, final int firsthole, SamplesDrawer drawer, int total_bases, final PBSpec spec, RandomGenerator gen) throws IOException {
-    try( BaxH5Writer writer = new BaxH5Writer(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, firsthole)) {
+    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, firsthole)) {
       PBReadBuffer read = new PBReadBuffer(spec);
       log.info("generating reads");
 
-      for (int num_bases = 0; num_bases < total_bases; ) {
+      for (int num_bases = 0; num_bases < total_bases;) {
         read.clear();
         if (read.size() != 0) {
           log.info("couldn't clear buffer");
@@ -108,7 +110,7 @@ public class Simulator {
               section_ends.add(read.size());
             }
             AppendState deletion = null;
-            for (Iterator<Context> itr = new HPIterator(fw_rc.get(ins_idx % 2), begin, end, drawer.left_flank(), drawer.right_flank(), drawer.hp_anchor()); itr.hasNext(); ) {
+            for (Iterator<Context> itr = new HPIterator(fw_rc.get(ins_idx % 2), begin, end, drawer.left_flank(), drawer.right_flank(), drawer.hp_anchor()); itr.hasNext();) {
               final Context con = itr.next();
               if (null != con) {
                 deletion = drawer.appendTo(read, con, deletion, gen, base_counter_);

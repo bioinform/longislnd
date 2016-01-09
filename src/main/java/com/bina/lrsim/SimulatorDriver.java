@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
+import com.bina.lrsim.pb.PBClrBamSpec;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
@@ -82,9 +83,12 @@ public class SimulatorDriver {
       case "ccs":
         spec = new PBCcsSpec();
         break;
+      case "clrbam":
+        spec = new PBClrBamSpec();
+        break;
       default:
         spec = null;
-        log.info("read_type must be bax or ccs");
+        log.info("read_type must be clrbam, bax, or ccs");
         log.info(usage);
         System.exit(1);
     }

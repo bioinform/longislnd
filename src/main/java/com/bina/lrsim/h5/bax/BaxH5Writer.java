@@ -24,56 +24,14 @@ import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.pb.PBSpec;
 
-public class BaxH5Writer implements AutoCloseable{
+public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
   private final DataBuffer buffer_;
-  private final PBSpec spec;
-  private final ArrayList<Locus> loci_;
-  private final String filename_;
-  private final String moviename_;
-  private final int firsthole_;
 
   public BaxH5Writer(PBSpec spec, String filename, String moviename, int firsthole) {
-    this.spec = spec;
-    buffer_ = new DataBuffer(spec, 100000);
-    this.loci_ = new ArrayList<Locus>();
-    this.filename_ = filename;
-    this.moviename_ = moviename;
-    this.firsthole_ = firsthole;
-  }
-
-  public void writeLociBed(String prefix, String moviename, int firsthole) {
-    boolean writing = false;
-    for (Locus entry : this.loci_) {
-      if (null != entry) {
-        writing = true;
-        break;
-      }
-    }
-    if (!writing) return;
-    try (FileWriter fw = new FileWriter(new File(prefix + ".bed"))) {
-      int shift = 0;
-      for (Locus entry : this.loci_) {
-        if (null != entry) {
-          fw.write(entry.getChrom());
-          fw.write('\t');
-          fw.write(String.valueOf(entry.getBegin0()));
-          fw.write('\t');
-          fw.write(String.valueOf(entry.getEnd0()));
-          fw.write('\t');
-          fw.write(moviename);
-          fw.write('/');
-          fw.write(String.valueOf(firsthole + shift));
-          fw.write("\t500\t");
-          fw.write(entry.isRc() ? '-' : '+');
-          fw.write(System.lineSeparator());
-        }
-        ++shift;
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    super(spec, filename, moviename, firsthole);
+    buffer_ = new DataBuffer(super.spec, 100000);
   }
 
   @Override
@@ -103,9 +61,10 @@ public class BaxH5Writer implements AutoCloseable{
     }
   }
 
+  @Override
   public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus) {
     buffer_.addLast(read, readLengths, score);
-    loci_.add(locus);
+    addLocus(locus);
   }
 
   private void writeGroups(H5File h5, AttributesFactory af) throws IOException {
@@ -218,6 +177,7 @@ public class BaxH5Writer implements AutoCloseable{
     }
   }
 
+  @Override
   public int size() {
     return buffer_.getNumReads();
   }
