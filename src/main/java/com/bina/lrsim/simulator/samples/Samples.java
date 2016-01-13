@@ -122,6 +122,7 @@ public abstract class Samples {
     loadStats(prefix);
     loadLengths(prefix);
     loadScores(prefix);
+    base_log.info(this.toString());
   }
 
   /**
@@ -191,7 +192,6 @@ public abstract class Samples {
       event_count_[ii] = dis.readLong();
     }
     dis.close();
-    base_log.info(this.toString());
   }
 
   /**
