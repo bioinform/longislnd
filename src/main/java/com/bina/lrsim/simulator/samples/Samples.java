@@ -27,9 +27,7 @@ public abstract class Samples {
   private ArrayList<int[]> lengths_;
   private ArrayList<Integer> scores_;
 
-  private long[] kmer_rlen_slen_count_;
-  private static final int max_rlen_ = 100;
-  private static final int max_slen_ = 200;
+  private KmerIntIntCounter kmer_rlen_slen_count_;
 
   private int left_flank_;
   private int right_flank_;
@@ -50,19 +48,19 @@ public abstract class Samples {
   }
 
   public int max_rlen() {
-    return max_rlen_;
+    return kmer_rlen_slen_count_.max1;
   }
 
   public int max_slen() {
-    return max_slen_;
+    return kmer_rlen_slen_count_.max2;
   }
 
   public final long kmer_rlen_slen_count(int kmer, int rlen, int slen) {
-    return kmer_rlen_slen_count_[(kmer * max_rlen_ + rlen) * max_slen_ + slen];
+    return kmer_rlen_slen_count_.get(kmer, rlen, slen);
   }
 
   public void add_kmer_rlen_slen_count(int kmer, int rlen, int slen) {
-    ++kmer_rlen_slen_count_[(kmer * max_rlen_ + rlen) * max_slen_ + slen];
+    kmer_rlen_slen_count_.increment(kmer, rlen, slen);
   }
 
   public final int getLengthSize() {
@@ -142,48 +140,25 @@ public abstract class Samples {
     kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
     lengths_ = new ArrayList<int[]>(1000);
     scores_ = new ArrayList<Integer>(1000);
-    kmer_rlen_slen_count_ = new long[(1 << (2 * (2 * hp_anchor + 1))) * max_rlen_ * max_slen_];
+    kmer_rlen_slen_count_ = new KmerIntIntCounter(2 * hp_anchor + 1, 100, 200);
   }
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("samples statistics\n");
-    sb.append(EnumEvent.getPrettyStats(event_base_count_));
+    sb.append("BP_STATS:" + EnumEvent.getPrettyStats(event_base_count_));
     sb.append("\n");
-    sb.append(EnumEvent.getPrettyStats(event_count_));
+    sb.append("EVENT_STATS: " + EnumEvent.getPrettyStats(event_count_));
     sb.append("\n");
     if (kmer_rlen_slen_count_ != null) {
-      for (int k = 0; k < (1 << (2 * (2 * hp_anchor_ + 1))); ++k) {
-        boolean print_header = true;
-        for (int r = 0; r < max_rlen(); ++r) {
-          long sum = 0;
-          for (int s = 0; s < max_slen(); ++s) {
-            sum += kmer_rlen_slen_count(k, r, s);
-          }
-          if (sum == 0) {
-            continue;
-          }
-          if (print_header) {
-            for (byte entry : Kmerizer.toByteArray(k, 5)) {
-              sb.append((char) entry);
-            }
-            sb.append("\n");
-            print_header = false;
-          }
-          sb.append(r + ":");
-          for (int s = 0; s < max_slen(); ++s) {
-            long tmp = kmer_rlen_slen_count(k, r, s);
-            if (tmp > 0) {
-              sb.append(" " + s + "-" + tmp);
-            }
-          }
-          sb.append("\n");
-        }
-      }
+      sb.append(kmer_rlen_slen_count_.reduce(hp_anchor(), hp_anchor() + 1).toString("HP_REDUCED_STATS: "));
+    }
+    sb.append(stringifyKmerStats("KMER_STATS: "));
+    if (kmer_rlen_slen_count_ != null) {
+      sb.append(kmer_rlen_slen_count_.toString("HP_STATS: "));
     }
     return sb.toString();
   }
-
 
   protected final void writeIdx(String prefix) throws IOException {
     DataOutputStream dos = new DataOutputStream(new FileOutputStream(Suffixes.IDX.filename(prefix)));
@@ -219,6 +194,18 @@ public abstract class Samples {
     base_log.info(this.toString());
   }
 
+  /**
+   * Write summary stats to a human readable file
+   * @param prefix prefix of model files
+   * @throws IOException
+   */
+  protected final void writeSummary(String prefix) throws IOException {
+    FileWriter writer = new FileWriter(new File(Suffixes.SUMMARY.filename(prefix)));
+    writer.write(this.toString());
+    writer.flush();
+    writer.close();
+  }
+
   protected final void writeStats(String prefix) throws IOException {
     RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix), "rw");
     FileChannel file = fos.getChannel();
@@ -240,18 +227,18 @@ public abstract class Samples {
     for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
       kmer_event_count_[ii] = buf.getLong();
     }
-    base_log.debug(stringifyKmerStats());
+    base_log.debug(stringifyKmerStats("KMER_STATS: "));
     file.close();
     fos.close();
   }
 
-  public final String stringifyKmerStats() {
+  public final String stringifyKmerStats(String prefix) {
     StringBuilder sb = new StringBuilder();
     long[] local_log = new long[EnumEvent.values().length];
     for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
       local_log[ii % EnumEvent.values().length] = kmer_event_count_[ii];
       if (ii % EnumEvent.values().length + 1 == EnumEvent.values().length) {
-        sb.append("KMER_STATS: " + Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
+        sb.append(prefix + Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
         double total = 0;
         for (long l : local_log) {
           total += l;
@@ -318,7 +305,7 @@ public abstract class Samples {
   }
 
   public enum Suffixes {
-    EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr");
+    EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr"), SUMMARY(".summary");
     private String suffix_;
 
     Suffixes(String s) {

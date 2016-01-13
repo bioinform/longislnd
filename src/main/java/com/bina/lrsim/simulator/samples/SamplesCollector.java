@@ -87,7 +87,6 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
     for (EventGroup group : groups) {
       if (ii % 10000 == 0 && ii != 0) {
         log.info("processing group " + ii);
-        log.info(toString());
       }
       if (null == group) {
         log.info("failed to retrieve group " + ii);
@@ -108,15 +107,12 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
    */
   @Override
   public void close() throws IOException {
-    log.info(this.stringifyKmerStats());
-
     if (null != eventOut_) {
       eventOut_.close();
     }
-
+    writeSummary(outPrefix_);
     writeStats(outPrefix_);
     writeIdx(outPrefix_);
-    // writeLengths(outPrefix_);
   }
 
 }
