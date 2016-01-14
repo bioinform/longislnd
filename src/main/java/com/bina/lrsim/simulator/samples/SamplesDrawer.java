@@ -252,7 +252,7 @@ public class SamplesDrawer extends Samples {
     long[] logged_event_count = new long[EnumEvent.values().length];
     // long num_logged_event = 0;
     // final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long) max_sample;
-    KmerIntIntCounter num_logged_events = new KmerIntIntCounter(k(), num_kmer(), 1);
+    KmerIntIntCounter num_logged_events = new KmerIntIntCounter(k(), EnumEvent.values().length, 1);
     final int min_event_index = EnumEvent.SUBSTITUTION.value; // assumes substitution is the rarest events
     final long[] min_event_threshold = new long[num_kmer()]; // -1 for done, 0 or 1 for not done
     for (int kk = 0; kk < num_kmer(); ++kk) {
