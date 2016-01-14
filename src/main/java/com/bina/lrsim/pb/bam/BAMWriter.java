@@ -6,6 +6,7 @@ import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.pb.ReadsWriter;
 import htsjdk.samtools.*;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,13 +19,14 @@ import java.util.EnumMap;
  * Created by bayolau on 1/8/16.
  */
 public class BAMWriter extends ReadsWriter {
-  final SAMFileWriter writer;
-  final SAMFileHeader header;
-  final SAMReadGroupRecord readGroupRecord;
-  final SAMProgramRecord programRecord;
-  final SAMRecord alignment;
-  final EnumMap<EnumDat, byte[]> enum_data = new EnumMap<>(EnumDat.class);
-  int num_reads;
+  private final static Logger log = Logger.getLogger(BAMWriter.class.getName());
+  private final SAMFileWriter writer;
+  private final SAMFileHeader header;
+  private final SAMReadGroupRecord readGroupRecord;
+  private final SAMProgramRecord programRecord;
+  private final SAMRecord alignment;
+  private final EnumMap<EnumDat, byte[]> enum_data = new EnumMap<>(EnumDat.class);
+  private int num_reads;
 
   public BAMWriter(PBSpec spec, String filename, String moviename, int firsthole) {
     super(spec, filename, moviename, firsthole);
@@ -96,7 +98,8 @@ public class BAMWriter extends ReadsWriter {
         AddScore("st", EnumDat.SubstitutionTag, begin, end);
         alignment.setAttribute("zm", Integer.valueOf(num_reads));
         final boolean forward = (index / 2) % 2 == 0;
-        alignment.setAttribute("cx", Integer.valueOf(1 | 2 | (forward ? 16 : 32)));
+        final Integer flag = (index == 0 ? 0 : 1) | (index + 1 < readLengths.size() ? 2 : 0) | (forward ? 16 : 32);
+        alignment.setAttribute("cx", flag);
         writer.addAlignment(alignment);
       }
       begin = end;
