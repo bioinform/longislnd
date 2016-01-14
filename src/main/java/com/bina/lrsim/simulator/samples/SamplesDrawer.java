@@ -242,8 +242,8 @@ public class SamplesDrawer extends Samples {
    */
   private void loadEvents(DataInputStream[] dis, int max_sample, boolean artificial_clean_ins) throws IOException {
     AddBehavior ab = calculateAddBehavior(this.custom_frequency);
-    log.info("loading events");
     if (max_sample < 1) return;
+    log.info("loading events");
     final int num_src = dis.length;
     Event buffer = new Event(spec);
     long count = 0;
@@ -329,24 +329,22 @@ public class SamplesDrawer extends Samples {
             final int event_index = buffer.event().value;
             ++logged_event_count[event_index];
             final int event_kmer = buffer.kmer();
-            final long loc_count = num_logged_events.increment(event_kmer, event_index, 0);
-            if (min_event_threshold[event_kmer] >= 0 && event_index == min_event_index) {
-              if (loc_count >= min_event_threshold[event_kmer]) {
-                boolean done = true;
-                long sum = 0;
-                long sum_possible = 0;
-                for (int ee = 0; ee < EnumEvent.values().length; ++ee) {
-                  final long loc = num_logged_events.get(event_kmer, ee, 0);
-                  final long loc_possible = kmer_event_count_ref()[event_kmer * EnumEvent.values().length + ee];
-                  done = done && (loc > 0 || loc_possible == 0);
-                  sum += loc;
-                  sum_possible += loc_possible;
-                }
-                done = done && (sum >= max_sample || sum >= sum_possible);
-                if (done) {
-                  ++n_kmer_done;
-                  min_event_threshold[event_kmer] = -1;
-                }
+            num_logged_events.increment(event_kmer, event_index, 0);
+            if (min_event_threshold[event_kmer] >= 0 && num_logged_events.get(event_kmer, min_event_index, 0) >= min_event_threshold[event_kmer]) {
+              boolean done = true;
+              long sum = 0;
+              long sum_possible = 0;
+              for (int ee = 0; ee < EnumEvent.values().length; ++ee) {
+                final long loc = num_logged_events.get(event_kmer, ee, 0);
+                final long loc_possible = kmer_event_count_ref()[event_kmer * EnumEvent.values().length + ee];
+                done = done && (loc > 0 || loc_possible == 0);
+                sum += loc;
+                sum_possible += loc_possible;
+              }
+              done = done && (sum >= max_sample || sum >= sum_possible);
+              if (done) {
+                ++n_kmer_done;
+                min_event_threshold[event_kmer] = -1;
               }
             }
             // ++num_logged_event;
