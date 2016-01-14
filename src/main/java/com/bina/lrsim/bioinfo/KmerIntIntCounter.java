@@ -27,16 +27,19 @@ public class KmerIntIntCounter {
     return data[(kmer * max1 + l1) * max2 + l2];
   }
 
-  public void increment(int kmer, int l1, int l2, long delta) {
+  public long increment(int kmer, int l1, int l2, long delta) {
     if (kmer >= 0 && kmer < maxKmer && l1 >= 0 && l1 < max1 && l2 >= 0 && l2 < max2) {
-      data[(kmer * max1 + l1) * max2 + l2] += delta;
+      final int index = (kmer * max1 + l1) * max2 + l2;
+      data[index] += delta;
+      return data[index];
     } else {
       log.warn("out-of-range: " + kmer + " " + l1 + " " + l2);
     }
+    return 0l;
   }
 
-  public void increment(int kmer, int l1, int l2) {
-    increment(kmer, l1, l2, 1);
+  public long increment(int kmer, int l1, int l2) {
+    return increment(kmer, l1, l2, 1);
   }
 
   @Override

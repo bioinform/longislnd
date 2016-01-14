@@ -305,7 +305,7 @@ public abstract class Samples {
   }
 
   public enum Suffixes {
-    EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr"), SUMMARY(".summary");
+    EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr"), SUMMARY(".summary"), HP(".hp");
     private String suffix_;
 
     Suffixes(String s) {

@@ -20,6 +20,7 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
   private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
   private final String outPrefix_;
   private final DataOutputStream eventOut_;
+  private final DataOutputStream hpOut_;
 
   /**
    * Constructor
@@ -35,6 +36,7 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
     super(leftFlank, rightFlank, hp_anchor);
     outPrefix_ = outPrefix;
     eventOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_)))) : null;
+    hpOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.HP.filename(outPrefix_)))) : null;
     Arrays.fill(event_base_count_ref(), 0);
     Arrays.fill(event_count_ref(), 0);
     log.info("flanks=(" + left_flank() + "," + right_flank() + ") k=" + k() + " num_kmers=" + num_kmer());
@@ -69,7 +71,7 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
       } else {
         if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
           add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
-          if (null != eventOut_) event.write(eventOut_);
+          if (null != hpOut_) event.write(hpOut_);
         }
       }
     }
@@ -109,6 +111,9 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
   public void close() throws IOException {
     if (null != eventOut_) {
       eventOut_.close();
+    }
+    if (null != hpOut_) {
+      hpOut_.close();
     }
     writeSummary(outPrefix_);
     writeStats(outPrefix_);

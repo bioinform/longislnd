@@ -2,6 +2,7 @@ package com.bina.lrsim.bioinfo;
 
 // import org.apache.commons.math3.random.MersenneTwister;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -41,11 +42,7 @@ public class Kmerizer {
   }
 
   public static String toString(int kmer, int length) {
-    StringBuilder sb = new StringBuilder();
-    for (byte entry : toByteArray(kmer, length)) {
-      sb.append((char) entry);
-    }
-    return sb.toString();
+    return new String(toByteArray(kmer, length), StandardCharsets.UTF_8);
   }
 
   public static byte[] toByteArray(int kmer, int length) {
