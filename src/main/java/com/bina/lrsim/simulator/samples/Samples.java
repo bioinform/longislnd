@@ -107,7 +107,7 @@ public abstract class Samples {
     ArrayUtils.axpy(1, other.kmer_event_count_, kmer_event_count_);
     lengths_.addAll(other.lengths_);
     scores_.addAll(other.scores_);
-    base_log.info("after accumulation " + lengths_.size() + " " + scores_.size() + " " + this.toString());
+    base_log.info("after accumulation " + lengths_.size() + " " + scores_.size() /*+ " " + this.toString()*/);
   }
 
   /**
@@ -122,7 +122,7 @@ public abstract class Samples {
     loadStats(prefix);
     loadLengths(prefix);
     loadScores(prefix);
-    base_log.info(this.toString());
+//    base_log.info(this.toString());
   }
 
   /**

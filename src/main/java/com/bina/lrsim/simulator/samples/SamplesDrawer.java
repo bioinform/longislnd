@@ -52,7 +52,7 @@ public class SamplesDrawer extends Samples {
     for (int ii = 1; ii < prefixes.length; ++ii) {
       accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, len_limits));
     }
-    log.info(this.toString());
+//    log.info(this.toString());
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefixes, max_sample, artificial_clean_ins);
     super.filterScoreLength(len_limits);
@@ -372,8 +372,8 @@ public class SamplesDrawer extends Samples {
         if (count % 10000000 == 1) {
           log.info("loaded " + count + " events" + Arrays.toString(logged_event_count) + "/" + Arrays.toString(event_count));
           log.info("loaded " + num_hp_events + " hp events");
+          log.info("pruning criterions " + n_kmer_done + "/" + num_kmer());
         }
-
       } else if (!src_done[src]) {
         src_done[src] = true;
         ++n_src_done;

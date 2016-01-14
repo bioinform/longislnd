@@ -112,6 +112,7 @@ public class SimulatorDriver {
 
     final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(min_fragment_length, max_fragment_length, min_num_passes, max_num_passes);
     final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), spec, sample_per, events_frequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
+    log.info(samples.toString());
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     // the following can be parallelized
