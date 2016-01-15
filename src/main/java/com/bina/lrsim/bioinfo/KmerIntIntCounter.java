@@ -1,13 +1,15 @@
 package com.bina.lrsim.bioinfo;
 
+import com.bina.lrsim.util.ArrayUtils;
 import org.apache.log4j.Logger;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
 /**
  * Created by bayolau on 1/12/16.
  */
-public class KmerIntIntCounter {
+public class KmerIntIntCounter implements Serializable {
   private final static Logger log = Logger.getLogger(KmerIntIntCounter.class.getName());
   public final int k;
   public final int maxKmer;
@@ -40,6 +42,13 @@ public class KmerIntIntCounter {
 
   public long increment(int kmer, int l1, int l2) {
     return increment(kmer, l1, l2, 1);
+  }
+
+  public void accumulate(KmerIntIntCounter other) {
+    if (k != other.k) { throw new RuntimeException("unmatched k " + k + "!=" + other.k); }
+    if (max1 != other.max1) { throw new RuntimeException("unmatched max1 " + max1 + "!=" + other.max1); }
+    if (max2 != other.max2) { throw new RuntimeException("unmatched max2 " + max2 + "!=" + other.max2); }
+    ArrayUtils.axpy(1, other.data, data);
   }
 
   @Override

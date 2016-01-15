@@ -105,6 +105,7 @@ public abstract class Samples {
     ArrayUtils.axpy(1, other.event_base_count_, event_base_count_);
     ArrayUtils.axpy(1, other.event_count_, event_count_);
     ArrayUtils.axpy(1, other.kmer_event_count_, kmer_event_count_);
+    kmer_rlen_slen_count_.accumulate(other.kmer_rlen_slen_count_);
     lengths_.addAll(other.lengths_);
     scores_.addAll(other.scores_);
     base_log.info("after accumulation " + lengths_.size() + " " + scores_.size() /*+ " " + this.toString()*/);
@@ -207,6 +208,11 @@ public abstract class Samples {
   }
 
   protected final void writeStats(String prefix) throws IOException {
+    try(ObjectOutputStream oout = new ObjectOutputStream((new FileOutputStream(Suffixes.STATS.filename(prefix))))) {
+      oout.writeObject(kmer_event_count_);
+      oout.writeObject(kmer_rlen_slen_count_);
+    }
+    /*
     RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix), "rw");
     FileChannel file = fos.getChannel();
     MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_WRITE, 0, Long.SIZE / 8 * kmer_event_count_.length);
@@ -216,9 +222,18 @@ public abstract class Samples {
     buf.force();
     file.close();
     fos.close();
+    */
   }
 
   private final void loadStats(String prefix) throws IOException {
+    try(ObjectInputStream oin = new ObjectInputStream((new FileInputStream(Suffixes.STATS.filename(prefix))))) {
+      kmer_event_count_ = (long[]) oin.readObject();
+      kmer_rlen_slen_count_ = (KmerIntIntCounter) oin.readObject();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new IOException();
+    }
+    /*
     RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix), "r");
     FileChannel file = fos.getChannel();
     MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE / 8 * kmer_event_count_.length);
@@ -230,6 +245,7 @@ public abstract class Samples {
     base_log.debug(stringifyKmerStats("KMER_STATS: "));
     file.close();
     fos.close();
+    */
   }
 
   public final String stringifyKmerStats(String prefix) {
