@@ -51,6 +51,7 @@ public class BAMWriter extends ReadsWriter {
 
   @Override
   public void close() throws IOException {
+    writeLociBed(this.filename_, this.moviename_, this.firsthole_);
     writer.close();
   }
 
@@ -77,8 +78,8 @@ public class BAMWriter extends ReadsWriter {
     int end = 0;
     for (int index = 0; index < readLengths.size(); ++index) {
       end = readLengths.get(index);
-      if (index % 2 == 0) {
-        alignment.setReadName(moviename_ + "/" + size() + "/" + begin + "_" + end);
+      if (index % 2 == 0 && end != begin) {
+        alignment.setReadName(moviename_ + "/" + (firsthole_ + num_reads) + "/" + begin + "_" + end);
         alignment.setReadUnmappedFlag(true);
         alignment.setMappingQuality(255);
         alignment.setReadBases(Arrays.copyOfRange(enum_data.get(EnumDat.BaseCall), begin, end));
@@ -104,6 +105,7 @@ public class BAMWriter extends ReadsWriter {
       }
       begin = end;
     }
+    addLocus(locus);
     ++num_reads;
   }
 
