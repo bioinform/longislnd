@@ -334,9 +334,10 @@ public class SamplesDrawer extends Samples {
               boolean done = true;
               long sum = 0;
               long sum_possible = 0;
-              for (int ee = 0; ee < EnumEvent.values().length; ++ee) {
-                final long loc = num_logged_events.get(event_kmer, ee, 0);
-                final long loc_possible = kmer_event_count_ref()[event_kmer * EnumEvent.values().length + ee];
+              for (EnumEvent event : EnumEvent.values()) {
+                final long loc = num_logged_events.get(event_kmer, event.value, 0);
+                final long loc_logged_total = kmer_event_count_ref()[event_kmer * EnumEvent.values().length + event.value];
+                final long loc_possible = Math.max(loc_logged_total / event.recordEvery, loc_logged_total > 0 ? 1 : 0);
                 done = done && (loc > 0 || loc_possible == 0);
                 sum += loc;
                 sum_possible += loc_possible;

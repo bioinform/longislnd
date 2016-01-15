@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.bina.lrsim.bioinfo.Heuristics;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.interfaces.EventGroup;
@@ -56,8 +57,9 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
       }
 
       if (event.hp_len() == 1) {
+        final long current_count = kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value];
         if (null!=eventOut_ && event.event().recordEvery > 0
-                && kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value] % event.event().recordEvery == 0) {
+                && current_count % event.event().recordEvery == 0 && current_count / event.event().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
           event.write(eventOut_);
         }
         final int idx = event.event().value;
