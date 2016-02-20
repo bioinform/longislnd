@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bayolau on 1/8/16.
@@ -46,18 +47,7 @@ public abstract class ReadsWriter implements Closeable {
       int shift = 0;
       for (Locus entry : this.loci_) {
         if (null != entry) {
-          fw.write(entry.getChrom());
-          fw.write('\t');
-          fw.write(String.valueOf(entry.getBegin0()));
-          fw.write('\t');
-          fw.write(String.valueOf(entry.getEnd0()));
-          fw.write('\t');
-          fw.write(moviename);
-          fw.write('/');
-          fw.write(String.valueOf(firsthole + shift));
-          fw.write("\t500\t");
-          fw.write(entry.isRc() ? '-' : '+');
-          fw.write(System.lineSeparator());
+          writeBedLine(fw, moviename + "/" + String.valueOf(firsthole + shift), entry);
         }
         ++shift;
       }
@@ -66,7 +56,20 @@ public abstract class ReadsWriter implements Closeable {
     }
   }
 
-  public abstract void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus);
+  protected final void writeBedLine(FileWriter fw, String record_name, Locus locus) throws IOException {
+    fw.write(locus.getChrom());
+    fw.write('\t');
+    fw.write(String.valueOf(locus.getBegin0()));
+    fw.write('\t');
+    fw.write(String.valueOf(locus.getEnd0()));
+    fw.write('\t');
+    fw.write(record_name);
+    fw.write("\t500\t");
+    fw.write(locus.isRc() ? '-' : '+');
+    fw.write(System.lineSeparator());
+  }
+
+  public abstract void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci);
 
   public abstract int size();
 }

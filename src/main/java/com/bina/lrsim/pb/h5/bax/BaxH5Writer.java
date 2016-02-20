@@ -6,6 +6,7 @@ package com.bina.lrsim.pb.h5.bax;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.bina.lrsim.bioinfo.Locus;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
@@ -60,7 +61,7 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
   }
 
   @Override
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus) {
+  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci) {
     buffer_.addLast(read, readLengths, score);
     addLocus(locus);
   }

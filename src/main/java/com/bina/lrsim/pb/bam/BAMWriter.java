@@ -9,11 +9,13 @@ import htsjdk.samtools.*;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 
 /**
  * Created by bayolau on 1/8/16.
@@ -27,9 +29,17 @@ public class BAMWriter extends ReadsWriter {
   private final SAMRecord alignment;
   private final EnumMap<EnumDat, byte[]> enum_data = new EnumMap<>(EnumDat.class);
   private int num_reads;
+  private final FileWriter clr_bed;
 
   public BAMWriter(PBSpec spec, String filename, String moviename, int firsthole) {
     super(spec, filename, moviename, firsthole);
+    FileWriter tmp = null;
+    try {
+      tmp = new FileWriter(new File(filename + ".clr.bed"));
+    } catch (IOException e) {
+      tmp = null;
+    }
+    clr_bed = tmp;
     readGroupRecord = new SAMReadGroupRecord(moviename_);
     readGroupRecord.setPlatform("PACBIO");
     readGroupRecord.setPlatformUnit(moviename_);
@@ -53,6 +63,7 @@ public class BAMWriter extends ReadsWriter {
   public void close() throws IOException {
     writeLociBed(this.filename_, this.moviename_, this.firsthole_);
     writer.close();
+    clr_bed.close();
   }
 
   private boolean AddScore(String tag, EnumDat e, int begin, int end) {
@@ -70,7 +81,7 @@ public class BAMWriter extends ReadsWriter {
   }
 
   @Override
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus) {
+  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci) {
     for (EnumDat entry : spec.getDataSet()) {
       enum_data.put(entry, read.get(entry).toByteArray());
     }
@@ -79,7 +90,8 @@ public class BAMWriter extends ReadsWriter {
     for (int index = 0; index < readLengths.size(); ++index) {
       end = readLengths.get(index);
       if (index % 2 == 0 && end != begin) {
-        alignment.setReadName(moviename_ + "/" + (firsthole_ + num_reads) + "/" + begin + "_" + end);
+        final String record_name = moviename_ + "/" + (firsthole_ + num_reads) + "/" + begin + "_" + end;
+        alignment.setReadName(record_name);
         alignment.setReadUnmappedFlag(true);
         alignment.setMappingQuality(255);
         alignment.setReadBases(Arrays.copyOfRange(enum_data.get(EnumDat.BaseCall), begin, end));
@@ -102,6 +114,11 @@ public class BAMWriter extends ReadsWriter {
         final Integer flag = (index == 0 ? 0 : 1) | (index + 1 < readLengths.size() ? 2 : 0) | (forward ? 16 : 32);
         alignment.setAttribute("cx", flag);
         writer.addAlignment(alignment);
+        if(clr_bed != null && clr_loci != null) {
+          try {
+            super.writeBedLine(clr_bed, record_name, clr_loci.get(index / 2));
+          } catch (IOException e) { }
+        }
       }
       begin = end;
     }

@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -95,15 +96,19 @@ public class Simulator {
           fw_rc.add(rc);
         }
 
+        List<Locus> clr_loci = new ArrayList<Locus>();
+
         ArrayList<Integer> section_ends = new ArrayList<Integer>(2 * insert_lengths.length - 1);
         boolean skipIfShort = false;
         for (int ins_idx = 0; ins_idx < insert_lengths.length; ++ins_idx) {
           final int insert_length = insert_lengths[ins_idx];
-          final int begin = ins_idx == 0 ? max_len - insert_length : 0;
-          final int end = (ins_idx + 1 == insert_lengths.length) ? insert_length : max_len;
-          final boolean isShort = insert_length < Heuristics.SMRT_INSERT_FRACTION * max_len && ins_idx != 0 && ins_idx + 1 != insert_lengths.length;
+          final boolean first_clr = ins_idx == 0;
+          final boolean last_clr = ins_idx + 1 == insert_lengths.length;
+          final int begin = first_clr ? max_len - insert_length : 0;
+          final int end = last_clr ? insert_length : max_len;
+          final boolean isShort = insert_length < Heuristics.SMRT_INSERT_FRACTION * max_len && !first_clr && !last_clr;
           if (!isShort || !skipIfShort) {
-            if (ins_idx != 0) {
+            if (!first_clr) {
               // prepend with a "perfect" adaptor sequence
               read.addASCIIBases(Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_SCORE);
               section_ends.add(read.size());
@@ -115,6 +120,24 @@ public class Simulator {
                 deletion = drawer.appendTo(read, con, deletion, gen, base_counter_);
               }
             }
+
+            //per clr coordinates
+            int clr_begin = locus.getBegin0();
+            int clr_end = locus.getEnd0();
+            final boolean read_is_rc = (ins_idx % 2 == 0) ^ locus.isRc();
+            if (first_clr) {
+              if(read_is_rc)
+                clr_end = locus.getBegin0() + insert_length;
+              else
+                clr_begin = locus.getEnd0() - insert_length;
+            }
+            if (last_clr) {
+              if(read_is_rc)
+                clr_begin = locus.getEnd0() - insert_length;
+              else
+                clr_end = locus.getBegin0() + insert_length;
+            }
+            clr_loci.add(new Locus(locus.getChrom(), clr_begin, clr_end, read_is_rc));
             section_ends.add(read.size());
             if (isShort) {
               skipIfShort = true;
@@ -125,7 +148,7 @@ public class Simulator {
           }
         }
 
-        writer.addLast(read, section_ends, len_score.getSecond(), locus);
+        writer.addLast(read, section_ends, len_score.getSecond(), locus, clr_loci);
         num_bases += read.size();
         if (writer.size() % 10000 == 1) {
           log.info(toString());

@@ -60,7 +60,7 @@ public class FastqH5 {
         read.addASCIIBases(record.getReadString().getBytes(), null /* not supposed to work with fastq */, qv);
         ArrayList<Integer> section_ends = new ArrayList<>();
         section_ends.add(read.size());
-        writer.addLast(read, section_ends, 900, null);
+        writer.addLast(read, section_ends, 900, null, null);
         size += read.size();
       }
     }
