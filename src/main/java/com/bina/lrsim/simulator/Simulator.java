@@ -124,7 +124,7 @@ public class Simulator {
             //per clr coordinates
             int clr_begin = locus.getBegin0();
             int clr_end = locus.getEnd0();
-            final boolean read_is_rc = (ins_idx % 2 == 0) ^ locus.isRc();
+            final boolean read_is_rc = (ins_idx % 2 == 1) ^ locus.isRc();
             if (first_clr) {
               if(read_is_rc)
                 clr_end = locus.getBegin0() + insert_length;

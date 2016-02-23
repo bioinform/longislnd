@@ -72,7 +72,7 @@ public class BAMWriter extends ReadsWriter {
       byte[] tmp = new byte[end - begin];
       int shift = e.isScore ? 33 : 0;
       for (int ii = begin, jj = 0; ii < end; ++ii, ++jj) {
-        tmp[jj] = (byte) (org[ii] + shift);
+        tmp[jj] = (byte) Math.min(Math.max(org[ii] + shift, 32), 126); // readable ascii code
       }
       alignment.setAttribute(tag, new String(tmp, StandardCharsets.UTF_8));
       return true;
