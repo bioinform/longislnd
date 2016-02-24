@@ -2,9 +2,9 @@ package com.bina.lrsim.sam;
 
 import java.util.EnumSet;
 
-import com.bina.lrsim.h5.bax.EnumGroups;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.h5.bax.EnumGroups;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/25/15.

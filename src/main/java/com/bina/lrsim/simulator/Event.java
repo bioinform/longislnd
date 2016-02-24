@@ -5,9 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.h5.pb.BaseCalls;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.BaseCalls;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/8/15.

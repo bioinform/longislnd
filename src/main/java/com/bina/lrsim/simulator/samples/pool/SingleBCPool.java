@@ -6,9 +6,9 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.Context;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 
 /**
@@ -51,7 +51,7 @@ public class SingleBCPool extends BaseCallsPool {
   public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
     if (context.hp_len() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
     final int base = begin(context.kmer());
-    if (base == end_[context.kmer()]) throw new RuntimeException("no sample");
+    if (base == end_[context.kmer()]) throw new RuntimeException("no sample for " + context.toString());
     final int shift = base + gen.nextInt((end_[context.kmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
     if (as == null) {
       buffer.addLast(data_, shift, shift + BYTE_PER_BC);

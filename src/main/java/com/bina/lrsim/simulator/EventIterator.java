@@ -8,8 +8,8 @@ import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.Kmerizer;
-import com.bina.lrsim.h5.pb.BaseCalls;
-import com.bina.lrsim.h5.pb.EnumDat;
+import com.bina.lrsim.pb.BaseCalls;
+import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.interfaces.EventGroup;
 
 /**

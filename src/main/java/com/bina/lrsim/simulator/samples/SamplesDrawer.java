@@ -4,12 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.bina.lrsim.bioinfo.KmerIntIntCounter;
 import com.bina.lrsim.simulator.samples.pool.AddBehavior;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
@@ -18,9 +16,9 @@ import org.apache.log4j.Logger;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.Kmerizer;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBReadBuffer;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
@@ -54,8 +52,7 @@ public class SamplesDrawer extends Samples {
     for (int ii = 1; ii < prefixes.length; ++ii) {
       accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, len_limits));
     }
-    log.info(this.toString());
-    log.info(this.stringifyKmerStats());
+//    log.info(this.toString());
     allocateEventDrawer(spec, max_sample);
     loadEvents(prefixes, max_sample, artificial_clean_ins);
     super.filterScoreLength(len_limits);
@@ -224,14 +221,30 @@ public class SamplesDrawer extends Samples {
    * @throws IOException
    */
   private void loadEvents(String[] prefixes, int max_sample, boolean artificial_clean_ins) throws IOException {
-    AddBehavior ab = calculateAddBehavior(this.custom_frequency);
-    log.info("loading events");
-    if (max_sample < 1) return;
     final int num_src = prefixes.length;
-    DataInputStream[] dis = new DataInputStream[num_src];
-    for (int ii = 0; ii < num_src; ++ii) {
-      dis[ii] = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.EVENTS.filename(prefixes[ii])), 1000000));
+    for (Suffixes suf : EnumSet.of(Suffixes.EVENTS, Suffixes.HP)) {
+      DataInputStream[] dis = new DataInputStream[num_src];
+      for (int ii = 0; ii < num_src; ++ii) {
+        dis[ii] = new DataInputStream(new BufferedInputStream(new FileInputStream(suf.filename(prefixes[ii])), 1000000));
+      }
+      loadEvents(dis, max_sample, artificial_clean_ins);
+      for (int ii = 0; ii < num_src; ++ii) {
+        dis[ii].close();
+      }
     }
+  }
+
+  /**
+   * Load the sampled events
+   *
+   * @param dis a list of datastream
+   * @throws IOException
+   */
+  private void loadEvents(DataInputStream[] dis, int max_sample, boolean artificial_clean_ins) throws IOException {
+    AddBehavior ab = calculateAddBehavior(this.custom_frequency);
+    if (max_sample < 1) return;
+    log.info("loading events");
+    final int num_src = dis.length;
     Event buffer = new Event(spec);
     long count = 0;
 
@@ -239,6 +252,13 @@ public class SamplesDrawer extends Samples {
     long[] logged_event_count = new long[EnumEvent.values().length];
     // long num_logged_event = 0;
     // final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long) max_sample;
+    KmerIntIntCounter num_logged_events = new KmerIntIntCounter(k(), EnumEvent.values().length, 1);
+    final int min_event_index = EnumEvent.SUBSTITUTION.value; // assumes substitution is the rarest events
+    final long[] min_event_threshold = new long[num_kmer()]; // -1 for done, 0 or 1 for not done
+    for (int kk = 0; kk < num_kmer(); ++kk) {
+      min_event_threshold[kk] = kmer_event_count_ref()[kk * EnumEvent.values().length + min_event_index] == 0 ? 0 : 1;
+    }
+    int n_kmer_done = 0;
 
     long num_hp_events = 0;
 
@@ -247,7 +267,7 @@ public class SamplesDrawer extends Samples {
 
     final boolean[] src_done = new boolean[num_src];
 
-    for (int src = 0, n_src_done = 0; n_src_done < num_src /* && num_logged_event < max_logged_event */; src = (src + 1) % num_src) {
+    for (int src = 0, n_src_done = 0; n_src_done < num_src && n_kmer_done < num_kmer() /* && num_logged_event < max_logged_event */; src = (src + 1) % num_src) {
       if (dis[src].available() > 0) {
         buffer.read(dis[src]);
 
@@ -306,7 +326,28 @@ public class SamplesDrawer extends Samples {
 
           ++event_count[buffer.event().value];
           if (kmer_event_drawer_.get(buffer.event()).add(buffer, ab)) {
-            ++logged_event_count[buffer.event().value];
+            final int event_index = buffer.event().value;
+            ++logged_event_count[event_index];
+            final int event_kmer = buffer.kmer();
+            num_logged_events.increment(event_kmer, event_index, 0);
+            if (min_event_threshold[event_kmer] >= 0 && num_logged_events.get(event_kmer, min_event_index, 0) >= min_event_threshold[event_kmer]) {
+              boolean done = true;
+              long sum = 0;
+              long sum_possible = 0;
+              for (EnumEvent event : EnumEvent.values()) {
+                final long loc = num_logged_events.get(event_kmer, event.value, 0);
+                final long loc_logged_total = kmer_event_count_ref()[event_kmer * EnumEvent.values().length + event.value];
+                final long loc_possible = Math.max(loc_logged_total / event.recordEvery, loc_logged_total > 0 ? 1 : 0);
+                done = done && (loc > 0 || loc_possible == 0);
+                sum += loc;
+                sum_possible += loc_possible;
+              }
+              done = done && (sum >= max_sample || sum >= sum_possible);
+              if (done) {
+                ++n_kmer_done;
+                min_event_threshold[event_kmer] = -1;
+              }
+            }
             // ++num_logged_event;
           }
         } else {
@@ -332,20 +373,19 @@ public class SamplesDrawer extends Samples {
         if (count % 10000000 == 1) {
           log.info("loaded " + count + " events" + Arrays.toString(logged_event_count) + "/" + Arrays.toString(event_count));
           log.info("loaded " + num_hp_events + " hp events");
+          log.info("pruning criterions " + n_kmer_done + "/" + num_kmer());
         }
-
       } else if (!src_done[src]) {
         src_done[src] = true;
         ++n_src_done;
       }
     }
-
+    if(n_kmer_done >= num_kmer()) {
+      log.info("load has been pruned");
+    }
     log.info("loaded " + count + " events");
     log.info("loaded " + num_hp_events + " hp events");
     log.info("modified ins: " + mod_ins + "/" + raw_ins);
-    for (int ii = 0; ii < num_src; ++ii) {
-      dis[ii].close();
-    }
   }
 
   /**

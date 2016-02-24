@@ -5,8 +5,8 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.PairwiseAlignment;
-import com.bina.lrsim.h5.pb.EnumDat;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.simulator.Event;
 import com.bina.lrsim.simulator.EventIterator;

@@ -33,6 +33,10 @@ public class Heuristics {
   // useful if very little data is sampled
   public static final int MIN_KMER_SAMPLES_FOR_NON_ZERO_CUSTOM_FREQUENCY = 0;
 
+  // the maximum number of sample extracted per kmer per event
+  // this is to optimize I/O
+  public static final int MAX_KMER_EVENT_SAMPLES = 100;
+
   // maximum fraction of N's to allow, relative to the length of the simulated reads
   public static final double MAX_N_FRACTION_ON_READ = 0.005;
 

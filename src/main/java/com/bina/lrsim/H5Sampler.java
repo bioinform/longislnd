@@ -4,10 +4,10 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.h5.cmp.CmpH5Reader;
-import com.bina.lrsim.h5.pb.PBBaxSpec;
-import com.bina.lrsim.h5.pb.PBCcsSpec;
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.h5.cmp.CmpH5Reader;
+import com.bina.lrsim.pb.PBBaxSampleSpec;
+import com.bina.lrsim.pb.PBCcsSpec;
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 import com.bina.lrsim.sam.SamReader;
 import com.bina.lrsim.simulator.samples.SamplesCollector;
@@ -43,7 +43,7 @@ public class H5Sampler {
 
     switch (read_type) {
       case "bax":
-        spec = new PBBaxSpec();
+        spec = new PBBaxSampleSpec();
         break;
       case "ccs":
         spec = new PBCcsSpec();
@@ -76,7 +76,7 @@ public class H5Sampler {
 
     try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor, writeEvents)) {
       collector.process(groupFactory, min_length, flank_mask);
-      log.info("\n" + collector.toString() + "\n");
+//      log.info("\n" + collector.toString() + "\n");
     }
     log.info("finished");
   }

@@ -6,14 +6,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.bina.lrsim.h5.bax.BaxH5Writer;
-import com.bina.lrsim.h5.pb.PBReadBuffer;
+import com.bina.lrsim.pb.h5.bax.BaxH5Writer;
+import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.sam.PBFastqSpec;
 import htsjdk.samtools.fastq.FastqReader;
 import htsjdk.samtools.fastq.FastqRecord;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.h5.pb.PBSpec;
+import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/11/15.
@@ -38,18 +38,18 @@ public class FastqH5 {
 
     PBReadBuffer read = new PBReadBuffer(spec);
 
-
-    BaxH5Writer writer = new BaxH5Writer(spec);
+    int current_file_index = 0;
+    String movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
+    BaxH5Writer writer = new BaxH5Writer(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, 0);
     final int target_chunk = 200000000;
     int size = 0;
-    int current_file_index = 0;
     for (int ii = 1; ii < args.length; ++ii) {
       final String fastq = args[ii];
       for (FastqRecord record : new FastqReader(new File(fastq))) {
         if (size > target_chunk) {
-          final String movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
-          writer.write(path + "/" + movie_name + spec.getSuffix(), movie_name, 0);
-          writer = new BaxH5Writer(spec);
+          writer.close();
+          movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
+          writer = new BaxH5Writer(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, 0);
           size = 0;
         }
         read.clear();
@@ -60,15 +60,11 @@ public class FastqH5 {
         read.addASCIIBases(record.getReadString().getBytes(), null /* not supposed to work with fastq */, qv);
         ArrayList<Integer> section_ends = new ArrayList<>();
         section_ends.add(read.size());
-        writer.addLast(read, section_ends, 900, null);
+        writer.addLast(read, section_ends, 900, null, null);
         size += read.size();
       }
     }
-    {
-      final String movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
-      writer.write(path + "/" + movie_name + spec.getSuffix(), movie_name, 0);
-    }
-
+    writer.close();
     log.info("finished.");
   }
 }
