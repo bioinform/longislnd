@@ -25,7 +25,7 @@ function join { local IFS="$1"; shift; echo "$*"; }
 MODEL_PREFIX=$(join , ${MODEL_LIST[@]})
 echo ${MODEL_PREFIX}
 
-NUM_BASES=207708891
+NUM_BASES=2077088916
 
 SAMPLE_PER=100
 
