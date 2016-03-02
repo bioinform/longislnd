@@ -85,7 +85,7 @@ public class Simulator {
         }
 
         // draw a sequence according to max insert length, make RC if belt is long enough
-        ArrayList<byte[]> fw_rc = new ArrayList<byte[]>(2);
+        final List<byte[]> fw_rc = new ArrayList<>(2);
         fw_rc.add(sequence);
         if (insert_lengths.length > 1) {
           final byte[] fw = fw_rc.get(0);
@@ -96,9 +96,9 @@ public class Simulator {
           fw_rc.add(rc);
         }
 
-        List<Locus> clr_loci = new ArrayList<Locus>();
+        final List<Locus> clr_loci = new ArrayList<>();
 
-        ArrayList<Integer> section_ends = new ArrayList<Integer>(2 * insert_lengths.length - 1);
+        final List<Integer> section_ends = new ArrayList<>(2 * insert_lengths.length - 1);
         boolean skipIfShort = false;
         for (int ins_idx = 0; ins_idx < insert_lengths.length; ++ins_idx) {
           final int insert_length = insert_lengths[ins_idx];

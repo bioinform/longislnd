@@ -17,10 +17,10 @@ public abstract class ReadsWriter implements Closeable {
   protected final String moviename_;
   protected final int firsthole_;
   protected final PBSpec spec;
-  private final ArrayList<Locus> loci_;
+  private final List<Locus> loci_;
 
   public ReadsWriter(PBSpec spec, String filename, String moviename, int firsthole) {
-    this.loci_ = new ArrayList<Locus>();
+    this.loci_ = new ArrayList<>();
     this.filename_ = filename;
     this.moviename_ = moviename;
     this.firsthole_ = firsthole;
@@ -69,7 +69,7 @@ public abstract class ReadsWriter implements Closeable {
     fw.write(System.lineSeparator());
   }
 
-  public abstract void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci);
+  public abstract void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci);
 
   public abstract int size();
 }
