@@ -89,15 +89,15 @@ public class SamplesDrawer extends Samples {
     double custom = 0;
     for (long entry : custom_frequency)
       custom += entry;
-    if (custom_frequency[EnumEvent.MATCH.value] == custom) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
-    custom = 1.0 - custom_frequency[EnumEvent.MATCH.value] / custom;
+    if (custom_frequency[EnumEvent.MATCH.ordinal()] == custom) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
+    custom = 1.0 - custom_frequency[EnumEvent.MATCH.ordinal()] / custom;
     final int custom_q = (int) (-10 * Math.log10(custom) + 0.5);
 
     double intrinsic = 0;
     for (long entry : super.event_base_count_ref())
       intrinsic += entry;
-    if (super.event_base_count_ref()[EnumEvent.MATCH.value] == intrinsic) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
-    intrinsic = 1.0 - super.event_base_count_ref()[EnumEvent.MATCH.value] / intrinsic;
+    if (super.event_base_count_ref()[EnumEvent.MATCH.ordinal()] == intrinsic) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
+    intrinsic = 1.0 - super.event_base_count_ref()[EnumEvent.MATCH.ordinal()] / intrinsic;
     final int intrinsic_q = (int) (-10 * Math.log10(intrinsic) + 0.5);
 
     final int delta_q = (int) (10 * Math.log10(intrinsic / custom) + 0.5);
@@ -154,9 +154,9 @@ public class SamplesDrawer extends Samples {
       if(ev.equals(EnumEvent.INSERTION) && buffer.size() <= org_length + 1) {
         throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
       }
-      ++base_counter[ev.value];
+      ++base_counter[ev.ordinal()];
       if (ev.equals(EnumEvent.INSERTION)) {
-        base_counter[ev.value] += buffer.size() - old_length - 2;
+        base_counter[ev.ordinal()] += buffer.size() - old_length - 2;
       }
       if (!result.success) { throw new RuntimeException("kmer draw"); }
       // return a signal for deletion event
@@ -175,15 +175,15 @@ public class SamplesDrawer extends Samples {
       if (hp_sampling) {
         final int differential = buffer.size() - old_length - context.hp_len();
         if (differential == 0) {
-          base_counter[EnumEvent.MATCH.value] += context.hp_len();
+          base_counter[EnumEvent.MATCH.ordinal()] += context.hp_len();
           // log.info("homo match");
         } else if (differential < 0) {
-          base_counter[EnumEvent.DELETION.value] += -differential;
+          base_counter[EnumEvent.DELETION.ordinal()] += -differential;
           // log.info("homo del");
 
         } else {
-          base_counter[EnumEvent.MATCH.value] += context.hp_len() - 1;
-          base_counter[EnumEvent.INSERTION.value] += differential;
+          base_counter[EnumEvent.MATCH.ordinal()] += context.hp_len() - 1;
+          base_counter[EnumEvent.INSERTION.ordinal()] += differential;
           // log.info("homo ins");
         }
         return null; // homopolyer does not pash deletion tag
@@ -241,6 +241,7 @@ public class SamplesDrawer extends Samples {
    * @throws IOException
    */
   private void loadEvents(DataInputStream[] dis, int max_sample, boolean artificial_clean_ins) throws IOException {
+    // Bottleneck code
     AddBehavior ab = calculateAddBehavior(this.custom_frequency);
     if (max_sample < 1) return;
     log.info("loading events");
@@ -248,15 +249,15 @@ public class SamplesDrawer extends Samples {
     Event buffer = new Event(spec);
     long count = 0;
 
-    long[] event_count = new long[EnumEvent.values().length];
-    long[] logged_event_count = new long[EnumEvent.values().length];
+    long[] event_count = new long[EnumEvent.values.length];
+    long[] logged_event_count = new long[EnumEvent.values.length];
     // long num_logged_event = 0;
     // final long max_logged_event = EnumEvent.num_logged_events() * num_kmer() * (long) max_sample;
-    KmerIntIntCounter num_logged_events = new KmerIntIntCounter(k(), EnumEvent.values().length, 1);
-    final int min_event_index = EnumEvent.SUBSTITUTION.value; // assumes substitution is the rarest events
+    KmerIntIntCounter num_logged_events = new KmerIntIntCounter(k(), EnumEvent.values.length, 1);
+    final int min_event_index = EnumEvent.SUBSTITUTION.ordinal(); // assumes substitution is the rarest events
     final long[] min_event_threshold = new long[num_kmer()]; // -1 for done, 0 or 1 for not done
     for (int kk = 0; kk < num_kmer(); ++kk) {
-      min_event_threshold[kk] = kmer_event_count_ref()[kk * EnumEvent.values().length + min_event_index] == 0 ? 0 : 1;
+      min_event_threshold[kk] = kmer_event_count_ref()[kk * EnumEvent.values.length + min_event_index] == 0 ? 0 : 1;
     }
     int n_kmer_done = 0;
 
@@ -272,15 +273,15 @@ public class SamplesDrawer extends Samples {
         buffer.read(dis[src]);
 
         if (buffer.hp_len() == 1) {
-          if (buffer.event().equals(EnumEvent.DELETION) && buffer.size() > 1) {
+          if (buffer.event() == EnumEvent.DELETION && buffer.size() > 1) {
             throw new RuntimeException("del with length " + buffer.size());
-          } else if (buffer.event().equals(EnumEvent.SUBSTITUTION)) {
+          } else if (buffer.event() == EnumEvent.SUBSTITUTION) {
             if (buffer.size() != 1) { throw new RuntimeException("sub with length " + buffer.size()); }
             if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] == buffer.get(0, EnumDat.BaseCall)) { throw new RuntimeException("matching base for substitution event"); }
-          } else if (buffer.event().equals(EnumEvent.MATCH)) {
+          } else if (buffer.event() == EnumEvent.MATCH) {
             if (buffer.size() != 1) { throw new RuntimeException("match with length " + buffer.size()); }
             if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] != buffer.get(0, EnumDat.BaseCall)) { throw new RuntimeException("unmatching base for match event"); }
-          } else if (buffer.event().equals(EnumEvent.INSERTION)) {
+          } else if (buffer.event() == EnumEvent.INSERTION) {
             final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
             final byte center_base = kmer_sequence[left_flank()];
             if (artificial_clean_ins) {
@@ -324,9 +325,9 @@ public class SamplesDrawer extends Samples {
             }
           }
 
-          ++event_count[buffer.event().value];
+          ++event_count[buffer.event().ordinal()];
           if (kmer_event_drawer_.get(buffer.event()).add(buffer, ab)) {
-            final int event_index = buffer.event().value;
+            final int event_index = buffer.event().ordinal();
             ++logged_event_count[event_index];
             final int event_kmer = buffer.kmer();
             num_logged_events.increment(event_kmer, event_index, 0);
@@ -334,9 +335,9 @@ public class SamplesDrawer extends Samples {
               boolean done = true;
               long sum = 0;
               long sum_possible = 0;
-              for (EnumEvent event : EnumEvent.values()) {
-                final long loc = num_logged_events.get(event_kmer, event.value, 0);
-                final long loc_logged_total = kmer_event_count_ref()[event_kmer * EnumEvent.values().length + event.value];
+              for (EnumEvent event : EnumEvent.values) {
+                final long loc = num_logged_events.get(event_kmer, event.ordinal(), 0);
+                final long loc_logged_total = kmer_event_count_ref()[event_kmer * EnumEvent.values.length + event.ordinal()];
                 final long loc_possible = Math.max(loc_logged_total / event.recordEvery, loc_logged_total > 0 ? 1 : 0);
                 done = done && (loc > 0 || loc_possible == 0);
                 sum += loc;
@@ -397,11 +398,11 @@ public class SamplesDrawer extends Samples {
    */
   private EnumEvent randomEvent(Context context, RandomGenerator gen) {
     if (context.hp_len() == 1) {
-      final int shift = EnumEvent.values().length * context.kmer();
+      final int shift = EnumEvent.values.length * context.kmer();
 
-      final long[] frequencies = Arrays.copyOfRange(kmer_event_count_ref(), shift, shift + EnumEvent.values().length);
+      final long[] frequencies = Arrays.copyOfRange(kmer_event_count_ref(), shift, shift + EnumEvent.values.length);
       if (null != custom_frequency) {
-        for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
+        for (int ii = 0; ii < EnumEvent.values.length; ++ii) {
           if (frequencies[ii] > Heuristics.MIN_KMER_SAMPLES_FOR_NON_ZERO_CUSTOM_FREQUENCY) {
             frequencies[ii] = custom_frequency[ii];
           } else {
@@ -412,15 +413,15 @@ public class SamplesDrawer extends Samples {
       }
 
       long sum = 0;
-      for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
+      for (int ii = 0; ii < EnumEvent.values.length; ++ii) {
         sum += frequencies[ii];
       }
       final double p = gen.nextDouble();
       if (p < 0 || p > 1) { throw new RuntimeException("bad p=" + p); }
       double cdf = 0;
-      for (int ii = 0; ii < EnumEvent.values().length; ++ii) {
+      for (int ii = 0; ii < EnumEvent.values.length; ++ii) {
         cdf += (double) (frequencies[ii]) / (double) (sum);
-        if (p <= cdf) return EnumEvent.value2enum(ii);
+        if (p <= cdf) return EnumEvent.values[ii];
       }
       return EnumEvent.MATCH;
     } else {
