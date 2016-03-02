@@ -14,7 +14,7 @@ import com.google.common.primitives.Bytes;
 public class BaseCalls {
   private static final int bytePerBase = EnumDat.numBytes;
   // util.ByteBuffer can save a full copy operation everytime a byte[] is extracted from get()
-  private final ArrayList<Byte> data_ = new ArrayList<Byte>(bytePerBase);
+  private final ArrayList<Byte> data_ = new ArrayList<>(bytePerBase);
   private final PBSpec spec; // maybe there's a way to templatize this like in c++
 
   public BaseCalls(PBSpec spec) {
