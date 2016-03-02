@@ -14,59 +14,59 @@ import com.bina.lrsim.pb.PBSpec;
  */
 
 public final class Event {
-  private Context context_;
-  private EnumEvent event_;
-  private final BaseCalls bc_;
+  private Context context;
+  private EnumEvent event;
+  private final BaseCalls bc;
 
   public Event(PBSpec spec) {
-    context_ = null;
-    event_ = null;
-    bc_ = new BaseCalls(spec);
+    context = null;
+    event = null;
+    bc = new BaseCalls(spec);
   }
 
   public Event(Context c, EnumEvent e, BaseCalls b) {
-    context_ = c;
-    event_ = e;
-    bc_ = b;
+    context = c;
+    event = e;
+    bc = b;
   }
 
   public int size() {
-    return bc_.size();
+    return bc.size();
   }
 
   public void resize(int s) {
-    bc_.resize(s);
+    bc.resize(s);
   }
 
   public EnumEvent event() {
-    return event_;
+    return event;
   }
 
   public int kmer() {
-    return context_.kmer();
+    return context.kmer();
   }
 
   public int hp_len() {
-    return context_.hp_len();
+    return context.hp_len();
   }
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(context_.toString() + " " + event_.toString() + " " + bc_.size() + "\n");
-    if (null != bc_) sb.append(bc_.toString());
+    sb.append(context + " " + event + " " + bc.size() + "\n");
+    if (null != bc) sb.append(bc.toString());
     return sb.toString();
   }
 
   public final byte get(int pos, EnumDat e) {
-    return bc_.get(pos, e);
+    return bc.get(pos, e);
   }
 
   public final void set(int pos, EnumDat e, byte b) {
-    bc_.set(pos, e, b);
+    bc.set(pos, e, b);
   }
 
   public byte[] data_cpy() {
-    return bc_.toByteArray();
+    return bc.toByteArray();
   }
 
   // there are 4-byte per 12-byte match event here, which is huge overhead
@@ -74,18 +74,18 @@ public final class Event {
   // we can also save all 4 bytes by writing homopolymer events to a different stream
   // this can be done down the line if we have time
   public void write(DataOutputStream dos) throws IOException {
-    if (event_.value >= EnumEvent.values().length) throw new RuntimeException("invalid i/o format");
-    dos.writeInt(context_.kmer());
-    dos.writeInt(EnumEvent.values().length * context_.hp_len() + event_.value);
-    bc_.write(dos);
+    if (event.ordinal() >= EnumEvent.values.length) throw new RuntimeException("invalid i/o format");
+    dos.writeInt(context.kmer());
+    dos.writeInt(EnumEvent.values.length * context.hp_len() + event.ordinal());
+    bc.write(dos);
   }
 
   public void read(DataInputStream dis) throws IOException {
     final int kmer = dis.readInt();
     int tmp = dis.readInt();
-    context_ = new Context(kmer, tmp / EnumEvent.values().length);
-    event_ = EnumEvent.value2enum(tmp % EnumEvent.values().length);
-    bc_.read(dis);
+    context = new Context(kmer, tmp / EnumEvent.values.length);
+    event = EnumEvent.values[tmp % EnumEvent.values.length];
+    bc.read(dis);
     for (int ii = 0; ii < size(); ++ii) {
       byte base = get(ii, EnumDat.BaseCall);
       if (base != 'A' && base != 'C' && base != 'T' && base != 'G') {
