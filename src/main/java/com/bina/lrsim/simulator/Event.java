@@ -74,7 +74,6 @@ public final class Event {
   // we can also save all 4 bytes by writing homopolymer events to a different stream
   // this can be done down the line if we have time
   public void write(DataOutputStream dos) throws IOException {
-    if (event.ordinal() >= EnumEvent.values.length) throw new RuntimeException("invalid i/o format");
     dos.writeInt(context.kmer());
     dos.writeInt(EnumEvent.values.length * context.hp_len() + event.ordinal());
     bc.write(dos);
