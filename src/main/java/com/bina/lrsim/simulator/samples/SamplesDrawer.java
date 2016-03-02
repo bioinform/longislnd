@@ -282,20 +282,19 @@ public class SamplesDrawer extends Samples {
             case DELETION:
               break;
             case SUBSTITUTION:
-              if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] == buffer.get(0, EnumDat.BaseCall)) {
+              if (Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank()) == buffer.get(0, EnumDat.BaseCall)) {
                 throw new RuntimeException("matching base for " + bufferEvent.name() + " event");
               }
               break;
             case MATCH:
-              if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] != buffer.get(0, EnumDat.BaseCall)) {
+              if (Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank()) != buffer.get(0, EnumDat.BaseCall)) {
                 throw new RuntimeException("mismatching base for " + bufferEvent + " event");
               }
               break;
             case INSERTION:
-              final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
-              final byte center_base = kmer_sequence[left_flank()];
+              final byte center_base = Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank());
               if (artificial_clean_ins) {
-                final byte next_base = kmer_sequence[left_flank() + 1];
+                final byte next_base = Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank() + 1);
                 final int mid_point = (buffer.size() + 1) / 2;
                 final byte mid_point_base = buffer.get(mid_point, EnumDat.BaseCall);
                 final boolean mid_point_different = mid_point_base != center_base && mid_point_base != next_base;
@@ -326,6 +325,7 @@ public class SamplesDrawer extends Samples {
               }
               if (buffer.size() - 1 > Heuristics.MAX_INS_LENGTH) {
                 int hp_length = 1;
+                final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
                 for (int pos = left_flank() + 1; pos < kmer_sequence.length && kmer_sequence[pos] == center_base; ++pos, ++hp_length) {
                 }
                 for (int pos = left_flank() - 1; pos >= 0 && kmer_sequence[pos] == center_base; --pos, ++hp_length) {
