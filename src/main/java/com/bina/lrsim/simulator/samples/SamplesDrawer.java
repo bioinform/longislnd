@@ -364,8 +364,7 @@ public class SamplesDrawer extends Samples {
           }
         } else {
           if (Heuristics.DISCARD_DIRTY_HOMOPOLYMER_SAMPLES) {
-            final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), hp_anchor() + 1 + hp_anchor());
-            final byte center_base = kmer_sequence[hp_anchor()];
+            final byte center_base = Kmerizer.getKmerByte(buffer.kmer(), 2 * hp_anchor() + 1, hp_anchor());
             int match = 0;
             for (int pos = 0; pos < buffer.size(); ++pos) {
               if (buffer.get(pos, EnumDat.BaseCall) == center_base) {
