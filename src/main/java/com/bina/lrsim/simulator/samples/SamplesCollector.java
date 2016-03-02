@@ -57,19 +57,19 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
       }
 
       if (event.hp_len() == 1) {
-        final long current_count = kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value];
+        final long current_count = kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
         if (null!=eventOut_ && event.event().recordEvery > 0
                 && current_count % event.event().recordEvery == 0 && current_count / event.event().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
           event.write(eventOut_);
         }
-        final int idx = event.event().value;
+        final int idx = event.event().ordinal();
 
         ++event_count_ref()[idx];
         ++event_base_count_ref()[idx];
         if (event.event().equals(EnumEvent.INSERTION)) {
           event_base_count_ref()[idx] += event.size() - 2;
         }
-        ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value];
+        ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
       } else {
         if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
           add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
