@@ -273,61 +273,72 @@ public class SamplesDrawer extends Samples {
         buffer.read(dis[src]);
 
         if (buffer.hp_len() == 1) {
-          if (buffer.event() == EnumEvent.DELETION && buffer.size() > 1) {
-            throw new RuntimeException("del with length " + buffer.size());
-          } else if (buffer.event() == EnumEvent.SUBSTITUTION) {
-            if (buffer.size() != 1) { throw new RuntimeException("sub with length " + buffer.size()); }
-            if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] == buffer.get(0, EnumDat.BaseCall)) { throw new RuntimeException("matching base for substitution event"); }
-          } else if (buffer.event() == EnumEvent.MATCH) {
-            if (buffer.size() != 1) { throw new RuntimeException("match with length " + buffer.size()); }
-            if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] != buffer.get(0, EnumDat.BaseCall)) { throw new RuntimeException("unmatching base for match event"); }
-          } else if (buffer.event() == EnumEvent.INSERTION) {
-            final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
-            final byte center_base = kmer_sequence[left_flank()];
-            if (artificial_clean_ins) {
-              final byte next_base = kmer_sequence[left_flank() + 1];
-              final int mid_point = (buffer.size() + 1) / 2;
-              final byte mid_point_base = buffer.get(mid_point, EnumDat.BaseCall);
-              final boolean mid_point_different = mid_point_base != center_base && mid_point_base != next_base;
-              boolean changed = false;
-              // log.info("bayo ins: " + new String(kmer_sequence) + " " + buffer.toString());
-              for (int index = 0; index < mid_point; ++index) {
-                final byte base = buffer.get(index, EnumDat.BaseCall);
-                if (base != center_base && base != next_base) {
-                  buffer.set(index, EnumDat.BaseCall, center_base);
-                  changed = true;
-                }
-              }
-              for (int index = mid_point; index < buffer.size(); ++index) {
-                final byte base = buffer.get(index, EnumDat.BaseCall);
-                if (base != center_base && base != next_base) {
-                  buffer.set(index, EnumDat.BaseCall, next_base);
-                  changed = true;
-                }
-              }
-              ++raw_ins;
-              if (buffer.size() % 2 == 0 && mid_point_different) {
-                buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? center_base : next_base);
-                changed = true;
-              }
-              if (changed) {
-                ++mod_ins;
-                // log.info("bayo changed: " + new String(kmer_sequence) + " " + buffer.toString());
-              }
-            }
-            if (buffer.size() - 1 > Heuristics.MAX_INS_LENGTH) {
-              int hp_length = 1;
-              for (int pos = left_flank() + 1; pos < kmer_sequence.length && kmer_sequence[pos] == center_base; ++pos, ++hp_length) {}
-              for (int pos = left_flank() - 1; pos >= 0 && kmer_sequence[pos] == center_base; --pos, ++hp_length) {}
-              if (hp_length <= Math.min(left_flank(), right_flank())) {
-                buffer.resize(Heuristics.MAX_INS_LENGTH + 1);
-              }
-            }
+          final EnumEvent bufferEvent = buffer.event();
+          if (buffer.size() > 1 && bufferEvent != EnumEvent.INSERTION) {
+            throw new RuntimeException(bufferEvent.name() + " with length " + buffer.size());
           }
 
-          ++event_count[buffer.event().ordinal()];
-          if (kmer_event_drawer_.get(buffer.event()).add(buffer, ab)) {
-            final int event_index = buffer.event().ordinal();
+          switch(bufferEvent) {
+            case DELETION:
+              break;
+            case SUBSTITUTION:
+              if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] == buffer.get(0, EnumDat.BaseCall)) {
+                throw new RuntimeException("matching base for " + bufferEvent.name() + " event");
+              }
+              break;
+            case MATCH:
+              if (Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank())[left_flank()] != buffer.get(0, EnumDat.BaseCall)) {
+                throw new RuntimeException("mismatching base for " + bufferEvent + " event");
+              }
+              break;
+            case INSERTION:
+              final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
+              final byte center_base = kmer_sequence[left_flank()];
+              if (artificial_clean_ins) {
+                final byte next_base = kmer_sequence[left_flank() + 1];
+                final int mid_point = (buffer.size() + 1) / 2;
+                final byte mid_point_base = buffer.get(mid_point, EnumDat.BaseCall);
+                final boolean mid_point_different = mid_point_base != center_base && mid_point_base != next_base;
+                boolean changed = false;
+                for (int index = 0; index < mid_point; ++index) {
+                  final byte base = buffer.get(index, EnumDat.BaseCall);
+                  if (base != center_base && base != next_base) {
+                    buffer.set(index, EnumDat.BaseCall, center_base);
+                    changed = true;
+                  }
+                }
+                for (int index = mid_point; index < buffer.size(); ++index) {
+                  final byte base = buffer.get(index, EnumDat.BaseCall);
+                  if (base != center_base && base != next_base) {
+                    buffer.set(index, EnumDat.BaseCall, next_base);
+                    changed = true;
+                  }
+                }
+                ++raw_ins;
+                if (buffer.size() % 2 == 0 && mid_point_different) {
+                  buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? center_base : next_base);
+                  changed = true;
+                }
+                if (changed) {
+                  ++mod_ins;
+                  // log.info("bayo changed: " + new String(kmer_sequence) + " " + buffer.toString());
+                }
+              }
+              if (buffer.size() - 1 > Heuristics.MAX_INS_LENGTH) {
+                int hp_length = 1;
+                for (int pos = left_flank() + 1; pos < kmer_sequence.length && kmer_sequence[pos] == center_base; ++pos, ++hp_length) {
+                }
+                for (int pos = left_flank() - 1; pos >= 0 && kmer_sequence[pos] == center_base; --pos, ++hp_length) {
+                }
+                if (hp_length <= Math.min(left_flank(), right_flank())) {
+                  buffer.resize(Heuristics.MAX_INS_LENGTH + 1);
+                }
+              }
+          }
+
+          ++event_count[bufferEvent.ordinal()];
+          if (kmer_event_drawer_.get(bufferEvent).add(buffer, ab)) {
+            final int event_index = bufferEvent.ordinal();
             ++logged_event_count[event_index];
             final int event_kmer = buffer.kmer();
             num_logged_events.increment(event_kmer, event_index, 0);
