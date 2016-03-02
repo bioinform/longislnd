@@ -7,7 +7,7 @@ import java.util.Iterator;
  * Created by bayo on 5/11/15.
  */
 public final class HPContext extends Context {
-  private final byte[] ascii_;
+  private final byte[] ascii;
 
   private static int constructor_kmerizer(byte[] ascii, int leftFlank, int rightFlank, int hp_anchor) {
     if (ascii.length == 1 + leftFlank + rightFlank) {
@@ -27,13 +27,13 @@ public final class HPContext extends Context {
 
   HPContext(byte[] ascii, int leftFlank, int rightFlank, int hp_anchor) {
     super(constructor_kmerizer(ascii, leftFlank, rightFlank, hp_anchor), ascii.length - leftFlank - rightFlank);
-    ascii_ = ascii;
+    this.ascii = ascii;
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (byte entry : ascii_) {
+    for (byte entry : ascii) {
       sb.append((char) entry);
     }
     sb.append(" ");
@@ -50,7 +50,7 @@ public final class HPContext extends Context {
    */
   @Override
   public Iterator<Context> decompose(int leftFlank, int rightFlank) {
-    return new KmerIterator(ascii_, 0, ascii_.length, leftFlank, rightFlank);
+    return new KmerIterator(ascii, 0, ascii.length, leftFlank, rightFlank);
   }
 
 }
