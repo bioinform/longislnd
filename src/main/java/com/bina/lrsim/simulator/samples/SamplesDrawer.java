@@ -145,22 +145,22 @@ public class SamplesDrawer extends Samples {
       // ignore the previous event if it's already a deletion
       final int org_length = buffer.size();
       AppendState result = kmer_event_drawer_.get(ev).appendTo(buffer, context, ev.equals(EnumEvent.DELETION) ? null : deletion, gen);
-      if(ev.equals(EnumEvent.DELETION) && buffer.size() != org_length) {
+      if(ev == EnumEvent.DELETION && buffer.size() != org_length) {
         throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
       }
-      if( (ev.equals(EnumEvent.SUBSTITUTION) || ev.equals(EnumEvent.MATCH)) && buffer.size() != org_length + 1) {
+      if( (ev == EnumEvent.SUBSTITUTION || ev == EnumEvent.MATCH) && buffer.size() != org_length + 1) {
         throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
       }
-      if(ev.equals(EnumEvent.INSERTION) && buffer.size() <= org_length + 1) {
+      if(ev == EnumEvent.INSERTION && buffer.size() <= org_length + 1) {
         throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
       }
       ++base_counter[ev.ordinal()];
-      if (ev.equals(EnumEvent.INSERTION)) {
+      if (ev == EnumEvent.INSERTION) {
         base_counter[ev.ordinal()] += buffer.size() - old_length - 2;
       }
       if (!result.success) { throw new RuntimeException("kmer draw"); }
       // return a signal for deletion event
-      return (ev.equals(EnumEvent.DELETION) && result.last_event != null && result.last_event.length > 0) ? result : null;
+      return (ev == EnumEvent.DELETION && result.last_event != null && result.last_event.length > 0) ? result : null;
     } else {
       // do not do full hp if custom frequency is provided
       // custom hp drawing is possible improvement
@@ -288,7 +288,7 @@ public class SamplesDrawer extends Samples {
               break;
             case MATCH:
               if (Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank()) != buffer.get(0, EnumDat.BaseCall)) {
-                throw new RuntimeException("mismatching base for " + bufferEvent + " event");
+                throw new RuntimeException("mismatching base for " + bufferEvent.name() + " event");
               }
               break;
             case INSERTION:
