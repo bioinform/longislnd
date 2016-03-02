@@ -271,6 +271,7 @@ public class SamplesDrawer extends Samples {
     for (int src = 0, n_src_done = 0; n_src_done < num_src && n_kmer_done < num_kmer() /* && num_logged_event < max_logged_event */; src = (src + 1) % num_src) {
       if (dis[src].available() > 0) {
         buffer.read(dis[src]);
+        final int bufferKmer = buffer.kmer();
 
         if (buffer.hp_len() == 1) {
           final EnumEvent bufferEvent = buffer.event();
@@ -278,44 +279,37 @@ public class SamplesDrawer extends Samples {
             throw new RuntimeException(bufferEvent.name() + " with length " + buffer.size());
           }
 
+          final byte centerBase = Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank());
           switch(bufferEvent) {
             case DELETION:
               break;
             case SUBSTITUTION:
-              if (Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank()) == buffer.get(0, EnumDat.BaseCall)) {
+              if (centerBase == buffer.get(0, EnumDat.BaseCall)) {
                 throw new RuntimeException("matching base for " + bufferEvent.name() + " event");
               }
               break;
             case MATCH:
-              if (Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank()) != buffer.get(0, EnumDat.BaseCall)) {
+              if (centerBase != buffer.get(0, EnumDat.BaseCall)) {
                 throw new RuntimeException("mismatching base for " + bufferEvent.name() + " event");
               }
               break;
             case INSERTION:
-              final byte center_base = Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank());
               if (artificial_clean_ins) {
-                final byte next_base = Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank() + 1);
+                final byte next_base = Kmerizer.getKmerByte(bufferKmer, left_flank() + 1 + right_flank(), left_flank() + 1);
                 final int mid_point = (buffer.size() + 1) / 2;
                 final byte mid_point_base = buffer.get(mid_point, EnumDat.BaseCall);
-                final boolean mid_point_different = mid_point_base != center_base && mid_point_base != next_base;
+                final boolean mid_point_different = mid_point_base != centerBase && mid_point_base != next_base;
                 boolean changed = false;
-                for (int index = 0; index < mid_point; ++index) {
+                for (int index = 0; index < buffer.size(); ++index) {
                   final byte base = buffer.get(index, EnumDat.BaseCall);
-                  if (base != center_base && base != next_base) {
-                    buffer.set(index, EnumDat.BaseCall, center_base);
-                    changed = true;
-                  }
-                }
-                for (int index = mid_point; index < buffer.size(); ++index) {
-                  final byte base = buffer.get(index, EnumDat.BaseCall);
-                  if (base != center_base && base != next_base) {
-                    buffer.set(index, EnumDat.BaseCall, next_base);
+                  if (base != centerBase && base != next_base) {
+                    buffer.set(index, EnumDat.BaseCall, centerBase);
                     changed = true;
                   }
                 }
                 ++raw_ins;
                 if (buffer.size() % 2 == 0 && mid_point_different) {
-                  buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? center_base : next_base);
+                  buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? centerBase : next_base);
                   changed = true;
                 }
                 if (changed) {
@@ -325,10 +319,10 @@ public class SamplesDrawer extends Samples {
               }
               if (buffer.size() - 1 > Heuristics.MAX_INS_LENGTH) {
                 int hp_length = 1;
-                final byte[] kmer_sequence = Kmerizer.toByteArray(buffer.kmer(), left_flank() + 1 + right_flank());
-                for (int pos = left_flank() + 1; pos < kmer_sequence.length && kmer_sequence[pos] == center_base; ++pos, ++hp_length) {
+                final byte[] kmerSequence = Kmerizer.toByteArray(bufferKmer, left_flank() + 1 + right_flank());
+                for (int pos = left_flank() + 1; pos < kmerSequence.length && kmerSequence[pos] == centerBase; ++pos, ++hp_length) {
                 }
-                for (int pos = left_flank() - 1; pos >= 0 && kmer_sequence[pos] == center_base; --pos, ++hp_length) {
+                for (int pos = left_flank() - 1; pos >= 0 && kmerSequence[pos] == centerBase; --pos, ++hp_length) {
                 }
                 if (hp_length <= Math.min(left_flank(), right_flank())) {
                   buffer.resize(Heuristics.MAX_INS_LENGTH + 1);
@@ -340,15 +334,15 @@ public class SamplesDrawer extends Samples {
           if (kmer_event_drawer_.get(bufferEvent).add(buffer, ab)) {
             final int event_index = bufferEvent.ordinal();
             ++logged_event_count[event_index];
-            final int event_kmer = buffer.kmer();
-            num_logged_events.increment(event_kmer, event_index, 0);
-            if (min_event_threshold[event_kmer] >= 0 && num_logged_events.get(event_kmer, min_event_index, 0) >= min_event_threshold[event_kmer]) {
+            //final int event_kmer = buffer.kmer();
+            num_logged_events.increment(bufferKmer, event_index, 0);
+            if (min_event_threshold[bufferKmer] >= 0 && num_logged_events.get(bufferKmer, min_event_index, 0) >= min_event_threshold[bufferKmer]) {
               boolean done = true;
               long sum = 0;
               long sum_possible = 0;
               for (EnumEvent event : EnumEvent.values) {
-                final long loc = num_logged_events.get(event_kmer, event.ordinal(), 0);
-                final long loc_logged_total = kmer_event_count_ref()[event_kmer * EnumEvent.values.length + event.ordinal()];
+                final long loc = num_logged_events.get(bufferKmer, event.ordinal(), 0);
+                final long loc_logged_total = kmer_event_count_ref()[bufferKmer * EnumEvent.values.length + event.ordinal()];
                 final long loc_possible = Math.max(loc_logged_total / event.recordEvery, loc_logged_total > 0 ? 1 : 0);
                 done = done && (loc > 0 || loc_possible == 0);
                 sum += loc;
@@ -357,7 +351,7 @@ public class SamplesDrawer extends Samples {
               done = done && (sum >= max_sample || sum >= sum_possible);
               if (done) {
                 ++n_kmer_done;
-                min_event_threshold[event_kmer] = -1;
+                min_event_threshold[bufferKmer] = -1;
               }
             }
             // ++num_logged_event;
