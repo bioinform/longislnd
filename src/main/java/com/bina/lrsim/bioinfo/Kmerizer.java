@@ -55,7 +55,7 @@ public class Kmerizer {
   }
 
   public static byte getKmerByte(int kmer, final int length, final int index) {
-    for (int i = length - 1; i >= index; i--) {
+    for (int i = length - 1; i > index; i--) {
       kmer /= 4;
     }
     return EnumBP.value2ascii((byte) (kmer % 4));
