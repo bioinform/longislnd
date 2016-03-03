@@ -179,7 +179,7 @@ public abstract class Samples {
     dos.close();
   }
 
-  private final void loadIdx(String prefix) throws IOException {
+  private void loadIdx(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new FileInputStream(Suffixes.IDX.filename(prefix)));
     left_flank_ = dis.readInt();
     right_flank_ = dis.readInt();

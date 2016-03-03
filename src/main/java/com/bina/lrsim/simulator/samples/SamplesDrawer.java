@@ -145,15 +145,29 @@ public class SamplesDrawer extends Samples {
       // ignore the previous event if it's already a deletion
       final int org_length = buffer.size();
       AppendState result = kmer_event_drawer_.get(ev).appendTo(buffer, context, ev.equals(EnumEvent.DELETION) ? null : deletion, gen);
-      if(ev == EnumEvent.DELETION && buffer.size() != org_length) {
-        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
+
+      final boolean badLength;
+      switch(ev) {
+        case DELETION:
+          badLength = buffer.size() != org_length;
+          break;
+        case INSERTION:
+          badLength = buffer.size() <= org_length + 1;
+          break;
+        case MATCH:
+        case SUBSTITUTION:
+          badLength = buffer.size() != org_length + 1;
+          if (buffer.size() != org_length + 1) {
+            throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.name());
+          }
+          break;
+        default:
+          badLength = false;
       }
-      if( (ev == EnumEvent.SUBSTITUTION || ev == EnumEvent.MATCH) && buffer.size() != org_length + 1) {
-        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
+      if (badLength) {
+        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.name());
       }
-      if(ev == EnumEvent.INSERTION && buffer.size() <= org_length + 1) {
-        throw new RuntimeException("length increased by " + (buffer.size() - org_length) + " for " + ev.toString() );
-      }
+
       ++base_counter[ev.ordinal()];
       if (ev == EnumEvent.INSERTION) {
         base_counter[ev.ordinal()] += buffer.size() - old_length - 2;
@@ -279,7 +293,7 @@ public class SamplesDrawer extends Samples {
             throw new RuntimeException(bufferEvent.name() + " with length " + buffer.size());
           }
 
-          final byte centerBase = Kmerizer.getKmerByte(buffer.kmer(), left_flank() + 1 + right_flank(), left_flank());
+          final byte centerBase = Kmerizer.getKmerByte(bufferKmer, left_flank() + 1 + right_flank(), left_flank());
           switch(bufferEvent) {
             case DELETION:
               break;
@@ -295,21 +309,21 @@ public class SamplesDrawer extends Samples {
               break;
             case INSERTION:
               if (artificial_clean_ins) {
-                final byte next_base = Kmerizer.getKmerByte(bufferKmer, left_flank() + 1 + right_flank(), left_flank() + 1);
+                final byte nextBase = Kmerizer.getKmerByte(bufferKmer, left_flank() + 1 + right_flank(), left_flank() + 1);
                 final int mid_point = (buffer.size() + 1) / 2;
                 final byte mid_point_base = buffer.get(mid_point, EnumDat.BaseCall);
-                final boolean mid_point_different = mid_point_base != centerBase && mid_point_base != next_base;
+                final boolean mid_point_different = mid_point_base != centerBase && mid_point_base != nextBase;
                 boolean changed = false;
                 for (int index = 0; index < buffer.size(); ++index) {
                   final byte base = buffer.get(index, EnumDat.BaseCall);
-                  if (base != centerBase && base != next_base) {
+                  if (base != centerBase && base != nextBase) {
                     buffer.set(index, EnumDat.BaseCall, centerBase);
                     changed = true;
                   }
                 }
                 ++raw_ins;
                 if (buffer.size() % 2 == 0 && mid_point_different) {
-                  buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? centerBase : next_base);
+                  buffer.set(mid_point, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? centerBase : nextBase);
                   changed = true;
                 }
                 if (changed) {
@@ -332,10 +346,9 @@ public class SamplesDrawer extends Samples {
 
           ++event_count[bufferEvent.ordinal()];
           if (kmer_event_drawer_.get(bufferEvent).add(buffer, ab)) {
-            final int event_index = bufferEvent.ordinal();
-            ++logged_event_count[event_index];
-            //final int event_kmer = buffer.kmer();
-            num_logged_events.increment(bufferKmer, event_index, 0);
+            final int eventIndex = bufferEvent.ordinal();
+            ++logged_event_count[eventIndex];
+            num_logged_events.increment(bufferKmer, eventIndex, 0);
             if (min_event_threshold[bufferKmer] >= 0 && num_logged_events.get(bufferKmer, min_event_index, 0) >= min_event_threshold[bufferKmer]) {
               boolean done = true;
               long sum = 0;
