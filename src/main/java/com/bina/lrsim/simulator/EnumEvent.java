@@ -24,9 +24,9 @@ public enum EnumEvent {
 
   public static String getListDescription() {
     StringBuilder sb = new StringBuilder();
-    sb.append(values[0].toString());
-    for(int ii = 1; ii < EnumEvent.values().length; ++ii) {
-      sb.append(":"+values[ii]);
+    sb.append(values[0]);
+    for(int i = 1; i < values.length; i++) {
+      sb.append(":" + values[i]);
     }
     return sb.toString();
   }
@@ -39,16 +39,6 @@ public enum EnumEvent {
     this.description = description;
     this.recordEvery = recordPeriod;
     this.pool = pool;
-  }
-
-  public static int num_logged_events() {
-    int out = 0;
-    for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
-      if (ev.recordEvery > 0) {
-        ++out;
-      }
-    }
-    return out;
   }
 
   public String toString() {
@@ -64,7 +54,7 @@ public enum EnumEvent {
     for (long entry : data) {
       sum += entry;
     }
-    for (EnumEvent ev : EnumSet.allOf(EnumEvent.class)) {
+    for (EnumEvent ev : EnumEvent.values) {
       long count = data[ev.ordinal()];
       sb.append(" " + ev + " " + count + String.format(" (%5.1f)", 100 * (double) (count) / sum));
     }
