@@ -19,7 +19,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
   public ShotgunSequenceDrawer(String filename) {
     super(filename);
     long num_bases = 0;
-    for (String entry : name_) {
+    for (String entry : name) {
       num_bases += get(entry).getSeq().length;
       ref_cdf_.add(num_bases);
     }
