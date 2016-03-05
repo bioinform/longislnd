@@ -105,7 +105,7 @@ public class SimulatorDriver {
 
     int current_file_index = 0;
     int simulated_reads = 0;
-    final int target_chunk = (int) Math.min(wr.num_non_n(), 200000000);
+    final int target_chunk = (int) Math.min(wr.getNonNCount(), 200000000);
     log.info("each file will have ~" + target_chunk + " bases");
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
