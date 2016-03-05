@@ -81,7 +81,7 @@ public class BAMWriter extends ReadsWriter {
   }
 
   @Override
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci) {
+  public void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci) {
     for (EnumDat entry : spec.getDataSet()) {
       enum_data.put(entry, read.get(entry).toByteArray());
     }
