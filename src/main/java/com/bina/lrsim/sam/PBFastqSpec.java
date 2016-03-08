@@ -1,6 +1,7 @@
 package com.bina.lrsim.sam;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
 import com.bina.lrsim.pb.EnumDat;
@@ -17,7 +18,7 @@ public class PBFastqSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumGroups> getGroupSet() {
+  public Set<EnumGroups> getGroupSet() {
     return EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses));
   }
 
@@ -47,12 +48,12 @@ public class PBFastqSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumDat> getDataSet() {
+  public Set<EnumDat> getDataSet() {
     return EnumSet.of(EnumDat.BaseCall, EnumDat.QualityValue);
   }
 
   @Override
-  public EnumSet<EnumDat> getNonBaseDataSet() {
+  public Set<EnumDat> getNonBaseDataSet() {
     return EnumSet.of(EnumDat.QualityValue);
   }
 
