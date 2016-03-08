@@ -24,7 +24,7 @@ public class KmerBCPool extends BaseCallsPool {
 
   public KmerBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
-    data_ = new ArrayList<List<byte[]>>(numKmers_);
+    data_ = new ArrayList<>(numKmers_);
     for (int ii = 0; ii < numKmers_; ++ii) {
       data_.add(new ArrayList<byte[]>((entryPerKmer > 0) ? entryPerKmer : 100));
     }
