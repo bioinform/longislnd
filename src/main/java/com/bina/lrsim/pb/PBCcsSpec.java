@@ -1,6 +1,7 @@
 package com.bina.lrsim.pb;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
 
@@ -15,7 +16,7 @@ public class PBCcsSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumGroups> getGroupSet() {
+  public Set<EnumGroups> getGroupSet() {
     return EnumSet.complementOf(EnumSet.of(EnumGroups.ZMW, EnumGroups.ZMWMetrics));
   }
 
@@ -45,12 +46,12 @@ public class PBCcsSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumDat> getDataSet() {
+  public Set<EnumDat> getDataSet() {
     return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1));
   }
 
   @Override
-  public EnumSet<EnumDat> getNonBaseDataSet() {
+  public Set<EnumDat> getNonBaseDataSet() {
     return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1));
   }
 }

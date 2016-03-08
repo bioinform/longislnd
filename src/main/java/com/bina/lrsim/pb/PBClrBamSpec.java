@@ -3,6 +3,7 @@ package com.bina.lrsim.pb;
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Created by bayolau on 1/8/16.
@@ -14,7 +15,7 @@ public class PBClrBamSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumGroups> getGroupSet() {
+  public Set<EnumGroups> getGroupSet() {
     return EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses));
   }
 
@@ -44,12 +45,12 @@ public class PBClrBamSpec extends PBSpec {
   }
 
   @Override
-  public EnumSet<EnumDat> getDataSet() {
+  public Set<EnumDat> getDataSet() {
     return EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray));
   }
 
   @Override
-  public EnumSet<EnumDat> getNonBaseDataSet() {
+  public Set<EnumDat> getNonBaseDataSet() {
     return EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray));
   }
 }
