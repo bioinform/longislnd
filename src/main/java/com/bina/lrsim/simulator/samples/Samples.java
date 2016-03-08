@@ -304,12 +304,8 @@ public abstract class Samples {
     ArrayList<Integer> new_scores_ = new ArrayList<Integer>(scores_.size());
 
     for (int idx = 0; idx < lengths_.size(); ++idx) {
-      final int local_max = NumberUtils.max(lengths_.get(idx));
-      int num_passes = 0;
-      for(int length: lengths_.get(idx)) {
-        if (length > Heuristics.SMRT_INSERT_FRACTION * local_max) { ++num_passes; } // ugly hack, should be done something else, no time to fix
-      }
-      if ( num_passes < limits.min_num_passes || num_passes > limits.max_num_passes || local_max > limits.max_fragment_length || local_max < limits.min_fragment_length) {
+      final MultiPassSpec spec = new MultiPassSpec(lengths_.get(idx));
+      if ( spec.numPasses < limits.min_num_passes || spec.numPasses > limits.max_num_passes || spec.fragmentLength > limits.max_fragment_length || spec.fragmentLength < limits.min_fragment_length) {
         continue;
       }
       new_lengths_.add(lengths_.get(idx));
