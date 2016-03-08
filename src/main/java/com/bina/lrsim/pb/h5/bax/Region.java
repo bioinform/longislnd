@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bayo on 5/27/15.
@@ -14,8 +15,8 @@ public class Region {
   final private int regionScore;
   final private float readScore;
   final private byte holeStatus;
-  final private ArrayList<Integer> insertLengths = new ArrayList<Integer>();
-  final private ArrayList<Pair<Integer, Integer>> begin_end = new ArrayList<Pair<Integer, Integer>>();
+  final private List<Integer> insertLengths = new ArrayList<>();
+  final private List<Pair<Integer, Integer>> begin_end = new ArrayList<>();
 
   public Region(int regionScore, float readScore, byte holeStatus, int insertLength) {
     this.regionScore = regionScore;
@@ -23,7 +24,7 @@ public class Region {
     this.holeStatus = holeStatus;
     insertLengths.add(insertLength);
     if (insertLength > 0) {
-      begin_end.add(new ImmutablePair<Integer, Integer>(0, insertLength));
+      begin_end.add(new ImmutablePair<>(0, insertLength));
     }
   }
 
@@ -35,8 +36,8 @@ public class Region {
     int hq_start = Integer.MAX_VALUE;
     int hq_end = -1;
 
-    ArrayList<Integer> insert_start = new ArrayList<Integer>(4);
-    ArrayList<Integer> insert_end = new ArrayList<Integer>(4);
+    List<Integer> insert_start = new ArrayList<>(4);
+    List<Integer> insert_end = new ArrayList<>(4);
 
     int regionScore = -1;
     for (int shift = begin; shift < end; shift += EnumRegionsIdx.values().length) {
@@ -57,18 +58,18 @@ public class Region {
       final int e = Math.min(insert_end.get(ii), hq_end);
       insertLengths.add(e - b);
       if (e > b) {
-        begin_end.add(new ImmutablePair<Integer, Integer>(b, e));
+        begin_end.add(new ImmutablePair<>(b, e));
       }
     }
 
     this.regionScore = regionScore;
   }
 
-  public ArrayList<Pair<Integer, Integer>> getBeginEnd() {
+  public List<Pair<Integer, Integer>> getBeginEnd() {
     return begin_end;
   }
 
-  public ArrayList<Integer> getInsertLengths() {
+  public List<Integer> getInsertLengths() {
     return insertLengths;
   }
 
