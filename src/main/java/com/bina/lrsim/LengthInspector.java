@@ -30,7 +30,7 @@ public class LengthInspector {
     final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
     final SamplesDrawer samples = new SamplesDrawer(model_prefixes.split(","), new PBClrBamSpec(), 0, null, false, len_limits);
     for(int ii = 0; ii < samples.getLengthSize(); ++ii) {
-      log.info("entry: " + Arrays.toString(samples.getLength(ii)));
+      log.info("[lengths] score: " + Arrays.toString(samples.getLength(ii)) + " " + samples.getScore(ii));
     }
   }
 
