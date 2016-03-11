@@ -197,7 +197,7 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     for (int rr = 0; rr < size(); ++rr) {
       final int hole = firsthole + rr;
       final int score = buffer_.getScore(rr);
-      ArrayList<Integer> read_lengths = buffer_.getReadLengths(rr);
+      final List<Integer> read_lengths = buffer_.getReadLengths(rr);
       if (spec.writeAdapterInsert()) {
         writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, 0, read_lengths.get(0), ins_score);
         shift += EnumRegionsIdx.values().length;
