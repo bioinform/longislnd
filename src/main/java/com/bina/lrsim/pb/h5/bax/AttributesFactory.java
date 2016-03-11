@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.EnumMap;
+import java.util.Map;
 
 import com.bina.lrsim.pb.h5.Attributes;
 import com.bina.lrsim.pb.EnumDat;
@@ -15,8 +16,8 @@ import com.bina.lrsim.pb.PBSpec;
 
 class AttributesFactory {
 
-  private EnumMap<EnumDat, Attributes> ofDat_ = new EnumMap<>(EnumDat.class);
-  private EnumMap<EnumGroups, Attributes> ofGrp_ = new EnumMap<>(EnumGroups.class);
+  private Map<EnumDat, Attributes> ofDat_ = new EnumMap<>(EnumDat.class);
+  private Map<EnumGroups, Attributes> ofGrp_ = new EnumMap<>(EnumGroups.class);
 
   public AttributesFactory(int num_reads, String movie_name, PBSpec spec) {
     {// for enum dat

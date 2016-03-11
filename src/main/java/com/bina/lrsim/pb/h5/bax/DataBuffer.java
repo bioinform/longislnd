@@ -1,6 +1,7 @@
 package com.bina.lrsim.pb.h5.bax;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.pb.PBSpec;
@@ -11,8 +12,8 @@ import com.bina.lrsim.pb.PBSpec;
 
 class DataBuffer {
 
-  private final ArrayList<Integer> score_ = new ArrayList<Integer>();
-  private final ArrayList<ArrayList<Integer>> read_lengths_ = new ArrayList<>();
+  private final List<Integer> score_ = new ArrayList<>();
+  private final List<List<Integer>> read_lengths_ = new ArrayList<>();
   private final PBReadBuffer reads_;
   private int numAdapterInsert = 0;
 
@@ -20,7 +21,7 @@ class DataBuffer {
     reads_ = new PBReadBuffer(spec, bufferSize);
   }
 
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score) {
+  public void addLast(PBReadBuffer read, List<Integer> readLengths, int score) {
     reads_.addLast(read);
     score_.add(score);
     read_lengths_.add(readLengths);
@@ -41,11 +42,11 @@ class DataBuffer {
   }
 
   public int getLength(int index) {
-    final ArrayList<Integer> tmp = getReadLengths(index);
+    final List<Integer> tmp = getReadLengths(index);
     return tmp.get(tmp.size() - 1);
   }
 
-  public ArrayList<Integer> getReadLengths(int index) {
+  public List<Integer> getReadLengths(int index) {
     return read_lengths_.get(index);
   }
 

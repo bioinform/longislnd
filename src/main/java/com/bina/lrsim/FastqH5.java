@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.bina.lrsim.pb.h5.bax.BaxH5Writer;
 import com.bina.lrsim.pb.PBReadBuffer;
@@ -58,7 +59,7 @@ public class FastqH5 {
           qv[jj] -= 33;
         }
         read.addASCIIBases(record.getReadString().getBytes(), null /* not supposed to work with fastq */, qv);
-        ArrayList<Integer> section_ends = new ArrayList<>();
+        final List<Integer> section_ends = new ArrayList<>();
         section_ends.add(read.size());
         writer.addLast(read, section_ends, 900, null, null);
         size += read.size();
