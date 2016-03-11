@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("--fasta", help="FASTA to simulate reads from", required=True)
     parser.add_argument("--lrsim", help="Path to lrsim JAR", default=os.path.join(mydir, "LRSim.jar"))
     parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
-    parser.add_argument("--run", help="Directory with the model", default=os.path.join(mydir, "run"))
+    parser.add_argument("--model_dir", help="Directory with the model", default=os.path.join(mydir, "run"))
     parser.add_argument("--out", help="Output directory", default="out")
     parser.add_argument("--movie_id", help="Movie id", default="clrbam_p6")
     parser.add_argument("--read_type", help="Read type", default="clrbam")
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     base_count = int(sum(map(lambda contig: contig.getLength(), ReferenceContigs(args.fasta))) * args.coverage)
 
     # Get the model prefix
-    model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.run, "*stats"))))
+    model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
     command_line = "java -Djava.library.path={hdf5} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass}".format(
         hdf5=args.hdf5,
