@@ -1,12 +1,33 @@
 import argparse
 import logging
 import os
-import sys
-import pysam
 import subprocess
 import glob
 
 mydir = os.path.dirname(os.path.realpath(__file__))
+
+class Contig:
+    def __init__(self, name, length, sequence=None):
+        self.name = name
+        self.length = length
+        self.sequence = sequence
+
+    def getLength(self):
+        return self.length
+
+
+class ReferenceContigs:
+    def __init__(self, filename):
+        index_file = "{}.fai".format(filename)
+        self.contigs = []
+        with open(index_file) as index_file_fd:
+            for line in index_file_fd:
+                fields = line.split("\t")
+                self.contigs.append(Contig(fields[0], int(fields[1])))
+
+    def get_contigs(self):
+        return self.contigs
+
 
 if __name__ == "__main__":
     FORMAT = '%(levelname)s %(asctime)-15s %(name)-20s %(message)s'
@@ -39,8 +60,7 @@ if __name__ == "__main__":
         logger.warn("{} already exists".format(args.out))
 
     # Calculate the number of bases to simulate based on coverage
-    fastafile = pysam.Fastafile(args.fasta)
-    base_count = int(sum(fastafile.lengths) * args.coverage)
+    base_count = int(sum(map(lambda contig: contig.getLength(), ReferenceContigs(args.fasta))) * args.coverage)
 
     # Get the model prefix
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.run, "*stats"))))
