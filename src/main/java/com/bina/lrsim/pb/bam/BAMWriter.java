@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
@@ -40,9 +39,9 @@ public class BAMWriter extends ReadsWriter {
       tmp = null;
     }
     clr_bed = tmp;
-    readGroupRecord = new SAMReadGroupRecord(moviename_);
+    readGroupRecord = new SAMReadGroupRecord(this.moviename);
     readGroupRecord.setPlatform("PACBIO");
-    readGroupRecord.setPlatformUnit(moviename_);
+    readGroupRecord.setPlatformUnit(this.moviename);
     readGroupRecord.setDescription("READTYPE=SUBREAD;DeletionQV=dq;DeletionTag=dt;InsertionQV=iq;MergeQV=mq;SubstitutionQV=sq;Ipd:CodecV1=ip;BINDINGKIT=100372700;SEQUENCINGKIT=100356200;BASECALLERVERSION=2.3.0.4.162638;FRAMERATEHZ=75.000000");
 
     programRecord = new SAMProgramRecord("LongISLND");
@@ -61,7 +60,7 @@ public class BAMWriter extends ReadsWriter {
 
   @Override
   public void close() throws IOException {
-    writeLociBed(this.filename_, this.moviename_, this.firsthole_);
+    writeLociBed(this.filename, this.moviename, this.firsthole);
     writer.close();
     clr_bed.close();
   }
@@ -90,13 +89,13 @@ public class BAMWriter extends ReadsWriter {
     for (int index = 0; index < readLengths.size(); ++index) {
       end = readLengths.get(index);
       if (index % 2 == 0 && end != begin) {
-        final String record_name = moviename_ + "/" + (firsthole_ + num_reads) + "/" + begin + "_" + end;
+        final String record_name = moviename + "/" + (firsthole + num_reads) + "/" + begin + "_" + end;
         alignment.setReadName(record_name);
         alignment.setReadUnmappedFlag(true);
         alignment.setMappingQuality(255);
         alignment.setReadBases(Arrays.copyOfRange(enum_data.get(EnumDat.BaseCall), begin, end));
         alignment.setBaseQualities(Arrays.copyOfRange(enum_data.get(EnumDat.QualityValue), begin, end));
-        alignment.setAttribute("RG", moviename_);
+        alignment.setAttribute("RG", moviename);
         AddScore("dq", EnumDat.DeletionQV, begin, end);
         AddScore("dt", EnumDat.DeletionTag, begin, end);
         if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute("ip", enum_data.get(EnumDat.IDPV1));
