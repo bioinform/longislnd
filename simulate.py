@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import logging
 import os
@@ -19,6 +21,11 @@ class Contig:
 class ReferenceContigs:
     def __init__(self, filename):
         index_file = "{}.fai".format(filename)
+
+        if not os.path.exists(index_file):
+          process = subprocess.Popen(["samtools", "faidx", filename])
+          process.communicate()
+
         self.contigs = []
         with open(index_file) as index_file_fd:
             for line in index_file_fd:
