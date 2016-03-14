@@ -62,7 +62,7 @@ if __name__ == "__main__":
         logger.warn("{} already exists".format(args.out))
 
     # Calculate the number of bases to simulate based on coverage
-    base_count = int(sum(map(lambda contig: contig.getLength(), ReferenceContigs(args.fasta))) * args.coverage)
+    base_count = int(sum(map(lambda contig: contig.getLength(), ReferenceContigs(args.fasta).get_contigs())) * args.coverage)
 
     # Get the model prefix
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
