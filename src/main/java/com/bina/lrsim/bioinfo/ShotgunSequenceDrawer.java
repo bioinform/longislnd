@@ -1,6 +1,7 @@
 package com.bina.lrsim.bioinfo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
   private final static Logger log = Logger.getLogger(ShotgunSequenceDrawer.class.getName());
-  final ArrayList<Long> refCdf = new ArrayList<>();
+  final List<Long> refCdf = new ArrayList<>();
 
   public ShotgunSequenceDrawer(final String filename) {
     super(filename);
