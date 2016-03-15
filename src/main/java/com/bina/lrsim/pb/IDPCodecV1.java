@@ -18,8 +18,8 @@ public class IDPCodecV1 {
   private static final List<Integer> frameToCode;
 
   static {
-    framepoints = _makeFramepoints();
-    final Pair<List<Integer>, Integer> pair = _makeLookup(framepoints);
+    framepoints = makeFramepoints();
+    final Pair<List<Integer>, Integer> pair = makeLookup(framepoints);
     frameToCode = pair.getFirst();
     maxFramepoint = pair.getSecond();
   }
@@ -38,11 +38,11 @@ public class IDPCodecV1 {
   }
 
   // line-by-line translation of _BamSupport.py
-  private static List<Integer> _makeFramepoints() {
+  private static List<Integer> makeFramepoints() {
     final int B = 2;
     final int t = 6;
     final int T = (int) (Math.pow(2, t) + 0.5);
-    List<Integer> framepoints = new ArrayList<>();
+    final List<Integer> framepoints = new ArrayList<>();
     int next = 0;
     for (int i = 0; i < 256 / T; ++i) {
       final int grain = (int) (Math.pow(B, i) + 0.5);
@@ -55,8 +55,8 @@ public class IDPCodecV1 {
   }
 
   // line-by-line translation of _BamSupport.py
-  private static Pair<List<Integer>, Integer> _makeLookup(List<Integer> framepoints) {
-    List<Integer> frameToCode = new ArrayList<>(Collections.nCopies(Collections.max(framepoints) + 1, -1));
+  private static Pair<List<Integer>, Integer> makeLookup(final List<Integer> framepoints) {
+    final List<Integer> frameToCode = new ArrayList<>(Collections.nCopies(Collections.max(framepoints) + 1, -1));
     int i = 0, fl = -1, fu = -1; // python code was written like this
     for (i = 0; i + 1 < framepoints.size(); ++i) {
       fl = framepoints.get(i);

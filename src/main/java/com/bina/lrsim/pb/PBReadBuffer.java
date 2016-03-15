@@ -7,6 +7,7 @@ package com.bina.lrsim.pb;
 
 import java.io.ByteArrayOutputStream;
 import java.util.EnumMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -14,7 +15,7 @@ public class PBReadBuffer {
   private static final int INITIAL_SIZE = 1000;
   private final static Logger log = Logger.getLogger(PBReadBuffer.class.getName());
   // util.ByteBuffer can save a full copy operation everytime a byte[] is extracted
-  private final EnumMap<EnumDat, ByteArrayOutputStream> data_ = new EnumMap<EnumDat, ByteArrayOutputStream>(EnumDat.class);
+  private final Map<EnumDat, ByteArrayOutputStream> data_ = new EnumMap<>(EnumDat.class);
   private final Spec spec;
 
   public PBReadBuffer(Spec spec) {

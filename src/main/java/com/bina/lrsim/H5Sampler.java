@@ -2,6 +2,7 @@ package com.bina.lrsim;
 
 import java.io.IOException;
 
+import htsjdk.samtools.util.IOUtil;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.pb.h5.cmp.CmpH5Reader;
@@ -56,7 +57,7 @@ public class H5Sampler {
 
     EventGroupFactory groupFactory = null;
     final boolean writeEvents;
-    if (in_file.endsWith(".sam") && args.length > 7) {
+    if (in_file.endsWith(IOUtil.SAM_FILE_EXTENSION) && args.length > 7) {
       log.info("sam mode");
       groupFactory = new SamReader(in_file, args[7]);
       writeEvents = false;
