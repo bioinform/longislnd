@@ -1,7 +1,6 @@
 package com.bina.lrsim;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.bina.lrsim.pb.Spec;
@@ -9,8 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.bina.lrsim.pb.h5.bax.BaxH5Reader;
 import com.bina.lrsim.pb.h5.bax.Region;
-import com.bina.lrsim.pb.PBBaxSpec;
-import com.bina.lrsim.pb.PBCcsSpec;
 import com.bina.lrsim.simulator.samples.Samples;
 
 /**

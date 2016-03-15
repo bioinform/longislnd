@@ -10,7 +10,6 @@ import java.util.List;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.pb.h5.bax.BaxH5Writer;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.sam.PBFastqSpec;
 import htsjdk.samtools.fastq.FastqReader;
 import htsjdk.samtools.fastq.FastqRecord;
 import org.apache.log4j.Logger;
