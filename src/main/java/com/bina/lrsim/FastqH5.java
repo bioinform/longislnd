@@ -2,9 +2,11 @@ package com.bina.lrsim;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import com.bina.lrsim.pb.Spec;
@@ -20,6 +22,7 @@ import org.apache.log4j.Logger;
 public class FastqH5 {
   private final static Logger log = Logger.getLogger(FastqH5.class.getName());
   private final static String usage = "parameters: list-of-fastq";
+  private final static Spec spec = Spec.FastqSpec;
 
   /**
    *
@@ -30,8 +33,8 @@ public class FastqH5 {
       log.info(usage);
       System.exit(1);
     }
-    final String path = args[0];
-    final Spec spec = Spec.FastqSpec;
+
+    final File path = new File(args[0]);
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 
@@ -39,7 +42,7 @@ public class FastqH5 {
 
     int current_file_index = 0;
     String movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
-    BaxH5Writer writer = new BaxH5Writer(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, 0);
+    BaxH5Writer writer = new BaxH5Writer(spec, new File(path, movie_name + spec.getSuffix()).getPath(), movie_name, 0);
     final int target_chunk = 200000000;
     int size = 0;
     for (int ii = 1; ii < args.length; ++ii) {
@@ -48,7 +51,7 @@ public class FastqH5 {
         if (size > target_chunk) {
           writer.close();
           movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
-          writer = new BaxH5Writer(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, 0);
+          writer = new BaxH5Writer(spec, new File(path, movie_name + spec.getSuffix()).getPath(), movie_name, 0);
           size = 0;
         }
         read.clear();
@@ -57,9 +60,7 @@ public class FastqH5 {
           qv[jj] -= 33;
         }
         read.addASCIIBases(record.getReadString().getBytes(), null /* not supposed to work with fastq */, qv);
-        final List<Integer> section_ends = new ArrayList<>();
-        section_ends.add(read.size());
-        writer.addLast(read, section_ends, 900, null, null);
+        writer.addLast(read, Collections.singletonList(read.size()), 900, null, null);
         size += read.size();
       }
     }
