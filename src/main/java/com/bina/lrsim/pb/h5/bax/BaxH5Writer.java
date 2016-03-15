@@ -5,7 +5,6 @@ package com.bina.lrsim.pb.h5.bax;
  */
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.bina.lrsim.bioinfo.Locus;
@@ -35,17 +34,17 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   @Override
   public void close() throws IOException {
-    log.info("Writing to " + this.filename_ + " as movie " + this.moviename_);
-    H5File h5 = new H5File(this.filename_, FileFormat.CREATE);
+    log.info("Writing to " + this.filename + " as movie " + this.moviename);
+    H5File h5 = new H5File(this.filename, FileFormat.CREATE);
     try {
       h5.open();
-      AttributesFactory af = new AttributesFactory(size(), this.moviename_, spec);
+      AttributesFactory af = new AttributesFactory(size(), this.moviename, spec);
       writeGroups(h5, af);
       writeBaseCalls(h5, af);
-      writeZWM(h5, this.firsthole_);
-      writeRegions(h5, this.firsthole_);
+      writeZWM(h5, this.firsthole);
+      writeRegions(h5, this.firsthole);
       h5.close();
-      writeLociBed(this.filename_, this.moviename_, this.firsthole_);
+      writeLociBed(this.filename, this.moviename, this.firsthole);
     } catch (IOException e) {
       // The HDF5 API throws the base class Exception, so let's just catch them all and rethrow
       // run-time exception
