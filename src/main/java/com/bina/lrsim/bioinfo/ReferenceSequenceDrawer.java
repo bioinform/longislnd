@@ -6,8 +6,10 @@ import htsjdk.samtools.reference.ReferenceSequence;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,7 +18,7 @@ import java.util.Map;
 public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator {
   private final static Logger log = Logger.getLogger(ReferenceSequenceDrawer.class.getName());
   final Map<String, Chromosome> nameChromosomeMap = new HashMap<>();
-  final ArrayList<String> name = new ArrayList<>();
+  final List<String> name = new ArrayList<>();
   FastaSequenceFile reference;
 
   public static ReferenceSequenceDrawer Factory(final String mode, final String fasta) {
@@ -31,7 +33,7 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
   }
 
   public ReferenceSequenceDrawer(final String filename) {
-    reference = new FastaSequenceFile(new java.io.File(filename), true);
+    reference = new FastaSequenceFile(new File(filename), true);
     for (ReferenceSequence rr = reference.nextSequence(); null != rr; rr = reference.nextSequence()) {
       name.add(rr.getName());
       nameChromosomeMap.put(rr.getName(), new Chromosome(rr));
