@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 /**
  * Created by bayo on 5/6/15.
@@ -17,7 +17,7 @@ class DataBuffer {
   private final PBReadBuffer reads_;
   private int numAdapterInsert = 0;
 
-  public DataBuffer(PBSpec spec, int bufferSize) {
+  public DataBuffer(Spec spec, int bufferSize) {
     reads_ = new PBReadBuffer(spec, bufferSize);
   }
 

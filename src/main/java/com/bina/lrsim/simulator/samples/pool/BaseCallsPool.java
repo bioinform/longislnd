@@ -5,7 +5,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.Event;
 
 /**
@@ -17,7 +17,7 @@ public abstract class BaseCallsPool {
   protected static final int BYTE_PER_BC = EnumDat.numBytes;
   protected final int entryPerKmer_;
   protected final int numKmers_;
-  protected final PBSpec spec;
+  protected final Spec spec;
 
   /**
    * constrcutor
@@ -25,7 +25,7 @@ public abstract class BaseCallsPool {
    * @param numKmers number of kmer identifier, typically 1<<(2*num_base)
    * @param entryPerKmer a hint of maximum number of entries per kmer, <1 means some default behavior
    */
-  protected BaseCallsPool(PBSpec spec, int numKmers, int entryPerKmer) {
+  protected BaseCallsPool(Spec spec, int numKmers, int entryPerKmer) {
     numKmers_ = numKmers;
     entryPerKmer_ = entryPerKmer;
     this.spec = spec;

@@ -15,13 +15,13 @@ public class BaseCalls {
   private static final int bytePerBase = EnumDat.numBytes;
   // util.ByteBuffer can save a full copy operation everytime a byte[] is extracted from get()
   private final ArrayList<Byte> data_ = new ArrayList<>(bytePerBase);
-  private final PBSpec spec; // maybe there's a way to templatize this like in c++
+  private final Spec spec; // maybe there's a way to templatize this like in c++
 
-  public BaseCalls(PBSpec spec) {
+  public BaseCalls(Spec spec) {
     this.spec = spec;
   }
 
-  public BaseCalls(PBSpec spec, int size) {
+  public BaseCalls(Spec spec, int size) {
     this(spec);
     resize(size);
   }

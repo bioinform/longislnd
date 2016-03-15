@@ -16,10 +16,10 @@ public abstract class ReadsWriter implements Closeable {
   protected final String filename;
   protected final String moviename;
   protected final int firsthole;
-  protected final PBSpec spec;
+  protected final Spec spec;
   private final List<Locus> loci;
 
-  public ReadsWriter(PBSpec spec, String filename, String moviename, int firsthole) {
+  public ReadsWriter(Spec spec, String filename, String moviename, int firsthole) {
     this.loci = new ArrayList<>();
     this.filename = filename;
     this.moviename = moviename;

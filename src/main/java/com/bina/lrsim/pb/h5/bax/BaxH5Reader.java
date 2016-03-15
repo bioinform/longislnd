@@ -9,7 +9,7 @@ import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
 import com.bina.lrsim.pb.h5.H5ScalarDSIO;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.interfaces.RegionGroup;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
@@ -20,10 +20,10 @@ import org.apache.log4j.Logger;
 public class BaxH5Reader implements RegionGroup {
   private final static Logger log = Logger.getLogger(BaxH5Reader.class.getName());
   private H5File h5_ = null;
-  private final PBSpec spec;
+  private final Spec spec;
   private String movieName_ = null;
 
-  public BaxH5Reader(String filename, PBSpec spec) {
+  public BaxH5Reader(String filename, Spec spec) {
     this.load(filename);
     this.spec = spec;
   }

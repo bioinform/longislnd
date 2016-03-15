@@ -2,14 +2,15 @@ package com.bina.lrsim;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
+import com.bina.lrsim.pb.Spec;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.pb.h5.bax.BaxH5Reader;
 import com.bina.lrsim.pb.h5.bax.Region;
 import com.bina.lrsim.pb.PBBaxSpec;
 import com.bina.lrsim.pb.PBCcsSpec;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.samples.Samples;
 
 /**
@@ -36,13 +37,13 @@ public class H5RegionSampler {
     final float min_read_score = Float.parseFloat(args[3]);
     final int min_passes = (args.length > 4) ? Integer.parseInt(args[4]) : 0;
 
-    final PBSpec spec;
+    final Spec spec;
     switch (read_type) {
       case "ccs":
-        spec = new PBCcsSpec();
+        spec = Spec.CcsSpec;
         break;
       case "bax":
-        spec = new PBBaxSpec();
+        spec = Spec.BaxSpec;
         break;
       default:
         spec = null;
@@ -80,7 +81,7 @@ public class H5RegionSampler {
                     }
                   }
                 } else {
-                  final ArrayList<Integer> len_list = rr.getInsertLengths();
+                  final List<Integer> len_list = rr.getInsertLengths();
                   int numNonZero = 0;
                   int max_ins = 0;
                   for(Integer ins: len_list) {

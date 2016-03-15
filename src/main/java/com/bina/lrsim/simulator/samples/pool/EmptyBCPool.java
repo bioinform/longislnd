@@ -1,17 +1,17 @@
 package com.bina.lrsim.simulator.samples.pool;
 
+import com.bina.lrsim.pb.Spec;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 
 /**
  * Created by bayo on 5/10/15.
  */
 public class EmptyBCPool extends BaseCallsPool {
-  public EmptyBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+  public EmptyBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
   }
 

@@ -16,7 +16,7 @@ import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
@@ -50,7 +50,7 @@ public class Simulator {
    * @param total_bases minimum number of bp to generate
    * @param gen random number generator
    */
-  public int simulate(final String path, final String movie_name, final int firsthole, SamplesDrawer drawer, int total_bases, final PBSpec spec, RandomGenerator gen) throws IOException {
+  public int simulate(final String path, final String movie_name, final int firsthole, SamplesDrawer drawer, int total_bases, final Spec spec, RandomGenerator gen) throws IOException {
     try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, path + "/" + movie_name + spec.getSuffix(), movie_name, firsthole)) {
       PBReadBuffer read = new PBReadBuffer(spec);
       log.info("generating reads");

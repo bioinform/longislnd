@@ -20,14 +20,14 @@ import com.bina.lrsim.pb.h5.Attributes;
 import com.bina.lrsim.pb.h5.H5ScalarDSIO;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
   private final DataBuffer buffer_;
 
-  public BaxH5Writer(PBSpec spec, String filename, String moviename, int firsthole) {
+  public BaxH5Writer(Spec spec, String filename, String moviename, int firsthole) {
     super(spec, filename, moviename, firsthole);
     buffer_ = new DataBuffer(super.spec, 100000);
   }

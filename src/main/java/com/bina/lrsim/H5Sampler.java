@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import com.bina.lrsim.pb.h5.cmp.CmpH5Reader;
 import com.bina.lrsim.pb.PBBaxSampleSpec;
 import com.bina.lrsim.pb.PBCcsSpec;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 import com.bina.lrsim.sam.SamReader;
 import com.bina.lrsim.simulator.samples.SamplesCollector;
@@ -39,14 +39,14 @@ public class H5Sampler {
     final int flank_mask = Integer.parseInt(args[6]);
     final int hp_anchor = 2;
 
-    final PBSpec spec;
+    final Spec spec;
 
     switch (read_type) {
       case "bax":
-        spec = new PBBaxSampleSpec();
+        spec = Spec.BaxSampleSpec;
         break;
       case "ccs":
-        spec = new PBCcsSpec();
+        spec = Spec.CcsSpec;
         break;
       default:
         spec = null;

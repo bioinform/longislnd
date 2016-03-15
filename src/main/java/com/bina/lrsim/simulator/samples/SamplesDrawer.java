@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.bina.lrsim.bioinfo.KmerIntIntCounter;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.samples.pool.AddBehavior;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
@@ -18,7 +19,6 @@ import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.Kmerizer;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
@@ -34,7 +34,7 @@ public class SamplesDrawer extends Samples {
   private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
   final EnumMap<EnumEvent, BaseCallsPool> kmer_event_drawer_ = new EnumMap<EnumEvent, BaseCallsPool>(EnumEvent.class);
   private HPBCPool hp_event_drawer_;
-  private final PBSpec spec;
+  private final Spec spec;
   private final long[] custom_frequency;
 
   /**
@@ -47,7 +47,7 @@ public class SamplesDrawer extends Samples {
    * @param len_limits restrict length properties
    * @throws IOException
    */
-  public SamplesDrawer(String[] prefixes, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, LengthLimits len_limits) throws IOException {
+  public SamplesDrawer(String[] prefixes, Spec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, LengthLimits len_limits) throws IOException {
     this(prefixes[0], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, len_limits);
     for (int ii = 1; ii < prefixes.length; ++ii) {
       accumulateStats(new SamplesDrawer(prefixes[ii], spec, 0/* must use 0 here */, custom_frequency, artificial_clean_ins, len_limits));
@@ -69,7 +69,7 @@ public class SamplesDrawer extends Samples {
    * @param len_limits restrict length properties
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, PBSpec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, LengthLimits len_limits) throws IOException {
+  public SamplesDrawer(String prefix, Spec spec, int max_sample, long[] custom_frequency, boolean artificial_clean_ins, LengthLimits len_limits) throws IOException {
     super(prefix);
     this.spec = spec;
     this.custom_frequency = custom_frequency;
@@ -105,13 +105,13 @@ public class SamplesDrawer extends Samples {
     return new AddBehavior(delta_q, 0, Math.max(custom_q, intrinsic_q));
   }
 
-  private void allocateEventDrawer(PBSpec spec, int max_sample) {
+  private void allocateEventDrawer(Spec spec, int max_sample) {
     hp_event_drawer_ = new HPBCPool(spec, 1 << (2 * (1 + 2 * hp_anchor())), -1);
     for (EnumEvent event : EnumSet.allOf(EnumEvent.class)) {
       // final int cap = (event.equals(EnumEvent.MATCH) ) ? max_sample : -1;
       final int cap = max_sample;
       try {
-        kmer_event_drawer_.put(event, (BaseCallsPool) event.pool.getDeclaredConstructor(new Class[] {PBSpec.class, int.class, int.class}).newInstance(spec, num_kmer(), cap));
+        kmer_event_drawer_.put(event, (BaseCallsPool) event.pool.getDeclaredConstructor(new Class[] {Spec.class, int.class, int.class}).newInstance(spec, num_kmer(), cap));
       } catch (ReflectiveOperationException e) {
         log.info(e, e);
       }

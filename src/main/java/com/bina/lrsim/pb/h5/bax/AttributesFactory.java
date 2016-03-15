@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.bina.lrsim.pb.h5.Attributes;
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 /**
  * Created by bayo on 5/7/15.
@@ -19,7 +19,7 @@ class AttributesFactory {
   private Map<EnumDat, Attributes> ofDat_ = new EnumMap<>(EnumDat.class);
   private Map<EnumGroups, Attributes> ofGrp_ = new EnumMap<>(EnumGroups.class);
 
-  public AttributesFactory(int num_reads, String movie_name, PBSpec spec) {
+  public AttributesFactory(int num_reads, String movie_name, Spec spec) {
     {// for enum dat
       {
         Attributes att = new Attributes();

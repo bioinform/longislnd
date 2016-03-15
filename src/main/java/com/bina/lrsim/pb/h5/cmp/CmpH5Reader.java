@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.bina.lrsim.pb.Spec;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
@@ -17,7 +18,6 @@ import org.apache.log4j.Logger;
 import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 
@@ -29,9 +29,9 @@ public class CmpH5Reader implements EventGroupFactory {
   private Map<String, AlnData> path_data_ = null;
   private String last_path_;
   private AlnData last_data_;
-  private final PBSpec spec;
+  private final Spec spec;
 
-  public CmpH5Reader(String filename, PBSpec spec) {
+  public CmpH5Reader(String filename, Spec spec) {
     this.spec = spec;
     load(filename);
   }

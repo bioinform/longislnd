@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.Event;
 
 /**
@@ -19,7 +19,7 @@ public class SingleBCPool extends BaseCallsPool {
   protected byte[] data_;
   protected int[] end_;
 
-  public SingleBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+  public SingleBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
     data_ = new byte[begin(numKmers)];
     end_ = new int[numKmers_];

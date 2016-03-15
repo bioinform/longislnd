@@ -6,25 +6,25 @@ package com.bina.lrsim.pb.h5.cmp;
 
 import java.util.Iterator;
 
+import com.bina.lrsim.pb.Spec;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.simulator.EventIterator;
 import com.bina.lrsim.bioinfo.PairwiseAlignment;
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.simulator.Event;
 
 public class CmpH5Alignment implements EventGroup {
 
   private final static Logger log = Logger.getLogger(CmpH5Alignment.class.getName());
-  private final PBSpec spec;
+  private final Spec spec;
   private int[] index_ = null;
   private AlnData data_ = null;
   private PairwiseAlignment pairwiseAlignment = null;
 
-  public CmpH5Alignment(int[] index, AlnData data, PBSpec spec) {
+  public CmpH5Alignment(int[] index, AlnData data, Spec spec) {
     this.spec = spec;
     load(index, data);
   }
@@ -93,7 +93,7 @@ public class CmpH5Alignment implements EventGroup {
   }
 
   @Override
-  public PBSpec getSpec() {
+  public Spec getSpec() {
     return spec;
   }
 

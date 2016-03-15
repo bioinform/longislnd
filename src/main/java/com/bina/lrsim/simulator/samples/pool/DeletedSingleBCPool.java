@@ -2,7 +2,7 @@ package com.bina.lrsim.simulator.samples.pool;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import java.util.Arrays;
  * Created by bayolau on 10/1/15.
  */
 public class DeletedSingleBCPool extends SingleBCPool {
-  public DeletedSingleBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+  public DeletedSingleBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
   }
 

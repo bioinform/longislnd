@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bina.lrsim.pb.EnumDat;
+import com.bina.lrsim.pb.Spec;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.Event;
 
 /**
@@ -22,7 +22,7 @@ public class KmerBCPool extends BaseCallsPool {
 
   private List<List<byte[]>> data_;
 
-  public KmerBCPool(PBSpec spec, int numKmers, int entryPerKmer) {
+  public KmerBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
     data_ = new ArrayList<>(numKmers_);
     for (int ii = 0; ii < numKmers_; ++ii) {

@@ -3,9 +3,10 @@ package com.bina.lrsim.sam;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 /**
  * Created by bayo on 5/25/15.

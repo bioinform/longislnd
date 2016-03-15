@@ -1,10 +1,7 @@
 package com.bina.lrsim.pb.bam;
 
 import com.bina.lrsim.bioinfo.Locus;
-import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
-import com.bina.lrsim.pb.ReadsWriter;
+import com.bina.lrsim.pb.*;
 import htsjdk.samtools.*;
 import org.apache.log4j.Logger;
 
@@ -30,7 +27,7 @@ public class BAMWriter extends ReadsWriter {
   private int num_reads;
   private final FileWriter clr_bed;
 
-  public BAMWriter(PBSpec spec, String filename, String moviename, int firsthole) {
+  public BAMWriter(Spec spec, String filename, String moviename, int firsthole) {
     super(spec, filename, moviename, firsthole);
     FileWriter tmp = null;
     try {

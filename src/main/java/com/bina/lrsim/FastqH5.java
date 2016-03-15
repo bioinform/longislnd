@@ -7,14 +7,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.pb.h5.bax.BaxH5Writer;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.sam.PBFastqSpec;
 import htsjdk.samtools.fastq.FastqReader;
 import htsjdk.samtools.fastq.FastqRecord;
 import org.apache.log4j.Logger;
-
-import com.bina.lrsim.pb.PBSpec;
 
 /**
  * Created by bayo on 5/11/15.
@@ -33,7 +32,7 @@ public class FastqH5 {
       System.exit(1);
     }
     final String path = args[0];
-    final PBSpec spec = new PBFastqSpec();
+    final Spec spec = Spec.FastqSpec;
 
     final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 

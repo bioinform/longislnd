@@ -7,7 +7,7 @@ import java.io.IOException;
 import com.bina.lrsim.bioinfo.Context;
 import com.bina.lrsim.pb.BaseCalls;
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 /**
  * Created by bayo on 5/8/15.
@@ -18,7 +18,7 @@ public final class Event {
   private EnumEvent event;
   private final BaseCalls bc;
 
-  public Event(PBSpec spec) {
+  public Event(Spec spec) {
     context = null;
     event = null;
     bc = new BaseCalls(spec);

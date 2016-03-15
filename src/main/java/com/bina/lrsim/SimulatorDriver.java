@@ -7,13 +7,10 @@ import java.util.Arrays;
 
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
-import com.bina.lrsim.pb.PBClrBamSpec;
+import com.bina.lrsim.pb.*;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.pb.PBBaxSpec;
-import com.bina.lrsim.pb.PBCcsSpec;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Simulator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
@@ -74,17 +71,17 @@ public class SimulatorDriver {
       }
     }
 
-    final PBSpec spec;
+    final Spec spec;
 
     switch (read_type) {
       case "bax":
-        spec = new PBBaxSpec();
+        spec = Spec.BaxSpec;
         break;
       case "ccs":
-        spec = new PBCcsSpec();
+        spec = Spec.CcsSpec;
         break;
       case "clrbam":
-        spec = new PBClrBamSpec();
+        spec = Spec.ClrBamSpec;
         break;
       default:
         spec = null;

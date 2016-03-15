@@ -15,13 +15,13 @@ public class PBReadBuffer {
   private final static Logger log = Logger.getLogger(PBReadBuffer.class.getName());
   // util.ByteBuffer can save a full copy operation everytime a byte[] is extracted
   private final EnumMap<EnumDat, ByteArrayOutputStream> data_ = new EnumMap<EnumDat, ByteArrayOutputStream>(EnumDat.class);
-  private final PBSpec spec;
+  private final Spec spec;
 
-  public PBReadBuffer(PBSpec spec) {
+  public PBReadBuffer(Spec spec) {
     this(spec,INITIAL_SIZE);
   }
 
-  public PBReadBuffer(PBSpec spec, int reserveSize) {
+  public PBReadBuffer(Spec spec, int reserveSize) {
     this.spec = spec;
     for (EnumDat e : spec.getDataSet()) {
       data_.put(e, new ByteArrayOutputStream(reserveSize));

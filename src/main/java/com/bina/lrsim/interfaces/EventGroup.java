@@ -3,7 +3,7 @@ package com.bina.lrsim.interfaces;
 import java.util.Iterator;
 
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.Event;
 
 /**
@@ -28,7 +28,7 @@ public interface EventGroup {
 
   byte getData(EnumDat ed, int seq_idx);
 
-  PBSpec getSpec();
+  Spec getSpec();
 
   byte getRef(int index);
 

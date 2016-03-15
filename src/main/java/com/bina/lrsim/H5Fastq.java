@@ -3,7 +3,7 @@ package com.bina.lrsim;
 import com.bina.lrsim.pb.h5.bax.BaxH5Reader;
 import com.bina.lrsim.pb.PBBaxSpec;
 import com.bina.lrsim.pb.PBCcsSpec;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import htsjdk.samtools.fastq.FastqRecord;
 import htsjdk.samtools.fastq.FastqWriter;
 import htsjdk.samtools.fastq.FastqWriterFactory;
@@ -26,13 +26,13 @@ public class H5Fastq {
       System.exit(1);
     }
 
-    final PBSpec spec;
+    final Spec spec;
     switch (args[0]) {
       case "ccs":
-        spec = new PBCcsSpec();
+        spec = Spec.CcsSpec;
         break;
       case "bax":
-        spec = new PBBaxSpec();
+        spec = Spec.BaxSpec;
         break;
       default:
         spec = null;
