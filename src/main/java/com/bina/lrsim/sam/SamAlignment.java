@@ -116,7 +116,7 @@ public class SamAlignment implements EventGroup {
 
   @Override
   public Spec getSpec() {
-    return new PBFastqSpec();
+    return Spec.FastqSpec;
   }
 
   @Override

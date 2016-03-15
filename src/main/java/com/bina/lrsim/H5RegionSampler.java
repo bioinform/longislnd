@@ -69,7 +69,7 @@ public class H5RegionSampler {
             log.info("processing " + filename);
             for (Region rr : new BaxH5Reader(filename, spec)) {
               if (rr.isSequencing() && rr.getReadScore() >= min_read_score) {
-                if (spec instanceof PBCcsSpec) {
+                if (spec == Spec.CcsSpec) {
                   for (int insertLength : rr.getInsertLengths()) {
                     if (insertLength > 0) {
                       len_out.writeInt(1);
