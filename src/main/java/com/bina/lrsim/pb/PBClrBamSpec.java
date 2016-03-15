@@ -1,6 +1,7 @@
 package com.bina.lrsim.pb;
 
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
+import htsjdk.samtools.BamFileIoUtils;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class PBClrBamSpec extends PBSpec {
 
   @Override
   public String getSuffix() {
-    return ".bam";
+    return BamFileIoUtils.BAM_FILE_EXTENSION;
   }
 
   @Override
