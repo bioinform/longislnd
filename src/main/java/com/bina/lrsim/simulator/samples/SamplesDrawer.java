@@ -174,7 +174,7 @@ public class SamplesDrawer extends Samples {
       }
       if (!result.success) { throw new RuntimeException("kmer draw"); }
       // return a signal for deletion event
-      return (ev == EnumEvent.DELETION && result.last_event != null && result.last_event.length > 0) ? result : null;
+      return (ev == EnumEvent.DELETION && result.lastEvent != null && result.lastEvent.length > 0) ? result : null;
     } else {
       // do not do full hp if custom frequency is provided
       // custom hp drawing is possible improvement

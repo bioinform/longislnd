@@ -22,14 +22,14 @@ public class HPBCPool extends BaseCallsPool {
   // this is a hack until we have a proper full-blown homopolyer error rate scaling
   private final static int MIN_POOL_SIZE = 20;
 
-  private List<List<List<byte[]>>> data_; // data[kmer][hp_len] contains a pool of byte[] base calls
+  private List<List<List<byte[]>>> data; // data[kmer][hp_len] contains a pool of byte[] base calls
 
   public HPBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
 
-    data_ = new ArrayList<>(numKmers_);
-    for (int ii = 0; ii < numKmers_; ++ii) {
-      data_.add(new ArrayList<List<byte[]>>((entryPerKmer > 0) ? entryPerKmer : Heuristics.MIN_HP_SAMPLES));
+    data = new ArrayList<>(this.numKmers);
+    for (int ii = 0; ii < this.numKmers; ++ii) {
+      data.add(new ArrayList<List<byte[]>>((entryPerKmer > 0) ? entryPerKmer : Heuristics.MIN_HP_SAMPLES));
     }
     // data_[kmer] is non-null, but data_[kmer][len] might not have been allocated at this point
   }
@@ -39,11 +39,11 @@ public class HPBCPool extends BaseCallsPool {
     final int kmer = ev.kmer();
     final int hp_len = ev.hp_len();
 
-    while (data_.get(kmer).size() <= hp_len) {
-      data_.get(kmer).add(null);
+    while (data.get(kmer).size() <= hp_len) {
+      data.get(kmer).add(null);
     }
-    if (null == data_.get(kmer).get(hp_len)) {
-      data_.get(kmer).set(hp_len, new ArrayList<byte[]>());
+    if (null == data.get(kmer).get(hp_len)) {
+      data.get(kmer).set(hp_len, new ArrayList<byte[]>());
     }
 
     byte[] tmp = ev.data_cpy();
@@ -52,7 +52,7 @@ public class HPBCPool extends BaseCallsPool {
       tmp[idx] = (byte) ab.newQV(tmp[idx]);
     }
 
-    data_.get(kmer).get(hp_len).add(tmp);
+    data.get(kmer).get(hp_len).add(tmp);
 
     return true;
   }
@@ -62,14 +62,14 @@ public class HPBCPool extends BaseCallsPool {
 
     final int kmer = context.kmer();
     final int hp_len = context.hp_len();
-    if (hp_len < data_.get(kmer).size()) {
-      List<byte[]> pool = data_.get(kmer).get(hp_len);
+    if (hp_len < data.get(kmer).size()) {
+      List<byte[]> pool = data.get(kmer).get(hp_len);
       if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
-        if (as != null && b.length > 0 && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
-          b[EnumDat.QualityValue.value] = as.last_event[EnumDat.QualityValue.value];
-          b[EnumDat.DeletionQV.value] = as.last_event[EnumDat.DeletionQV.value];
-          b[EnumDat.DeletionTag.value] = as.last_event[EnumDat.DeletionTag.value];
+        if (as != null && b.length > 0 && (b[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value])) {
+          b[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
+          b[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
+          b[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
         }
         buffer.addLast(b, 0, b.length);
         return new AppendState(null, true);

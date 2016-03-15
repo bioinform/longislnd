@@ -20,24 +20,24 @@ public class KmerBCPool extends BaseCallsPool {
   // this might have significat memory overhead
   private final static Logger log = Logger.getLogger(KmerBCPool.class.getName());
 
-  private List<List<byte[]>> data_;
+  private List<List<byte[]>> data;
 
   public KmerBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
-    data_ = new ArrayList<>(numKmers_);
-    for (int ii = 0; ii < numKmers_; ++ii) {
-      data_.add(new ArrayList<byte[]>((entryPerKmer > 0) ? entryPerKmer : 100));
+    data = new ArrayList<>(this.numKmers);
+    for (int ii = 0; ii < this.numKmers; ++ii) {
+      data.add(new ArrayList<byte[]>((entryPerKmer > 0) ? entryPerKmer : 100));
     }
   }
 
   @Override
   public boolean add(Event ev, AddBehavior ab) {
-    if (entryPerKmer_ < 0 || data_.get(ev.kmer()).size() < entryPerKmer_) {
+    if (entryPerKmer < 0 || data.get(ev.kmer()).size() < entryPerKmer) {
       byte[] tmp = ev.data_cpy();
       for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
         tmp[idx] = (byte) ab.newQV(tmp[idx]);
       }
-      data_.get(ev.kmer()).add(tmp);
+      data.get(ev.kmer()).add(tmp);
       return true;
     }
     return false;
@@ -46,12 +46,12 @@ public class KmerBCPool extends BaseCallsPool {
   @Override
   public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
     if (context.hp_len() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
-    int draw = gen.nextInt(data_.get(context.kmer()).size());
-    final byte[] b = data_.get(context.kmer()).get(draw);
-    if (as != null && (b[EnumDat.QualityValue.value] > as.last_event[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.last_event[EnumDat.DeletionQV.value])) {
-      b[EnumDat.QualityValue.value] = as.last_event[EnumDat.QualityValue.value];
-      b[EnumDat.DeletionQV.value] = as.last_event[EnumDat.DeletionQV.value];
-      b[EnumDat.DeletionTag.value] = as.last_event[EnumDat.DeletionTag.value];
+    int draw = gen.nextInt(data.get(context.kmer()).size());
+    final byte[] b = data.get(context.kmer()).get(draw);
+    if (as != null && (b[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value])) {
+      b[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
+      b[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
+      b[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
     }
     buffer.addLast(b, 0, b.length);
     return new AppendState(b, true);

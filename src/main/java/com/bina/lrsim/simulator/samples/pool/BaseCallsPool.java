@@ -15,8 +15,8 @@ public abstract class BaseCallsPool {
 
 
   protected static final int BYTE_PER_BC = EnumDat.numBytes;
-  protected final int entryPerKmer_;
-  protected final int numKmers_;
+  protected final int entryPerKmer;
+  protected final int numKmers;
   protected final Spec spec;
 
   /**
@@ -26,8 +26,8 @@ public abstract class BaseCallsPool {
    * @param entryPerKmer a hint of maximum number of entries per kmer, <1 means some default behavior
    */
   protected BaseCallsPool(Spec spec, int numKmers, int entryPerKmer) {
-    numKmers_ = numKmers;
-    entryPerKmer_ = entryPerKmer;
+    this.numKmers = numKmers;
+    this.entryPerKmer = entryPerKmer;
     this.spec = spec;
   }
 
