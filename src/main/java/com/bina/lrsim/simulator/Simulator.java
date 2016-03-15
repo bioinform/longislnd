@@ -114,7 +114,7 @@ public class Simulator {
               section_ends.add(read.size());
             }
             AppendState deletion = null;
-            for (Iterator<Context> itr = new HPIterator(fw_rc.get(ins_idx % 2), begin, end, drawer.left_flank(), drawer.right_flank(), drawer.hp_anchor()); itr.hasNext();) {
+            for (Iterator<Context> itr = new HPIterator(fw_rc.get(ins_idx % 2), begin, end, drawer.getLeftFlank(), drawer.getRightFlank(), drawer.getHpAnchor()); itr.hasNext();) {
               final Context con = itr.next();
               if (null != con) {
                 deletion = drawer.appendTo(read, con, deletion, gen, base_counter_);

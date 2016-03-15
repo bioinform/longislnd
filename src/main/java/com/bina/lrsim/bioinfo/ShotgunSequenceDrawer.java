@@ -62,7 +62,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
       }
       if (length * Heuristics.MAX_N_FRACTION_ON_READ < nCount) { return null; }
       // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
-      // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
+      // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, getHpAnchor, rc);
       return new Fragment(sequence, new Locus(refFrag.getLocus().getChrom(), begin, begin + length, rc));
     } else {
       log.warn("skipping fragment of length " + length + " from being shotguned from reference " + refFrag.getLocus().getChrom() + ". Consider fragment mode.");

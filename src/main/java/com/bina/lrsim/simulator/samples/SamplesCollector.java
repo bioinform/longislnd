@@ -38,9 +38,9 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
     outPrefix_ = outPrefix;
     eventOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_)))) : null;
     hpOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.HP.filename(outPrefix_)))) : null;
-    Arrays.fill(event_base_count_ref(), 0);
-    Arrays.fill(event_count_ref(), 0);
-    log.info("flanks=(" + left_flank() + "," + right_flank() + ") k=" + k() + " num_kmers=" + num_kmer());
+    Arrays.fill(getEventBaseCountRef(), 0);
+    Arrays.fill(getEventCountRef(), 0);
+    log.info("flanks=(" + getLeftFlank() + "," + getRightFlank() + ") k=" + getK() + " num_kmers=" + getNumKmer());
   }
 
   /**
@@ -57,22 +57,22 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
       }
 
       if (event.hp_len() == 1) {
-        final long current_count = kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
+        final long current_count = getKmerEventCountRef()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
         if (null!=eventOut_ && event.event().recordEvery > 0
                 && current_count % event.event().recordEvery == 0 && current_count / event.event().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
           event.write(eventOut_);
         }
         final int idx = event.event().ordinal();
 
-        ++event_count_ref()[idx];
-        ++event_base_count_ref()[idx];
+        ++getEventCountRef()[idx];
+        ++getEventBaseCountRef()[idx];
         if (event.event().equals(EnumEvent.INSERTION)) {
-          event_base_count_ref()[idx] += event.size() - 2;
+          getEventBaseCountRef()[idx] += event.size() - 2;
         }
-        ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
+        ++getKmerEventCountRef()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
       } else {
-        if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
-          add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
+        if (event.hp_len() < getMaxRlen() && event.size() < getMaxSlen()) {
+          addKmerRlenSlenCount(event.kmer(), event.hp_len(), event.size());
           if (null != hpOut_) event.write(hpOut_);
         }
       }
@@ -100,7 +100,7 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
         continue;
       }
       // super.lengths_ref().add(group.seq_length());
-      process(group.iterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
+      process(group.iterator(getLeftFlank(), getRightFlank(), flank_mask, flank_mask, getHpAnchor()));
       ++ii;
     }
     log.info("processed " + ii + " groups");
