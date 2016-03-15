@@ -9,6 +9,8 @@ import java.util.Set;
  * Created by bayolau on 1/8/16.
  */
 public class PBBaxSampleSpec extends PBSpec {
+  public static final String SUFFIX = ".bax.h5";
+
   @Override
   public String[] getDataDescription() {
     return new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IDPV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"};
@@ -41,7 +43,7 @@ public class PBBaxSampleSpec extends PBSpec {
 
   @Override
   public String getSuffix() {
-    return ".bax.h5";
+    return SUFFIX;
   }
 
   @Override

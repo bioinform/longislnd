@@ -9,6 +9,8 @@ import com.bina.lrsim.pb.h5.bax.EnumGroups;
  * Created by bayo on 5/25/15.
  */
 public class PBBaxSpec extends PBSpec {
+  public static final String SUFFIX = ".bax.h5";
+
   @Override
   public String[] getDataDescription() {
     return new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"};
@@ -41,7 +43,7 @@ public class PBBaxSpec extends PBSpec {
 
   @Override
   public String getSuffix() {
-    return ".bax.h5";
+    return SUFFIX;
   }
 
   @Override
