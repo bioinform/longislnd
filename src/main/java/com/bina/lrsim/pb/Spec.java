@@ -4,6 +4,8 @@ import com.bina.lrsim.pb.h5.bax.EnumGroups;
 import htsjdk.samtools.BamFileIoUtils;
 
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -19,7 +21,6 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
-            EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray)),
             BamFileIoUtils.BAM_FILE_EXTENSION
     ),
     BaxSpec(
@@ -31,7 +32,6 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IDPV1)),
-            EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.IDPV1)),
             ".bax.h5"
     ),
     BaxSampleSpec(
@@ -43,7 +43,6 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
-            EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray)),
             ".bax.h5"
     ),
     CcsSpec(
@@ -55,7 +54,6 @@ public enum Spec {
             EnumGroups.CZMW,
             EnumGroups.CZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1)),
-            EnumSet.complementOf(EnumSet.of(EnumDat.BaseCall, EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1)),
             ".ccs.h5"
     ),
     FastqSpec(
@@ -67,7 +65,6 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.of(EnumDat.BaseCall, EnumDat.QualityValue),
-            EnumSet.of(EnumDat.QualityValue),
             ".fq"
     ),
     UnknownSpec(
@@ -78,7 +75,6 @@ public enum Spec {
             EnumGroups.BaseCalls,
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
-            null,
             null,
             null
     );
@@ -102,7 +98,6 @@ public enum Spec {
          final EnumGroups zmw,
          final EnumGroups zmwMetrics,
          final Set<EnumDat> dataSet,
-         final Set<EnumDat> nonBaseDataSet,
          final String suffix) {
         this.readType = readType;
         this.dataDescription = dataDescription;
@@ -112,8 +107,10 @@ public enum Spec {
         this.zmw = zmw;
         this.zmwMetrics = zmwMetrics;
         this.dataSet = dataSet;
-        this.nonBaseDataSet = nonBaseDataSet;
+        this.nonBaseDataSet = EnumSet.copyOf(dataSet);
         this.suffix = suffix;
+
+        this.nonBaseDataSet.remove(EnumDat.BaseCall);
     }
 
     public static Spec fromReadType(final String readType) {
