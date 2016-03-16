@@ -41,15 +41,15 @@ public class Region {
 
     int regionScore = -1;
     for (int shift = begin; shift < end; shift += EnumRegionsIdx.values().length) {
-      final int locStart = data[shift + EnumRegionsIdx.RegionStart.value];
-      final int locEnd = data[shift + EnumRegionsIdx.RegionEnd.value];
-      if (data[shift + EnumRegionsIdx.RegionType.value] == EnumTypeIdx.TypeInsert.value) {
+      final int locStart = data[shift + EnumRegionsIdx.RegionStart.ordinal()];
+      final int locEnd = data[shift + EnumRegionsIdx.RegionEnd.ordinal()];
+      if (data[shift + EnumRegionsIdx.RegionType.ordinal()] == EnumTypeIdx.TypeInsert.ordinal()) {
         insertStart.add(locStart);
         insertEnd.add(locEnd);
-      } else if (data[shift + EnumRegionsIdx.RegionType.value] == EnumTypeIdx.TypeHQRegion.value) {
+      } else if (data[shift + EnumRegionsIdx.RegionType.ordinal()] == EnumTypeIdx.TypeHQRegion.ordinal()) {
         hqStart = Math.min(locStart, hqStart);
         hqEnd = Math.max(locEnd, hqEnd);
-        regionScore = Math.max(regionScore, data[shift + EnumRegionsIdx.RegionScore.value]);
+        regionScore = Math.max(regionScore, data[shift + EnumRegionsIdx.RegionScore.ordinal()]);
       }
     }
 

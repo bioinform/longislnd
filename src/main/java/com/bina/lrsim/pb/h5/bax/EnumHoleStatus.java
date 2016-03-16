@@ -8,6 +8,17 @@ public enum EnumHoleStatus {
 
   public final byte value;
 
+  public static final String[] names;
+
+  static {
+    names = new String[values().length];
+    int i = 0;
+    for (EnumHoleStatus value : values()) {
+      names[i] = value.name();
+      i++;
+    }
+  }
+
   EnumHoleStatus(int value) {
     this.value = (byte) value;
   }

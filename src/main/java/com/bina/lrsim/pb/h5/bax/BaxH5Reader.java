@@ -178,10 +178,10 @@ public class BaxH5Reader implements RegionGroup {
 
     @Override
     public Region next() {
-      int holeNumber = regionData[curr + EnumRegionsIdx.HoleNumber.value];
+      int holeNumber = regionData[curr + EnumRegionsIdx.HoleNumber.ordinal()];
       minHole = Math.min(holeNumber, minHole);
       int next = curr + EnumRegionsIdx.values().length;
-      for (; next < regionData.length && regionData[next + EnumRegionsIdx.HoleNumber.value] == holeNumber; next += EnumRegionsIdx.values().length) {}
+      for (; next < regionData.length && regionData[next + EnumRegionsIdx.HoleNumber.ordinal()] == holeNumber; next += EnumRegionsIdx.values().length) {}
       Region r = new Region(regionData, curr, next, holeScore[holeNumber - minHole], holeStatus[holeNumber - minHole]);
       curr = next;
       return r;
