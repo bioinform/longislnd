@@ -45,17 +45,17 @@ public class CmpH5Alignment implements EventGroup {
 
   @Override
   public int getSeqLength() {
-    return index[EnumIdx.rEnd.value] - index[EnumIdx.rStart.value];
+    return index[EnumIdx.rEnd.ordinal()] - index[EnumIdx.rStart.ordinal()];
   }
 
   @Override
   public int getRefLength() {
-    return index[EnumIdx.tEnd.value] - index[EnumIdx.tStart.value];
+    return index[EnumIdx.tEnd.ordinal()] - index[EnumIdx.tStart.ordinal()];
   }
 
   public void load(int[] index, AlnData data) {
-    final int begin = index[EnumIdx.offset_begin.value];
-    final int end = index[EnumIdx.offset_end.value];
+    final int begin = index[EnumIdx.offset_begin.ordinal()];
+    final int end = index[EnumIdx.offset_end.ordinal()];
     final int length = end - begin;
     byte[] refLoc = new byte[length];
     byte[] seqLoc = new byte[length];

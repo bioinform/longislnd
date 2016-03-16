@@ -50,7 +50,7 @@ class AlnIndex {
   }
 
   public int get(int alignmentIndex, EnumIdx c) {
-    return data[alignmentIndex * numCols + c.value];
+    return data[alignmentIndex * numCols + c.ordinal()];
   }
 
   public int[] get(int alignmentIndex) {

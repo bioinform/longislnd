@@ -213,28 +213,28 @@ public class CmpH5Writer implements Closeable {
     final Pair<Integer, Integer> begin_end = this.add(ag, alnArray, qvArray);
 
     int[] index = new int[EnumIdx.values().length];
-    index[EnumIdx.AlnID.value] = alnIndex.size() + 1;
-    index[EnumIdx.AlnGroupID.value] = alnGroup.get(ag);
-    index[EnumIdx.MovieId.value] = movieInfo.get(movieName);
-    index[EnumIdx.RefGroupID.value] = pathIndex;
-    index[EnumIdx.tStart.value] = record.getAlignmentStart() - 1; // 1-base to 0-base
-    index[EnumIdx.tEnd.value] = record.getAlignmentEnd(); // 1-base inclusive to 0-base exclusive
-    index[EnumIdx.RCRefStrand.value] = record.getReadNegativeStrandFlag() ? 1 : 0;
-    index[EnumIdx.HoleNumber.value] = hole;
-    index[EnumIdx.SetNumber.value] = 0;
-    index[EnumIdx.StrobeNumber.value] = 0;
-    index[EnumIdx.MoleculeID.value] = hole;
-    index[EnumIdx.rStart.value] = rStart;
-    index[EnumIdx.rEnd.value] = rEnd;
-    index[EnumIdx.MapQV.value] = record.getMappingQuality();
-    index[EnumIdx.nM.value] = match;
-    index[EnumIdx.nMM.value] = mismatch;
-    index[EnumIdx.nIns.value] = ins;
-    index[EnumIdx.nDel.value] = del;
-    index[EnumIdx.offset_begin.value] = begin_end.getLeft();
-    index[EnumIdx.offset_end.value] = begin_end.getRight();
-    index[EnumIdx.nBackRead.value] = 0;
-    index[EnumIdx.nBackOverlap.value] = 0;
+    index[EnumIdx.AlnID.ordinal()] = alnIndex.size() + 1;
+    index[EnumIdx.AlnGroupID.ordinal()] = alnGroup.get(ag);
+    index[EnumIdx.MovieId.ordinal()] = movieInfo.get(movieName);
+    index[EnumIdx.RefGroupID.ordinal()] = pathIndex;
+    index[EnumIdx.tStart.ordinal()] = record.getAlignmentStart() - 1; // 1-base to 0-base
+    index[EnumIdx.tEnd.ordinal()] = record.getAlignmentEnd(); // 1-base inclusive to 0-base exclusive
+    index[EnumIdx.RCRefStrand.ordinal()] = record.getReadNegativeStrandFlag() ? 1 : 0;
+    index[EnumIdx.HoleNumber.ordinal()] = hole;
+    index[EnumIdx.SetNumber.ordinal()] = 0;
+    index[EnumIdx.StrobeNumber.ordinal()] = 0;
+    index[EnumIdx.MoleculeID.ordinal()] = hole;
+    index[EnumIdx.rStart.ordinal()] = rStart;
+    index[EnumIdx.rEnd.ordinal()] = rEnd;
+    index[EnumIdx.MapQV.ordinal()] = record.getMappingQuality();
+    index[EnumIdx.nM.ordinal()] = match;
+    index[EnumIdx.nMM.ordinal()] = mismatch;
+    index[EnumIdx.nIns.ordinal()] = ins;
+    index[EnumIdx.nDel.ordinal()] = del;
+    index[EnumIdx.offset_begin.ordinal()] = begin_end.getLeft();
+    index[EnumIdx.offset_end.ordinal()] = begin_end.getRight();
+    index[EnumIdx.nBackRead.ordinal()] = 0;
+    index[EnumIdx.nBackOverlap.ordinal()] = 0;
     alnIndex.add(index);
   }
 
