@@ -23,9 +23,9 @@ public class BAMWriter extends ReadsWriter {
   private final SAMReadGroupRecord readGroupRecord;
   private final SAMProgramRecord programRecord;
   private final SAMRecord alignment;
-  private final EnumMap<EnumDat, byte[]> enum_data = new EnumMap<>(EnumDat.class);
-  private int num_reads;
-  private final FileWriter clr_bed;
+  private final EnumMap<EnumDat, byte[]> enumData = new EnumMap<>(EnumDat.class);
+  private int numReads;
+  private final FileWriter clrBed;
 
   public BAMWriter(Spec spec, String filename, String moviename, int firsthole) {
     super(spec, filename, moviename, firsthole);
@@ -35,7 +35,7 @@ public class BAMWriter extends ReadsWriter {
     } catch (IOException e) {
       tmp = null;
     }
-    clr_bed = tmp;
+    clrBed = tmp;
     readGroupRecord = new SAMReadGroupRecord(this.moviename);
     readGroupRecord.setPlatform("PACBIO");
     readGroupRecord.setPlatformUnit(this.moviename);
@@ -52,19 +52,19 @@ public class BAMWriter extends ReadsWriter {
 
     alignment = new SAMRecord(header);
     writer = new SAMFileWriterFactory().makeBAMWriter(header, false, new File(filename));
-    num_reads = 0;
+    numReads = 0;
   }
 
   @Override
   public void close() throws IOException {
     writeLociBed(this.filename, this.moviename, this.firsthole);
     writer.close();
-    clr_bed.close();
+    clrBed.close();
   }
 
   private boolean AddScore(String tag, EnumDat e, int begin, int end) {
     if (spec.getDataSet().contains(e)) {
-      byte[] org = enum_data.get(e);
+      byte[] org = enumData.get(e);
       byte[] tmp = new byte[end - begin];
       int shift = e.isScore ? 33 : 0;
       for (int ii = begin, jj = 0; ii < end; ++ii, ++jj) {
@@ -77,25 +77,25 @@ public class BAMWriter extends ReadsWriter {
   }
 
   @Override
-  public void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci) {
+  public void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clrLoci) {
     for (EnumDat entry : spec.getDataSet()) {
-      enum_data.put(entry, read.get(entry).toByteArray());
+      enumData.put(entry, read.get(entry).toByteArray());
     }
     int begin = 0;
     int end = 0;
     for (int index = 0; index < readLengths.size(); ++index) {
       end = readLengths.get(index);
       if (index % 2 == 0 && end != begin) {
-        final String record_name = moviename + "/" + (firsthole + num_reads) + "/" + begin + "_" + end;
+        final String record_name = moviename + "/" + (firsthole + numReads) + "/" + begin + "_" + end;
         alignment.setReadName(record_name);
         alignment.setReadUnmappedFlag(true);
         alignment.setMappingQuality(255);
-        alignment.setReadBases(Arrays.copyOfRange(enum_data.get(EnumDat.BaseCall), begin, end));
-        alignment.setBaseQualities(Arrays.copyOfRange(enum_data.get(EnumDat.QualityValue), begin, end));
+        alignment.setReadBases(Arrays.copyOfRange(enumData.get(EnumDat.BaseCall), begin, end));
+        alignment.setBaseQualities(Arrays.copyOfRange(enumData.get(EnumDat.QualityValue), begin, end));
         alignment.setAttribute("RG", moviename);
         AddScore("dq", EnumDat.DeletionQV, begin, end);
         AddScore("dt", EnumDat.DeletionTag, begin, end);
-        if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute("ip", enum_data.get(EnumDat.IDPV1));
+        if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute("ip", enumData.get(EnumDat.IDPV1));
         AddScore("iq", EnumDat.InsertionQV, begin, end);
         AddScore("mq", EnumDat.MergeQV, begin, end);
         alignment.setAttribute("np", Integer.valueOf(1));
@@ -105,25 +105,25 @@ public class BAMWriter extends ReadsWriter {
         alignment.setAttribute("sn", new float[] {7.94597f, 4.39955f, 10.1239f, 10.9799f});
         AddScore("sq", EnumDat.SubstitutionQV, begin, end);
         AddScore("st", EnumDat.SubstitutionTag, begin, end);
-        alignment.setAttribute("zm", Integer.valueOf(num_reads));
+        alignment.setAttribute("zm", Integer.valueOf(numReads));
         final boolean forward = (index / 2) % 2 == 0;
         final Integer flag = (index == 0 ? 0 : 1) | (index + 1 < readLengths.size() ? 2 : 0) | (forward ? 16 : 32);
         alignment.setAttribute("cx", flag);
         writer.addAlignment(alignment);
-        if(clr_bed != null && clr_loci != null) {
+        if(clrBed != null && clrLoci != null) {
           try {
-            super.writeBedLine(clr_bed, record_name, clr_loci.get(index / 2));
+            super.writeBedLine(clrBed, record_name, clrLoci.get(index / 2));
           } catch (IOException e) { }
         }
       }
       begin = end;
     }
     addLocus(locus);
-    ++num_reads;
+    ++numReads;
   }
 
   @Override
   public int size() {
-    return num_reads;
+    return numReads;
   }
 }

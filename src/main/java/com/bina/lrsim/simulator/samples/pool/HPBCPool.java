@@ -37,22 +37,22 @@ public class HPBCPool extends BaseCallsPool {
   @Override
   public boolean add(Event ev, AddBehavior ab) {
     final int kmer = ev.kmer();
-    final int hp_len = ev.hp_len();
+    final int hpLen = ev.hp_len();
 
-    while (data.get(kmer).size() <= hp_len) {
+    while (data.get(kmer).size() <= hpLen) {
       data.get(kmer).add(null);
     }
-    if (null == data.get(kmer).get(hp_len)) {
-      data.get(kmer).set(hp_len, new ArrayList<byte[]>());
+    if (null == data.get(kmer).get(hpLen)) {
+      data.get(kmer).set(hpLen, new ArrayList<byte[]>());
     }
 
-    byte[] tmp = ev.data_cpy();
+    byte[] tmp = ev.dataCpy();
 
     for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
       tmp[idx] = (byte) ab.newQV(tmp[idx]);
     }
 
-    data.get(kmer).get(hp_len).add(tmp);
+    data.get(kmer).get(hpLen).add(tmp);
 
     return true;
   }
@@ -60,10 +60,10 @@ public class HPBCPool extends BaseCallsPool {
   @Override
   public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
 
-    final int kmer = context.kmer();
-    final int hp_len = context.hp_len();
-    if (hp_len < data.get(kmer).size()) {
-      List<byte[]> pool = data.get(kmer).get(hp_len);
+    final int kmer = context.getKmer();
+    final int hpLen = context.getHpLen();
+    if (hpLen < data.get(kmer).size()) {
+      List<byte[]> pool = data.get(kmer).get(hpLen);
       if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
         if (as != null && b.length > 0 && (b[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value])) {

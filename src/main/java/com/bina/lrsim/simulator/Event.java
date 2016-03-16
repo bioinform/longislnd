@@ -43,11 +43,11 @@ public final class Event {
   }
 
   public int kmer() {
-    return context.kmer();
+    return context.getKmer();
   }
 
   public int hp_len() {
-    return context.hp_len();
+    return context.getHpLen();
   }
 
   public String toString() {
@@ -65,7 +65,7 @@ public final class Event {
     bc.set(pos, e, b);
   }
 
-  public byte[] data_cpy() {
+  public byte[] dataCpy() {
     return bc.toByteArray();
   }
 
@@ -74,8 +74,8 @@ public final class Event {
   // we can also save all 4 bytes by writing homopolymer events to a different stream
   // this can be done down the line if we have time
   public void write(DataOutputStream dos) throws IOException {
-    dos.writeInt(context.kmer());
-    dos.writeInt(EnumEvent.values.length * context.hp_len() + event.ordinal());
+    dos.writeInt(context.getKmer());
+    dos.writeInt(EnumEvent.values.length * context.getHpLen() + event.ordinal());
     bc.write(dos);
   }
 

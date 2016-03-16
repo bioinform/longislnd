@@ -17,7 +17,7 @@ public class EmptyBCPool extends BaseCallsPool {
 
   @Override
   public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
-    if (context.hp_len() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
+    if (context.getHpLen() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
     return new AppendState(null, true);
   }
 

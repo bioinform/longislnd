@@ -249,20 +249,20 @@ public abstract class Samples {
 
   public final String stringifyKmerStats(String prefix) {
     StringBuilder sb = new StringBuilder();
-    long[] local_log = new long[EnumEvent.values().length];
+    long[] localLog = new long[EnumEvent.values().length];
     for (int ii = 0; ii < kmerEventCount.length; ++ii) {
-      local_log[ii % EnumEvent.values().length] = kmerEventCount[ii];
+      localLog[ii % EnumEvent.values().length] = kmerEventCount[ii];
       if (ii % EnumEvent.values().length + 1 == EnumEvent.values().length) {
         sb.append(prefix + Kmerizer.toString(ii / EnumEvent.values().length, 1 + leftFlank + rightFlank));
         double total = 0;
-        for (long l : local_log) {
+        for (long l : localLog) {
           total += l;
         }
-        for (long l : local_log) {
+        for (long l : localLog) {
           sb.append(String.format("%6.2f", 100 * l / total));
         }
         sb.append("       ");
-        for (long l : local_log) {
+        for (long l : localLog) {
           sb.append(String.format(" %d", l));
         }
         sb.append("\n");
@@ -273,12 +273,12 @@ public abstract class Samples {
 
   protected final void loadLengths(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
-    int new_size = dis.readInt();
-    lengths = new ArrayList<>(new_size);
-    for (int ii = 0; ii < new_size; ++ii) {
-      final int num_inserts = dis.readInt();
-      int[] tmp = new int[num_inserts];
-      for (int jj = 0; jj < num_inserts; ++jj) {
+    int newSize = dis.readInt();
+    lengths = new ArrayList<>(newSize);
+    for (int ii = 0; ii < newSize; ++ii) {
+      final int numInserts = dis.readInt();
+      int[] tmp = new int[numInserts];
+      for (int jj = 0; jj < numInserts; ++jj) {
         tmp[jj] = dis.readInt();
       }
       lengths.add(tmp);
@@ -289,9 +289,9 @@ public abstract class Samples {
 
   protected final void loadScores(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.SCORE.filename(prefix))));
-    int new_size = dis.readInt();
-    scores = new ArrayList<Integer>(new_size);
-    for (int ii = 0; ii < new_size; ++ii) {
+    int newSize = dis.readInt();
+    scores = new ArrayList<>(newSize);
+    for (int ii = 0; ii < newSize; ++ii) {
       scores.add(dis.readInt());
     }
     dis.close();
@@ -299,24 +299,24 @@ public abstract class Samples {
   }
 
   protected final void filterScoreLength(LengthLimits limits) {
-    ArrayList<int[]> new_lengths_ = new ArrayList<>(lengths.size());
-    ArrayList<Integer> new_scores_ = new ArrayList<>(scores.size());
+    List<int[]> newLengths = new ArrayList<>(lengths.size());
+    List<Integer> newScores = new ArrayList<>(scores.size());
 
     for (int idx = 0; idx < lengths.size(); ++idx) {
-      final int local_max = NumberUtils.max(lengths.get(idx));
-      int num_passes = 0;
+      final int localMax = NumberUtils.max(lengths.get(idx));
+      int numPasses = 0;
       for(int length: lengths.get(idx)) {
-        if (length > Heuristics.SMRT_INSERT_FRACTION * local_max) { ++num_passes; } // ugly hack, should be done something else, no time to fix
+        if (length > Heuristics.SMRT_INSERT_FRACTION * localMax) { ++numPasses; } // ugly hack, should be done something else, no time to fix
       }
-      if ( num_passes < limits.minNumPasses || num_passes > limits.maxNumPasses || local_max > limits.maxFragmentLength || local_max < limits.minFragmentLength) {
+      if ( numPasses < limits.minNumPasses || numPasses > limits.maxNumPasses || localMax > limits.maxFragmentLength || localMax < limits.minFragmentLength) {
         continue;
       }
-      new_lengths_.add(lengths.get(idx));
-      new_scores_.add(scores.get(idx));
+      newLengths.add(lengths.get(idx));
+      newScores.add(scores.get(idx));
     }
-    base_log.info("length distribution filtering decreased samples from " + lengths.size() + " to " + new_lengths_.size());
-    lengths = new_lengths_;
-    scores = new_scores_;
+    base_log.info("length distribution filtering decreased samples from " + lengths.size() + " to " + newLengths.size());
+    lengths = newLengths;
+    scores = newScores;
   }
 
   public enum Suffixes {

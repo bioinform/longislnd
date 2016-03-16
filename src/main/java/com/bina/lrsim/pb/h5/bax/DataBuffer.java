@@ -12,25 +12,25 @@ import com.bina.lrsim.pb.Spec;
 
 class DataBuffer {
 
-  private final List<Integer> score_ = new ArrayList<>();
-  private final List<List<Integer>> read_lengths_ = new ArrayList<>();
-  private final PBReadBuffer reads_;
+  private final List<Integer> score = new ArrayList<>();
+  private final List<List<Integer>> readLengths = new ArrayList<>();
+  private final PBReadBuffer reads;
   private int numAdapterInsert = 0;
 
   public DataBuffer(Spec spec, int bufferSize) {
-    reads_ = new PBReadBuffer(spec, bufferSize);
+    reads = new PBReadBuffer(spec, bufferSize);
   }
 
   public void addLast(PBReadBuffer read, List<Integer> readLengths, int score) {
-    reads_.addLast(read);
-    score_.add(score);
-    read_lengths_.add(readLengths);
+    reads.addLast(read);
+    this.score.add(score);
+    this.readLengths.add(readLengths);
     numAdapterInsert += readLengths.size();
     if (read.size() != readLengths.get(readLengths.size() - 1)) { throw new RuntimeException("something's wrong with insertion length"); }
   }
 
   public int getNumReads() {
-    return score_.size();
+    return score.size();
   }
 
   public int getNumAdapterInsert() {
@@ -38,7 +38,7 @@ class DataBuffer {
   }
 
   public PBReadBuffer getReadsRef() {
-    return reads_;
+    return reads;
   }
 
   public int getLength(int index) {
@@ -47,10 +47,10 @@ class DataBuffer {
   }
 
   public List<Integer> getReadLengths(int index) {
-    return read_lengths_.get(index);
+    return readLengths.get(index);
   }
 
   public int getScore(int index) {
-    return score_.get(index);
+    return score.get(index);
   }
 }

@@ -28,14 +28,14 @@ public class H5RegionSampler {
       log.info(usage);
       System.exit(1);
     }
-    final String out_prefix = args[0];
-    final String in_file = args[1];
-    final String read_type = args[2];
-    final float min_read_score = Float.parseFloat(args[3]);
-    final int min_passes = (args.length > 4) ? Integer.parseInt(args[4]) : 0;
+    final String outPrefix = args[0];
+    final String inFile = args[1];
+    final String readType = args[2];
+    final float minReadScore = Float.parseFloat(args[3]);
+    final int minPasses = (args.length > 4) ? Integer.parseInt(args[4]) : 0;
 
     final Spec spec;
-    switch (read_type) {
+    switch (readType) {
       case "ccs":
         spec = Spec.CcsSpec;
         break;
@@ -51,49 +51,49 @@ public class H5RegionSampler {
 
     int numReads = 0;
     int numSubReads = 0;
-    long base_count = 0;
+    long baseCount = 0;
 
-    try (DataOutputStream len_out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.LENGTH.filename(out_prefix))));
-         DataOutputStream score_out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.SCORE.filename(out_prefix))))) {
-      len_out.writeInt(-1);
-      score_out.writeInt(-1);
+    try (DataOutputStream lenOut = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.LENGTH.filename(outPrefix))));
+         DataOutputStream scoreOut = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.SCORE.filename(outPrefix))))) {
+      lenOut.writeInt(-1);
+      scoreOut.writeInt(-1);
 
-      try (BufferedReader br = new BufferedReader(new FileReader(in_file))) {
+      try (BufferedReader br = new BufferedReader(new FileReader(inFile))) {
         String line;
         while ((line = br.readLine()) != null) {
           String filename = line.trim(); // for each listed file
           if (filename.length() > 0) {
             log.info("processing " + filename);
             for (Region rr : new BaxH5Reader(filename, spec)) {
-              if (rr.isSequencing() && rr.getReadScore() >= min_read_score) {
+              if (rr.isSequencing() && rr.getReadScore() >= minReadScore) {
                 if (spec == Spec.CcsSpec) {
                   for (int insertLength : rr.getInsertLengths()) {
                     if (insertLength > 0) {
-                      len_out.writeInt(1);
-                      len_out.writeInt(insertLength);
-                      score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
-                      base_count += insertLength;
+                      lenOut.writeInt(1);
+                      lenOut.writeInt(insertLength);
+                      scoreOut.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
+                      baseCount += insertLength;
                       ++numReads;
                       ++numSubReads;
                     }
                   }
                 } else {
-                  final List<Integer> len_list = rr.getInsertLengths();
+                  final List<Integer> lenList = rr.getInsertLengths();
                   int numNonZero = 0;
-                  int max_ins = 0;
-                  for(Integer ins: len_list) {
+                  int maxIns = 0;
+                  for(Integer ins: lenList) {
                     if(ins > 0) {
                       ++numNonZero;
-                      max_ins = Math.max(max_ins,ins);
+                      maxIns = Math.max(maxIns,ins);
                     }
                   }
-                  if (numNonZero >= min_passes && max_ins > 0) {
-                    score_out.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
-                    len_out.writeInt(numNonZero);
-                    for (Integer insertLength : len_list) {
+                  if (numNonZero >= minPasses && maxIns > 0) {
+                    scoreOut.writeInt((int) (rr.getReadScore() * 1000)); // quick and dirty hack
+                    lenOut.writeInt(numNonZero);
+                    for (Integer insertLength : lenList) {
                       if (insertLength > 0) {
-                        len_out.writeInt(insertLength);
-                        base_count += insertLength;
+                        lenOut.writeInt(insertLength);
+                        baseCount += insertLength;
                         ++numSubReads;
                       }
                     }
@@ -106,11 +106,11 @@ public class H5RegionSampler {
         }
       }
     }
-    try (RandomAccessFile len_out = new RandomAccessFile(Samples.Suffixes.LENGTH.filename(out_prefix), "rws");
-         RandomAccessFile score_out = new RandomAccessFile(Samples.Suffixes.SCORE.filename(out_prefix), "rws")) {
+    try (RandomAccessFile len_out = new RandomAccessFile(Samples.Suffixes.LENGTH.filename(outPrefix), "rws");
+         RandomAccessFile score_out = new RandomAccessFile(Samples.Suffixes.SCORE.filename(outPrefix), "rws")) {
       len_out.writeInt(numReads);
       score_out.writeInt(numReads);
     }
-    log.info("number of reads/subreads/bases: " + numReads + "/" + numSubReads + "/" + base_count);
+    log.info("number of reads/subreads/bases: " + numReads + "/" + numSubReads + "/" + baseCount);
   }
 }

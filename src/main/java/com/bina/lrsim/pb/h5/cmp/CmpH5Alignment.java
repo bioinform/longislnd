@@ -20,8 +20,8 @@ public class CmpH5Alignment implements EventGroup {
 
   private final static Logger log = Logger.getLogger(CmpH5Alignment.class.getName());
   private final Spec spec;
-  private int[] index_ = null;
-  private AlnData data_ = null;
+  private int[] index = null;
+  private AlnData data = null;
   private PairwiseAlignment pairwiseAlignment = null;
 
   public CmpH5Alignment(int[] index, AlnData data, Spec spec) {
@@ -30,66 +30,66 @@ public class CmpH5Alignment implements EventGroup {
   }
 
   /**
-   * @param left_flank number of bp before the position of interest
-   * @param right_flank number of bp after the position of interest
-   * @param left_mask omit this number of bases in the begining
-   * @param right_mask omit this number of bases in the end
+   * @param leftFlank number of bp before the position of interest
+   * @param rightFlank number of bp after the position of interest
+   * @param leftMask omit this number of bases in the begining
+   * @param rightMask omit this number of bases in the end
    * @paran getHpAnchor use this many bases on both ends of homopolymer
    * @return an iterator of events associated with this alignment instance
    */
   @Override
-  public Iterator<Event> iterator(int left_flank, int right_flank, int left_mask, int right_mask, int hp_anchor) {
+  public Iterator<Event> iterator(int leftFlank, int rightFlank, int leftMask, int rightMask, int hpAnchor) {
     pairwiseAlignment.span();
-    return new EventIterator(this, left_flank, right_flank, left_mask, right_mask, hp_anchor);
+    return new EventIterator(this, leftFlank, rightFlank, leftMask, rightMask, hpAnchor);
   }
 
   @Override
-  public int seq_length() {
-    return index_[EnumIdx.rEnd.value] - index_[EnumIdx.rStart.value];
+  public int getSeqLength() {
+    return index[EnumIdx.rEnd.value] - index[EnumIdx.rStart.value];
   }
 
   @Override
-  public int ref_length() {
-    return index_[EnumIdx.tEnd.value] - index_[EnumIdx.tStart.value];
+  public int getRefLength() {
+    return index[EnumIdx.tEnd.value] - index[EnumIdx.tStart.value];
   }
 
   public void load(int[] index, AlnData data) {
     final int begin = index[EnumIdx.offset_begin.value];
     final int end = index[EnumIdx.offset_end.value];
     final int length = end - begin;
-    byte[] ref_loc = new byte[length];
-    byte[] seq_loc = new byte[length];
-    int[] seq_data_idx_loc = new int[length];
+    byte[] refLoc = new byte[length];
+    byte[] seqLoc = new byte[length];
+    int[] seqDataIdxLoc = new int[length];
 
     byte[] aln = data.get(EnumDat.AlnArray);
 
     for (int ii = 0; ii < length; ++ii) {
       byte entry = aln[begin + ii];
-      ref_loc[ii] = EnumBP.cmp2ref(entry).ascii;
-      if (EnumBP.Invalid.value == ref_loc[ii]) throw new RuntimeException("bad ref char");
-      seq_loc[ii] = EnumBP.cmp2seq(entry).ascii;
-      if (EnumBP.Invalid.value == seq_loc[ii]) throw new RuntimeException("bad seq char");
+      refLoc[ii] = EnumBP.cmp2Ref(entry).ascii;
+      if (EnumBP.Invalid.value == refLoc[ii]) throw new RuntimeException("bad ref char");
+      seqLoc[ii] = EnumBP.cmp2Seq(entry).ascii;
+      if (EnumBP.Invalid.value == seqLoc[ii]) throw new RuntimeException("bad seq char");
 
       /*
        * this assert is to throw if there's a gap-to-gap alignment, which breaks some down stream pacbio tools, instead, the insertion code path is modified to
        * avoid the logging of gap-to-gap alignment
        */
-      if (ref_loc[ii] == seq_loc[ii] && ref_loc[ii] == EnumBP.Gap.ascii) {
+      if (refLoc[ii] == seqLoc[ii] && refLoc[ii] == EnumBP.Gap.ascii) {
         // throw new RuntimeException("gap-to-gap alignment " + aln[ii]);
         log.warn("' '-to-' ' alignment found in cmp.h5 alignment:" + aln[ii]);
       }
 
-      seq_data_idx_loc[ii] = (seq_loc[ii] != EnumBP.Gap.ascii) ? (begin + ii) : -1;
+      seqDataIdxLoc[ii] = (seqLoc[ii] != EnumBP.Gap.ascii) ? (begin + ii) : -1;
     }
 
-    index_ = index;
-    data_ = data;
-    pairwiseAlignment = new PairwiseAlignment(ref_loc, seq_loc, seq_data_idx_loc);
+    this.index = index;
+    this.data = data;
+    pairwiseAlignment = new PairwiseAlignment(refLoc, seqLoc, seqDataIdxLoc);
   }
 
   @Override
-  public byte getData(EnumDat ed, int seq_idx) {
-    return data_.get(ed)[seq_idx];
+  public byte getData(EnumDat ed, int seqIdx) {
+    return data.get(ed)[seqIdx];
   }
 
   @Override

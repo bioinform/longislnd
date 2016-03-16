@@ -17,12 +17,12 @@ public enum EnumBP {
   Gap(5, 0, 32, ' '),
   Invalid(6, -1, -1, '-');
 
-  public static EnumBP cmp2ref(byte cmp) {
-    return cmp2ref_[cmp & 0xff];
+  public static EnumBP cmp2Ref(byte cmp) {
+    return cmp2ref[cmp & 0xff];
   }
 
-  public static EnumBP cmp2seq(byte cmp) {
-    return cmp2seq_[cmp & 0xff];
+  public static EnumBP cmp2Seq(byte cmp) {
+    return cmp2seq[cmp & 0xff];
   }
 
   EnumBP(int value, int cmp, int ascii, char character) {
@@ -56,8 +56,8 @@ public enum EnumBP {
 
   private static final byte[] ascii_rc_ = new byte[256];
 
-  public static final EnumBP[] cmp2ref_ = new EnumBP[256];
-  public static final EnumBP[] cmp2seq_ = new EnumBP[256];
+  public static final EnumBP[] cmp2ref = new EnumBP[256];
+  public static final EnumBP[] cmp2seq = new EnumBP[256];
 
   static {
     Arrays.fill(ascii2value_, Invalid.value);
@@ -111,8 +111,8 @@ public enum EnumBP {
       ascii2value_[e.ascii] = e.value;
     }
 
-    Arrays.fill(cmp2ref_, Invalid);
-    Arrays.fill(cmp2seq_, Invalid);
+    Arrays.fill(cmp2ref, Invalid);
+    Arrays.fill(cmp2seq, Invalid);
     for (EnumBP seq : EnumSet.allOf(EnumBP.class)) {
       value2ascii_[seq.value] = seq.ascii;
       if (seq.equals(Invalid)) continue;
@@ -120,8 +120,8 @@ public enum EnumBP {
       for (EnumBP ref : EnumSet.allOf(EnumBP.class)) {
         if (ref.equals(Invalid)) continue;
         final int key = seq_value | (int) ref.cmp;
-        cmp2ref_[key] = ref;
-        cmp2seq_[key] = seq;
+        cmp2ref[key] = ref;
+        cmp2seq[key] = seq;
       }
     }
   }
@@ -129,11 +129,11 @@ public enum EnumBP {
   public static String tableToString() {
     StringBuilder sb = new StringBuilder();
     sb.append("\nR:");
-    for (EnumBP entry : EnumBP.cmp2ref_) {
+    for (EnumBP entry : EnumBP.cmp2ref) {
       sb.append(entry.character);
     }
     sb.append("\nQ:");
-    for (EnumBP entry : EnumBP.cmp2seq_) {
+    for (EnumBP entry : EnumBP.cmp2seq) {
       sb.append(entry.character);
     }
     sb.append("\n");

@@ -29,18 +29,18 @@ public class H5Sampler {
       log.info(usage);
       System.exit(1);
     }
-    final String out_prefix = args[0];
-    final String in_file = args[1];
-    final String read_type = args[2];
-    final int left_flank = Integer.parseInt(args[3]);
-    final int right_flank = Integer.parseInt(args[4]);
-    final int min_length = Integer.parseInt(args[5]);
-    final int flank_mask = Integer.parseInt(args[6]);
-    final int hp_anchor = 2;
+    final String outPrefix = args[0];
+    final String inFile = args[1];
+    final String readType = args[2];
+    final int leftFlank = Integer.parseInt(args[3]);
+    final int rightFlank = Integer.parseInt(args[4]);
+    final int minLength = Integer.parseInt(args[5]);
+    final int flankMask = Integer.parseInt(args[6]);
+    final int hpAnchor = 2;
 
     final Spec spec;
 
-    switch (read_type) {
+    switch (readType) {
       case "bax":
         spec = Spec.BaxSampleSpec;
         break;
@@ -57,12 +57,12 @@ public class H5Sampler {
 
     EventGroupFactory groupFactory = null;
     final boolean writeEvents;
-    if (in_file.endsWith(IOUtil.SAM_FILE_EXTENSION) && args.length > 7) {
+    if (inFile.endsWith(IOUtil.SAM_FILE_EXTENSION) && args.length > 7) {
       log.info("sam mode");
-      groupFactory = new SamReader(in_file, args[7]);
+      groupFactory = new SamReader(inFile, args[7]);
       writeEvents = false;
     } else {
-      groupFactory = new CmpH5Reader(in_file, spec);
+      groupFactory = new CmpH5Reader(inFile, spec);
       writeEvents = true;
     }
 
@@ -73,8 +73,8 @@ public class H5Sampler {
     }
     */
 
-    try (SamplesCollector collector = new SamplesCollector(out_prefix, left_flank, right_flank, hp_anchor, writeEvents)) {
-      collector.process(groupFactory, min_length, flank_mask);
+    try (SamplesCollector collector = new SamplesCollector(outPrefix, leftFlank, rightFlank, hpAnchor, writeEvents)) {
+      collector.process(groupFactory, minLength, flankMask);
 //      log.info("\n" + collector.toString() + "\n");
     }
     log.info("finished");

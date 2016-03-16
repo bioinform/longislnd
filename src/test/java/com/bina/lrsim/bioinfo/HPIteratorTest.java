@@ -31,8 +31,8 @@ public class HPIteratorTest {
     int count1 = 0;
     for (Iterator<Context> itr1 = c.decompose(left_flank, right_flank); itr1.hasNext();) {
       Context c1 = itr1.next();
-      assertEquals(c1.kmer(), c.kmer());
-      assertEquals(c1.hp_len(), c.hp_len());
+      assertEquals(c1.getKmer(), c.getKmer());
+      assertEquals(c1.getHpLen(), c.getHpLen());
       ++count1;
     }
     assertEquals(1, count1);
@@ -58,10 +58,10 @@ public class HPIteratorTest {
     int count = 0;
     for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor); itr.hasNext();) {
       Context c = itr.next();
-      assertEquals(1, c.hp_len());
+      assertEquals(1, c.getHpLen());
 
 
-      byte[] sequence = Kmerizer.toByteArray(c.kmer(), flank + 1 + flank);
+      byte[] sequence = Kmerizer.toByteArray(c.getKmer(), flank + 1 + flank);
       for (int pos = 0; pos < sequence.length; ++pos) {
         assertEquals(fw[count + pos], sequence[pos]);
       }
@@ -83,7 +83,7 @@ public class HPIteratorTest {
     int count = 0;
     for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor, true); itr.hasNext();) {
       Context c = itr.next();
-      assertEquals(1, c.hp_len());
+      assertEquals(1, c.getHpLen());
 
 
       byte[] sequence = Kmerizer.toByteArray(c.kmer(), flank + 1 + flank);
@@ -127,18 +127,18 @@ public class HPIteratorTest {
     Iterator<Context> kitr = new KmerIterator(fw, 0, fw.length, flank, flank);
     for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor); itr.hasNext();) {
       Context c = itr.next();
-      if (c.hp_len() == 1) {
+      if (c.getHpLen() == 1) {
         test1Decomposition(c, flank, flank);
         ++kmer_pos;
 
         Context kc = kitr.next();
-        assertEquals(kc.kmer(), c.kmer());
-        assertEquals(kc.hp_len(), c.hp_len());
+        assertEquals(kc.getKmer(), c.getKmer());
+        assertEquals(kc.getHpLen(), c.getHpLen());
       } else {
         // check homopolymer shortening
         {
-          assertEquals(c.hp_len(), homo_length);
-          byte[] sequence = Kmerizer.toByteArray(c.kmer(), anchor + 1 + anchor);
+          assertEquals(c.getHpLen(), homo_length);
+          byte[] sequence = Kmerizer.toByteArray(c.getKmer(), anchor + 1 + anchor);
           assertEquals(sequence[anchor], homo_base);
           for (int aa = 0; aa < anchor; ++aa) {
             assertEquals(sequence[aa], flanking[flanking.length - anchor + aa]);
@@ -147,15 +147,15 @@ public class HPIteratorTest {
         // check decomposition
         for (Iterator<Context> itr1 = c.decompose(flank, flank); itr1.hasNext();) {
           Context c1 = itr1.next();
-          assertEquals(1, c1.hp_len());
-          byte[] sequence = Kmerizer.toByteArray(c1.kmer(), flank + 1 + flank);
+          assertEquals(1, c1.getHpLen());
+          byte[] sequence = Kmerizer.toByteArray(c1.getKmer(), flank + 1 + flank);
           for (int pos = 0; pos < sequence.length; ++pos) {
             assertEquals(fw[kmer_pos + pos], sequence[pos]);
           }
           ++kmer_pos;
           Context kc = kitr.next();
-          assertEquals(kc.kmer(), c1.kmer());
-          assertEquals(kc.hp_len(), c1.hp_len());
+          assertEquals(kc.getKmer(), c1.getKmer());
+          assertEquals(kc.getHpLen(), c1.getHpLen());
         }
       }
       ++count;
@@ -198,17 +198,17 @@ public class HPIteratorTest {
     Iterator<Context> kitr = new KmerIterator(fw, 0, fw.length, flank, flank, true);
     for (Iterator<Context> itr = new HPIterator(fw, 0, fw.length, flank, flank, anchor, true); itr.hasNext();) {
       Context c = itr.next();
-      if (c.hp_len() == 1) {
+      if (c.getHpLen() == 1) {
         test1Decomposition(c, flank, flank);
         ++kmer_pos;
         assertTrue(kitr.hasNext());
         Context kc = kitr.next();
         assertEquals(kc.kmer(), c.kmer());
-        assertEquals(kc.hp_len(), c.hp_len());
+        assertEquals(kc.getHpLen(), c.getHpLen());
       } else {
         // check homopolymer shortening
         {
-          assertEquals(c.hp_len(), homo_length);
+          assertEquals(c.getHpLen(), homo_length);
           byte[] sequence = Kmerizer.toByteArray(c.kmer(), anchor + 1 + anchor);
           assertEquals(sequence[anchor], homo_base_rc);
           for (int aa = 0; aa < anchor; ++aa) {
@@ -218,7 +218,7 @@ public class HPIteratorTest {
         // check decomposition
         for (Iterator<Context> itr1 = c.decompose(flank, flank); itr1.hasNext();) {
           Context c1 = itr1.next();
-          assertEquals(1, c1.hp_len());
+          assertEquals(1, c1.getHpLen());
           byte[] sequence = Kmerizer.toByteArray(c1.kmer(), flank + 1 + flank);
           for (int pos = 0; pos < sequence.length; ++pos) {
             assertEquals(rc[kmer_pos + pos], sequence[pos]);
@@ -228,7 +228,7 @@ public class HPIteratorTest {
           Context kc = kitr.next();
 
           assertEquals(kc.kmer(), c1.kmer());
-          assertEquals(kc.hp_len(), c1.hp_len());
+          assertEquals(kc.getHpLen(), c1.getHpLen());
         }
       }
       ++count;

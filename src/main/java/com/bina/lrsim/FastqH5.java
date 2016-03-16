@@ -36,22 +36,22 @@ public class FastqH5 {
 
     final File path = new File(args[0]);
 
-    final String movie_prefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
+    final String moviePrefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
 
     PBReadBuffer read = new PBReadBuffer(spec);
 
-    int current_file_index = 0;
-    String movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
-    BaxH5Writer writer = new BaxH5Writer(spec, new File(path, movie_name + spec.getSuffix()).getPath(), movie_name, 0);
-    final int target_chunk = 200000000;
+    int currentFileIndex = 0;
+    String movieName = moviePrefix + String.format("%05d", currentFileIndex++) + "_cFromFastq_s1_p0";
+    BaxH5Writer writer = new BaxH5Writer(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, 0);
+    final int targetChunk = 200000000;
     int size = 0;
     for (int ii = 1; ii < args.length; ++ii) {
       final String fastq = args[ii];
       for (FastqRecord record : new FastqReader(new File(fastq))) {
-        if (size > target_chunk) {
+        if (size > targetChunk) {
           writer.close();
-          movie_name = movie_prefix + String.format("%05d", current_file_index++) + "_cFromFastq_s1_p0";
-          writer = new BaxH5Writer(spec, new File(path, movie_name + spec.getSuffix()).getPath(), movie_name, 0);
+          movieName = moviePrefix + String.format("%05d", currentFileIndex++) + "_cFromFastq_s1_p0";
+          writer = new BaxH5Writer(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, 0);
           size = 0;
         }
         read.clear();

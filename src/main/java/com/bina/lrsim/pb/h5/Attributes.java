@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class Attributes {
   public void writeTo(HObject obj) {
-    for (Map.Entry<String, Value> entry : name_value_.entrySet()) {
+    for (Map.Entry<String, Value> entry : nameValue.entrySet()) {
       final Object raw_buffer = entry.getValue().buffer;
       ncsa.hdf.object.Attribute h5Attribute = new ncsa.hdf.object.Attribute(entry.getKey(), EnumH5Type.getH5Datatype(raw_buffer, entry.getValue().dims, entry.getValue().isSigned), entry.getValue().dims, entry.getValue().buffer);
       try {
@@ -54,11 +54,11 @@ public class Attributes {
   }
 
   public void add(String name, Object buffer, long[] dims, boolean isSigned) {
-    name_value_.put(name, new Value(buffer, dims, isSigned));
+    nameValue.put(name, new Value(buffer, dims, isSigned));
   }
 
   public Value get(String key) {
-    return name_value_.get(key);
+    return nameValue.get(key);
   }
 
   public static Object extract(HObject from, String key) {
@@ -72,7 +72,7 @@ public class Attributes {
     }
   }
 
-  private final Map<String, Value> name_value_ = new HashMap<String, Value>();
+  private final Map<String, Value> nameValue = new HashMap<>();
   private final static Logger log = Logger.getLogger(Attributes.class.getName());
 
   private static class Value {

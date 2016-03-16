@@ -16,63 +16,63 @@ import com.bina.lrsim.pb.Spec;
 
 class AttributesFactory {
 
-  private Map<EnumDat, Attributes> ofDat_ = new EnumMap<>(EnumDat.class);
-  private Map<EnumGroups, Attributes> ofGrp_ = new EnumMap<>(EnumGroups.class);
+  private Map<EnumDat, Attributes> ofDat = new EnumMap<>(EnumDat.class);
+  private Map<EnumGroups, Attributes> ofGrp = new EnumMap<>(EnumGroups.class);
 
-  public AttributesFactory(int num_reads, String movie_name, Spec spec) {
+  public AttributesFactory(int numReads, String movieName, Spec spec) {
     {// for enum dat
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Called base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
-        ofDat_.put(EnumDat.BaseCall, att);
+        ofDat.put(EnumDat.BaseCall, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Probability of deletion error prior to the current base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
         att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {EnumAttributes.PHRED_QV.fieldName}, null, false);
-        ofDat_.put(EnumDat.DeletionQV, att);
+        ofDat.put(EnumDat.DeletionQV, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Likely identity of deleted base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
-        ofDat_.put(EnumDat.DeletionTag, att);
+        ofDat.put(EnumDat.DeletionTag, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Probability that the current base is an insertion"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
         att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {EnumAttributes.PHRED_QV.fieldName}, null, false);
-        ofDat_.put(EnumDat.InsertionQV, att);
+        ofDat.put(EnumDat.InsertionQV, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Probability of merged-pulse error at the current base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
         att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {EnumAttributes.PHRED_QV.fieldName}, null, false);
-        ofDat_.put(EnumDat.MergeQV, att);
+        ofDat.put(EnumDat.MergeQV, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Probability of basecalling error at the current base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
         att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {EnumAttributes.PHRED_QV.fieldName}, null, false);
-        ofDat_.put(EnumDat.QualityValue, att);
+        ofDat.put(EnumDat.QualityValue, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Probability of substitution error at the current base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
         att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {EnumAttributes.PHRED_QV.fieldName}, null, false);
-        ofDat_.put(EnumDat.SubstitutionQV, att);
+        ofDat.put(EnumDat.SubstitutionQV, att);
       }
       {
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Most likely alternative base"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {EnumAttributes.NUM_EVENT.fieldName}, null, false);
-        ofDat_.put(EnumDat.SubstitutionTag, att);
+        ofDat.put(EnumDat.SubstitutionTag, att);
       }
     }
     {// for enum group_
@@ -81,33 +81,33 @@ class AttributesFactory {
         att.add("ChangeListID", new String[] {"2.1.0.0.126982"}, null, false);
         if (spec.getBaseCallsEnum().equals(EnumGroups.BaseCalls)) {
           att.add("Content", spec.getDataDescription(), new long[] {2, spec.getDataDescription().length / 2}, false);
-          att.add("CountStored", new int[] {num_reads}, null, true);
+          att.add("CountStored", new int[] {numReads}, null, true);
           DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'+00:00'");
           att.add("DateCreated", new String[] {df.format(Calendar.getInstance().getTime())}, null, false);
           att.add("QVDecoding", new String[] {"Standard Phred encoding: QV = -10 * log10(p) - where p is the probability of error"}, null, false);
           att.add("SchemaRevision", new String[] {"1.0"}, null, false);
         }
-        ofGrp_.put(EnumGroups.BaseCalls, att);
+        ofGrp.put(EnumGroups.BaseCalls, att);
       }
       {
         Attributes att = new Attributes();
         // This should be refactered to go along with ZMW group
         att.add("SchemaRevision", new String[] {"NumEvent", "HoleNumber", "HoleXY", "HoleStatus", "int32", "uint32", "int16", "uint8"}, new long[] {2, 4}, false);
-        ofGrp_.put(EnumGroups.ZMW, att);
-        ofGrp_.put(EnumGroups.CZMW, att);
+        ofGrp.put(EnumGroups.ZMW, att);
+        ofGrp.put(EnumGroups.CZMW, att);
       }
       {
         Attributes att = new Attributes();
         att.add("ChangeListID", new String[] {"2.3.0.0.140936"}, null, false);
         if (spec.getBaseCallsEnum().equals(EnumGroups.CBaseCalls)) {
           att.add("Content", spec.getDataDescription(), new long[] {2, spec.getDataDescription().length / 2}, false);
-          att.add("CountStored", new int[] {num_reads}, null, true);
+          att.add("CountStored", new int[] {numReads}, null, true);
           DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'+00:00'");
           att.add("DateCreated", new String[] {df.format(Calendar.getInstance().getTime())}, null, false);
           att.add("QVDecoding", new String[] {"Standard Phred encoding: QV = -10 * log10(p) - where p is the probability of error"}, null, false);
           att.add("SchemaRevision", new String[] {"1.0"}, null, false);
         }
-        ofGrp_.put(EnumGroups.CBaseCalls, att);
+        ofGrp.put(EnumGroups.CBaseCalls, att);
       }
       {
         Attributes att = new Attributes();
@@ -116,14 +116,14 @@ class AttributesFactory {
         att.add("DateCreated", new String[] {df.format(Calendar.getInstance().getTime())}, null, false);
         att.add("FormatVersion", new String[] {"Springfield 1.1"}, null, false);
         att.add("SoftwareVersion", new String[] {"Otto 2.1.0.0"}, null, false);
-        ofGrp_.put(EnumGroups.ScanData, att);
+        ofGrp.put(EnumGroups.ScanData, att);
       }
       {
         Attributes att = new Attributes();
         att.add("BaseMap", new String[] {"TGAC"}, null, false);
         att.add("Name", new String[] {"NA"}, null, false);
         att.add("NumAnalog", new short[] {4}, null, false);
-        ofGrp_.put(EnumGroups.DyeSet, att);
+        ofGrp.put(EnumGroups.DyeSet, att);
       }
       {
         Attributes att = new Attributes();
@@ -136,7 +136,7 @@ class AttributesFactory {
         att.add("Type", new String[] {"NA"}, null, false);
         att.add("TypeId", new int[] {0}, null, true);
         att.add("Wavelength", new float[] {433}, null, false);
-        ofGrp_.put(EnumGroups.A0, att);
+        ofGrp.put(EnumGroups.A0, att);
       }
       {
         Attributes att = new Attributes();
@@ -149,7 +149,7 @@ class AttributesFactory {
         att.add("Type", new String[] {"NA"}, null, false);
         att.add("TypeId", new int[] {0}, null, true);
         att.add("Wavelength", new float[] {488}, null, false);
-        ofGrp_.put(EnumGroups.A1, att);
+        ofGrp.put(EnumGroups.A1, att);
       }
       {
         Attributes att = new Attributes();
@@ -162,7 +162,7 @@ class AttributesFactory {
         att.add("Type", new String[] {"NA"}, null, false);
         att.add("TypeId", new int[] {0}, null, true);
         att.add("Wavelength", new float[] {538}, null, false);
-        ofGrp_.put(EnumGroups.A2, att);
+        ofGrp.put(EnumGroups.A2, att);
       }
       {
         Attributes att = new Attributes();
@@ -175,7 +175,7 @@ class AttributesFactory {
         att.add("Type", new String[] {"NA"}, null, false);
         att.add("TypeId", new int[] {0}, null, true);
         att.add("Wavelength", new float[] {633}, null, false);
-        ofGrp_.put(EnumGroups.A3, att);
+        ofGrp.put(EnumGroups.A3, att);
       }
       {
         Attributes att = new Attributes();
@@ -184,14 +184,14 @@ class AttributesFactory {
         att.add("InstrumentId", new int[] {1}, null, false);
         att.add("InstrumentName", new String[] {"42213"}, null, false);
         att.add("IsControlUsed", new String[] {"False"}, null, false);
-        att.add("MovieName", new String[] {movie_name}, null, false);
+        att.add("MovieName", new String[] {movieName}, null, false);
         att.add("PlatformId", new int[] {2}, null, false);
         att.add("PlatformName", new String[] {"Springfield"}, null, false);
         att.add("RunCode", new String[] {"2013-10-19_NGAT-213_CHM1h-3-Titration-P5C3_40-B01_2"}, null, false);
         att.add("RunId", new int[] {1}, null, false);
         att.add("SequencingChemistry", new String[] {"P5-C3"}, null, false);
         att.add("SequencingKit", new String[] {"100254800"}, null, false);
-        ofGrp_.put(EnumGroups.RunInfo, att);
+        ofGrp.put(EnumGroups.RunInfo, att);
       }
       {
         Attributes att = new Attributes();
@@ -210,7 +210,7 @@ class AttributesFactory {
         att.add("NumCameras", new byte[] {4}, null, false);
         att.add("NumFrames", new int[] {809900}, null, false);
         att.add("NumLasers", new byte[] {2}, null, false);
-        ofGrp_.put(EnumGroups.AcqParams, att);
+        ofGrp.put(EnumGroups.AcqParams, att);
       }
 
     }
@@ -218,12 +218,12 @@ class AttributesFactory {
   }
 
   public Attributes get(EnumDat e) {
-    return ofDat_.get(e);
+    return ofDat.get(e);
   }
 
   public Attributes get(EnumGroups e) {
-    Attributes ret = ofGrp_.get(e);
-    if (ret != null) return ofGrp_.get(e);
+    Attributes ret = ofGrp.get(e);
+    if (ret != null) return ofGrp.get(e);
     else return new Attributes();
   }
 }

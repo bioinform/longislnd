@@ -56,20 +56,20 @@ public abstract class ReadsWriter implements Closeable {
     }
   }
 
-  protected final void writeBedLine(FileWriter fw, String record_name, Locus locus) throws IOException {
+  protected final void writeBedLine(FileWriter fw, String recordName, Locus locus) throws IOException {
     fw.write(locus.getChrom());
     fw.write('\t');
     fw.write(String.valueOf(locus.getBegin0()));
     fw.write('\t');
     fw.write(String.valueOf(locus.getEnd0()));
     fw.write('\t');
-    fw.write(record_name);
+    fw.write(recordName);
     fw.write("\t500\t");
     fw.write(locus.isRc() ? '-' : '+');
     fw.write(System.lineSeparator());
   }
 
-  public abstract void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci);
+  public abstract void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clrLoci);
 
   public abstract int size();
 }

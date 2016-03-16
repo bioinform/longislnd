@@ -37,9 +37,9 @@ public final class HPContext extends Context {
       sb.append((char) entry);
     }
     sb.append(" ");
-    sb.append(String.valueOf(hp_len()));
+    sb.append(String.valueOf(getHpLen()));
     sb.append(" ");
-    sb.append(String.valueOf(kmer()));
+    sb.append(String.valueOf(getKmer()));
     return sb.toString();
   }
 

@@ -17,10 +17,10 @@ public class DeletedSingleBCPool extends SingleBCPool {
 
   @Override
   public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
-    if (context.hp_len() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
-    final int base = begin(context.kmer());
-    if (base == end[context.kmer()]) throw new RuntimeException("no sample");
-    final int shift = base + gen.nextInt((end[context.kmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
+    if (context.getHpLen() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
+    final int base = begin(context.getKmer());
+    if (base == end[context.getKmer()]) throw new RuntimeException("no sample");
+    final int shift = base + gen.nextInt((end[context.getKmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
     return new AppendState(Arrays.copyOfRange(data, shift, shift + BYTE_PER_BC), true);
   }
 }
