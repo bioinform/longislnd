@@ -47,6 +47,10 @@ public class LRSim {
         SamH5.main(pass_args);
         break;
 
+      case "length": // length inspection
+        LengthInspector.main(pass_args);
+        break;
+
       default:
         System.err.println(usage);
     }
