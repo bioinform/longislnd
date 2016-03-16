@@ -107,10 +107,12 @@ public enum Spec {
         this.zmw = zmw;
         this.zmwMetrics = zmwMetrics;
         this.dataSet = dataSet;
-        this.nonBaseDataSet = EnumSet.copyOf(dataSet);
+        nonBaseDataSet = dataSet != null ? EnumSet.copyOf(dataSet) : null;
         this.suffix = suffix;
 
-        this.nonBaseDataSet.remove(EnumDat.BaseCall);
+        if (nonBaseDataSet != null) {
+            nonBaseDataSet.remove(EnumDat.BaseCall);
+        }
     }
 
     public static Spec fromReadType(final String readType) {
