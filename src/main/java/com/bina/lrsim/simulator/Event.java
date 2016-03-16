@@ -38,15 +38,15 @@ public final class Event {
     bc.resize(s);
   }
 
-  public EnumEvent event() {
+  public EnumEvent getEvent() {
     return event;
   }
 
-  public int kmer() {
+  public int getKmer() {
     return context.getKmer();
   }
 
-  public int hp_len() {
+  public int getHpLen() {
     return context.getHpLen();
   }
 

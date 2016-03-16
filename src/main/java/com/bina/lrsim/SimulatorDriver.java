@@ -89,7 +89,7 @@ public class SimulatorDriver {
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     int currentFileIndex = 0;
-    int simulated_reads = 0;
+    int simulatedReads = 0;
     final int targetChunk = (int) Math.min(wr.getNonNCount(), 200000000);
     log.info("each file will have ~" + targetChunk + " bases");
 
@@ -105,8 +105,8 @@ public class SimulatorDriver {
       final String movieName = moviePrefix + String.format("%05d", currentFileIndex) + "_c" + identifier + "_s1_p0";
       final int target = (int) Math.min(targetChunk, Math.max(0, totalBases - simulatedBases));
       log.info("simulating roughly " + targetChunk + " for " + movieName);
-      simulated_reads += sim.simulate(outDir, movieName, simulated_reads, samples, target, spec, gen);
-      log.info("total number of reads is " + simulated_reads);
+      simulatedReads += sim.simulate(outDir, movieName, simulatedReads, samples, target, spec, gen);
+      log.info("total number of reads is " + simulatedReads);
       simulatedBases += target + 1;
     }
 

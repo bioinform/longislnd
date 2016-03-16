@@ -34,14 +34,14 @@ public class SingleBCPool extends BaseCallsPool {
 
   @Override
   public boolean add(Event ev, AddBehavior ab) {
-    if (end[ev.kmer()] - begin(ev.kmer()) < entryPerKmer * BYTE_PER_BC) {
-      int shift = end[ev.kmer()];
+    if (end[ev.getKmer()] - begin(ev.getKmer()) < entryPerKmer * BYTE_PER_BC) {
+      int shift = end[ev.getKmer()];
       if (ev.size() != 1) { throw new RuntimeException("event is too large"); }
       for (EnumDat e : spec.getDataSet()) {
         data[shift + e.value] = ev.get(0, e);
       }
       data[shift + EnumDat.QualityValue.value] = (byte) ab.newQV(data[shift + EnumDat.QualityValue.value]);
-      end[ev.kmer()] += BYTE_PER_BC;
+      end[ev.getKmer()] += BYTE_PER_BC;
       return true;
     }
     return false;

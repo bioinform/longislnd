@@ -56,23 +56,23 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
         continue;
       }
 
-      if (event.hp_len() == 1) {
-        final long current_count = getKmerEventCountRef()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
-        if (null!= eventOut && event.event().recordEvery > 0
-                && current_count % event.event().recordEvery == 0 && current_count / event.event().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
+      if (event.getHpLen() == 1) {
+        final long current_count = getKmerEventCountRef()[EnumEvent.values().length * event.getKmer() + event.getEvent().ordinal()];
+        if (null!= eventOut && event.getEvent().recordEvery > 0
+                && current_count % event.getEvent().recordEvery == 0 && current_count / event.getEvent().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
           event.write(eventOut);
         }
-        final int idx = event.event().ordinal();
+        final int idx = event.getEvent().ordinal();
 
         ++getEventCountRef()[idx];
         ++getEventBaseCountRef()[idx];
-        if (event.event().equals(EnumEvent.INSERTION)) {
+        if (event.getEvent().equals(EnumEvent.INSERTION)) {
           getEventBaseCountRef()[idx] += event.size() - 2;
         }
-        ++getKmerEventCountRef()[EnumEvent.values().length * event.kmer() + event.event().ordinal()];
+        ++getKmerEventCountRef()[EnumEvent.values().length * event.getKmer() + event.getEvent().ordinal()];
       } else {
-        if (event.hp_len() < getMaxRlen() && event.size() < getMaxSlen()) {
-          addKmerRlenSlenCount(event.kmer(), event.hp_len(), event.size());
+        if (event.getHpLen() < getMaxRlen() && event.size() < getMaxSlen()) {
+          addKmerRlenSlenCount(event.getKmer(), event.getHpLen(), event.size());
           if (null != hpOut) event.write(hpOut);
         }
       }

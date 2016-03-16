@@ -285,10 +285,10 @@ public class SamplesDrawer extends Samples {
     for (int src = 0, nSrcDone = 0; nSrcDone < numSrc && nKmerDone < getNumKmer() /* && num_logged_event < max_logged_event */; src = (src + 1) % numSrc) {
       if (dis[src].available() > 0) {
         buffer.read(dis[src]);
-        final int bufferKmer = buffer.kmer();
+        final int bufferKmer = buffer.getKmer();
 
-        if (buffer.hp_len() == 1) {
-          final EnumEvent bufferEvent = buffer.event();
+        if (buffer.getHpLen() == 1) {
+          final EnumEvent bufferEvent = buffer.getEvent();
           if (buffer.size() > 1 && bufferEvent != EnumEvent.INSERTION) {
             throw new RuntimeException(bufferEvent.name() + " with length " + buffer.size());
           }
@@ -371,7 +371,7 @@ public class SamplesDrawer extends Samples {
           }
         } else {
           if (Heuristics.DISCARD_DIRTY_HOMOPOLYMER_SAMPLES) {
-            final byte centerBase = Kmerizer.getKmerByte(buffer.kmer(), 2 * getHpAnchor() + 1, getHpAnchor());
+            final byte centerBase = Kmerizer.getKmerByte(buffer.getKmer(), 2 * getHpAnchor() + 1, getHpAnchor());
             int match = 0;
             for (int pos = 0; pos < buffer.size(); ++pos) {
               if (buffer.get(pos, EnumDat.BaseCall) == centerBase) {

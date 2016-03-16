@@ -32,12 +32,12 @@ public class KmerBCPool extends BaseCallsPool {
 
   @Override
   public boolean add(Event ev, AddBehavior ab) {
-    if (entryPerKmer < 0 || data.get(ev.kmer()).size() < entryPerKmer) {
+    if (entryPerKmer < 0 || data.get(ev.getKmer()).size() < entryPerKmer) {
       byte[] tmp = ev.dataCpy();
       for (int idx = EnumDat.QualityValue.value; idx < tmp.length; idx += EnumDat.numBytes) {
         tmp[idx] = (byte) ab.newQV(tmp[idx]);
       }
-      data.get(ev.kmer()).add(tmp);
+      data.get(ev.getKmer()).add(tmp);
       return true;
     }
     return false;

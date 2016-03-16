@@ -36,8 +36,8 @@ public class HPBCPool extends BaseCallsPool {
 
   @Override
   public boolean add(Event ev, AddBehavior ab) {
-    final int kmer = ev.kmer();
-    final int hpLen = ev.hp_len();
+    final int kmer = ev.getKmer();
+    final int hpLen = ev.getHpLen();
 
     while (data.get(kmer).size() <= hpLen) {
       data.get(kmer).add(null);
