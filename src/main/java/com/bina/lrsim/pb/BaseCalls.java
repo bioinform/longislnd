@@ -21,11 +21,6 @@ public class BaseCalls {
     this.spec = spec;
   }
 
-  public BaseCalls(Spec spec, int size) {
-    this(spec);
-    resize(size);
-  }
-
   public final void clear() {
     data.clear();
   }
@@ -71,7 +66,7 @@ public class BaseCalls {
     StringBuilder sb = new StringBuilder();
     for (EnumDat e : spec.getDataSet()) {
       for (int ii = 0; ii < size(); ++ii) {
-        if (e.equals(EnumDat.BaseCall) || e.equals(EnumDat.DeletionTag) || e.equals(EnumDat.SubstitutionTag)) {
+        if (e == EnumDat.BaseCall || e == EnumDat.DeletionTag || e == EnumDat.SubstitutionTag) {
           sb.append((char) (0xff & this.get(ii, e)));
         } else {
           sb.append(get(ii, e));

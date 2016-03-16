@@ -215,14 +215,10 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     long[] dims = new long[] {buffer.length / EnumRegionsIdx.values().length, EnumRegionsIdx.values().length};
     final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path + "/Regions", buffer, dims, true);
     Attributes att = new Attributes();
-    att.add("ColumnNames", EnumRegionsIdx.descriptionArray, new long[] {EnumRegionsIdx.descriptionArray.length}, false);
-    att.add("RegionDescriptions", new String[] {"Adapter Hit", "Insert Region", "High Quality bases region. Score is 1000 * predicted accuracy, where predicted accuray is 0 to 1.0"}, new long[] {3}, false); // typo
-                                                                                                                                                                                                               // foolows
-                                                                                                                                                                                                               // pacbio's
-                                                                                                                                                                                                               // typo
-    att.add("RegionSources", new String[] {"AdapterFinding", "AdapterFinding", "PulseToBase Region classifer"}, new long[] {3}, false); // typo follows pacbio's
-                                                                                                                                        // typo
-    att.add("RegionTypes", EnumTypeIdx.getDescriptionArray(), new long[] {EnumTypeIdx.values().length}, false);
+    att.add("ColumnNames", EnumRegionsIdx.descriptionArray);
+    att.add("RegionDescriptions", new String[] {"Adapter Hit", "Insert Region", "High Quality bases region. Score is 1000 * predicted accuracy, where predicted accuray is 0 to 1.0"}); // typo foolows pacbio's typo
+    att.add("RegionSources", new String[] {"AdapterFinding", "AdapterFinding", "PulseToBase Region classifer"}); // typo follows pacbio's typo
+    att.add("RegionTypes", EnumTypeIdx.getDescriptionArray());
     att.writeTo(obj);
   }
 

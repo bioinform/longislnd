@@ -53,7 +53,7 @@ public class PBReadBuffer {
   public void addASCIIBases(byte[] asciiSeq, byte[] defaultSeq, byte[] defaultScores) {
     for (EnumDat e : spec.getDataSet()) {
       final byte[] buffer;
-      if (e.equals(EnumDat.BaseCall)) {
+      if (e == EnumDat.BaseCall) {
         buffer = asciiSeq;
       } else if (e.isScore) {
         buffer = defaultScores;

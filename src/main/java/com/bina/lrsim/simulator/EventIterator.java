@@ -264,10 +264,8 @@ public class EventIterator implements Iterator<Event> {
     }
 
     EnumEvent ev;
-    if (bc.size() < hpLength) {
-      ev = EnumEvent.DELETION;
-    } else if (bc.size() > hpLength) {
-      ev = EnumEvent.INSERTION;
+    if (bc.size() != hpLength) {
+      ev = (bc.size() < hpLength) ? EnumEvent.DELETION : EnumEvent.INSERTION;
     } else {
       boolean same = true;
       for (int ii = 0; ii < bc.size(); ++ii) {
@@ -275,12 +273,7 @@ public class EventIterator implements Iterator<Event> {
           same = false;
         }
       }
-      if (same) {
-        ev = EnumEvent.MATCH;
-      } else {
-        ev = EnumEvent.SUBSTITUTION;
-      }
-
+      ev = same ? EnumEvent.MATCH : EnumEvent.SUBSTITUTION;
     }
     /*
     if (new String(tmp).equals("ATGTG") && hp_length == 6) {

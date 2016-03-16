@@ -11,6 +11,7 @@ enum EnumRegionsIdx {
   RegionScore("Region score");
 
   public static final String[] descriptionArray;
+  public static final EnumRegionsIdx[] values = values();
 
   static {
     descriptionArray = new String[values().length];

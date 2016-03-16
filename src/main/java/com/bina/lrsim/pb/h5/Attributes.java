@@ -57,6 +57,10 @@ public class Attributes {
     nameValue.put(name, new Value(buffer, dims, isSigned));
   }
 
+  public void add(final String name, final String[] array) {
+    add(name, array, new long[] {array.length}, false);
+  }
+
   public Value get(String key) {
     return nameValue.get(key);
   }

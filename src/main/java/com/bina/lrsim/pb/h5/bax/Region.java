@@ -29,7 +29,7 @@ public class Region {
   }
 
   public Region(int[] data, int begin, int end, float score, byte holeStatus) {
-    if (end < begin || (end - begin) % EnumRegionsIdx.values().length != 0) { throw new RuntimeException("unexpected region data"); }
+    if (end < begin || (end - begin) % EnumRegionsIdx.values.length != 0) { throw new RuntimeException("unexpected region data"); }
     this.readScore = score;
     this.holeStatus = holeStatus;
 
@@ -40,7 +40,7 @@ public class Region {
     List<Integer> insertEnd = new ArrayList<>(4);
 
     int regionScore = -1;
-    for (int shift = begin; shift < end; shift += EnumRegionsIdx.values().length) {
+    for (int shift = begin; shift < end; shift += EnumRegionsIdx.values.length) {
       final int locStart = data[shift + EnumRegionsIdx.RegionStart.ordinal()];
       final int locEnd = data[shift + EnumRegionsIdx.RegionEnd.ordinal()];
       if (data[shift + EnumRegionsIdx.RegionType.ordinal()] == EnumTypeIdx.TypeInsert.ordinal()) {
