@@ -29,7 +29,7 @@ public class BaseCalls {
     return data.size() / bytePerBase;
   }
 
-  public final void push_back() {
+  public final void pushBack() {
     resize(size() + 1);
   }
 

@@ -315,7 +315,7 @@ public class EventIterator implements Iterator<Event> {
   private void fillBase(BaseCalls bc, int index) {
     final int locIdx = bc.size();
     final int seqIdx = alignment.getSeqDataIndex(index);
-    bc.push_back();
+    bc.pushBack();
     bc.set(locIdx, EnumDat.BaseCall, alignment.getSeq(index));
     for (EnumDat ed : alignment.getSpec().getNonBaseDataSet()) {
       bc.set(locIdx, ed, alignment.getData(ed, seqIdx));

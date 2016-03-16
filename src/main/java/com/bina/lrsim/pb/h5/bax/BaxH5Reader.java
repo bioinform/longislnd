@@ -102,7 +102,7 @@ public class BaxH5Reader implements RegionGroup {
 
   @Override
   public Iterator<Region> iterator() {
-    return (spec.getZMWEnum().equals(EnumGroups.CZMW)) ? new CCSRegionIterator() : new RegionIterator();
+    return (spec.getZMWEnum() == EnumGroups.CZMW) ? new CCSRegionIterator() : new RegionIterator();
   }
 
   private class CCSRegionIterator implements Iterator<Region> {

@@ -75,7 +75,7 @@ public enum Spec {
             EnumGroups.BaseCalls,
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
-            null,
+            EnumSet.noneOf(EnumDat.class),
             null
     );
 
@@ -107,12 +107,10 @@ public enum Spec {
         this.zmw = zmw;
         this.zmwMetrics = zmwMetrics;
         this.dataSet = dataSet;
-        nonBaseDataSet = dataSet != null ? EnumSet.copyOf(dataSet) : null;
+        nonBaseDataSet = EnumSet.copyOf(dataSet);
         this.suffix = suffix;
 
-        if (nonBaseDataSet != null) {
-            nonBaseDataSet.remove(EnumDat.BaseCall);
-        }
+        nonBaseDataSet.remove(EnumDat.BaseCall);
     }
 
     public static Spec fromReadType(final String readType) {
