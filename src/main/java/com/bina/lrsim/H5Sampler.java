@@ -1,6 +1,9 @@
 package com.bina.lrsim;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import htsjdk.samtools.util.IOUtil;
 import org.apache.log4j.Logger;
@@ -16,7 +19,7 @@ import com.bina.lrsim.simulator.samples.SamplesCollector;
  */
 public class H5Sampler {
   private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
-
+  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs"));
   private final static String usage = "parameters: out_prefix in_file read_type left_flank right_flank min_length flank_mask";
 
   /**
@@ -38,22 +41,13 @@ public class H5Sampler {
     final int flankMask = Integer.parseInt(args[6]);
     final int hpAnchor = 2;
 
-    final Spec spec;
-
-    switch (readType) {
-      case "bax":
-        spec = Spec.BaxSampleSpec;
-        break;
-      case "ccs":
-        spec = Spec.CcsSpec;
-        break;
-      default:
-        spec = null;
-        log.info("read_type must be bax or ccs");
-        log.info(usage);
-        System.exit(1);
+    if (!VALID_READ_TYPES.contains(readType)) {
+      log.error("read_type must be bax or ccs");
+      log.info(usage);
+      System.exit(1);
     }
 
+    final Spec spec = readType.equals("bax") ? Spec.BaxSampleSpec : Spec.CcsSpec;
 
     EventGroupFactory groupFactory = null;
     final boolean writeEvents;

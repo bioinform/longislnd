@@ -1,7 +1,10 @@
 package com.bina.lrsim;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.bina.lrsim.pb.Spec;
 import org.apache.log4j.Logger;
@@ -15,7 +18,7 @@ import com.bina.lrsim.simulator.samples.Samples;
  */
 public class H5RegionSampler {
   private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
-
+  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs"));
   private final static String usage = "parameters: out_prefix fofn read_type min_read_score";
 
   /**
@@ -34,20 +37,13 @@ public class H5RegionSampler {
     final float minReadScore = Float.parseFloat(args[3]);
     final int minPasses = (args.length > 4) ? Integer.parseInt(args[4]) : 0;
 
-    final Spec spec;
-    switch (readType) {
-      case "ccs":
-        spec = Spec.CcsSpec;
-        break;
-      case "bax":
-        spec = Spec.BaxSpec;
-        break;
-      default:
-        spec = null;
-        log.info(usage);
-        log.info("spec must be ccs or bax");
-        System.exit(1);
+    if (!VALID_READ_TYPES.contains(readType)) {
+      log.error("read_type must be bax or ccs");
+      log.info(usage);
+      System.exit(1);
     }
+
+    final Spec spec = Spec.fromReadType(readType);
 
     int numReads = 0;
     int numSubReads = 0;

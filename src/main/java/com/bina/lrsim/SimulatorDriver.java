@@ -2,8 +2,7 @@ package com.bina.lrsim;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Arrays;
+import java.util.*;
 
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
@@ -22,6 +21,7 @@ import com.bina.lrsim.util.Monitor;
 public class SimulatorDriver {
   private final static Logger log = Logger.getLogger(SimulatorDriver.class.getName());
   private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [min fragment length ] [max fragment length] [min passes] [max passes] [" + EnumEvent.getListDescription() + "]";
+  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "clrbam"));
 
   /**
    * create a file of simulated reads based on the given FASTA and model
@@ -71,25 +71,13 @@ public class SimulatorDriver {
       }
     }
 
-    final Spec spec;
-
-    switch (readType) {
-      case "bax":
-        spec = Spec.BaxSpec;
-        break;
-      case "ccs":
-        spec = Spec.CcsSpec;
-        break;
-      case "clrbam":
-        spec = Spec.ClrBamSpec;
-        break;
-      default:
-        spec = null;
-        log.info("read_type must be clrbam, bax, or ccs");
-        log.info(usage);
-        System.exit(1);
+    if (!VALID_READ_TYPES.contains(readType)) {
+      log.error("read_type must be clrbam, bax or ccs");
+      log.info(usage);
+      System.exit(1);
     }
 
+    final Spec spec = Spec.fromReadType(readType);
 
     final ReferenceSequenceDrawer wr = ReferenceSequenceDrawer.Factory(sequencingMode, fasta);
     if (wr == null) System.exit(1);

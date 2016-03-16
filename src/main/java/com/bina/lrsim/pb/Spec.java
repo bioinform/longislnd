@@ -11,6 +11,7 @@ import java.util.Set;
  */
 public enum Spec {
     ClrBamSpec(
+            "clrbam",
             new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IDPV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses)),
             true,
@@ -22,6 +23,7 @@ public enum Spec {
             BamFileIoUtils.BAM_FILE_EXTENSION
     ),
     BaxSpec(
+            "bax",
             new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses)),
             true,
@@ -33,6 +35,7 @@ public enum Spec {
             ".bax.h5"
     ),
     BaxSampleSpec(
+            "baxsample",
             new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IDPV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses)),
             true,
@@ -44,6 +47,7 @@ public enum Spec {
             ".bax.h5"
     ),
     CcsSpec(
+            "ccs",
             new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.ZMW, EnumGroups.ZMWMetrics)),
             false,
@@ -55,6 +59,7 @@ public enum Spec {
             ".ccs.h5"
     ),
     FastqSpec(
+            "fastq",
             new String[] {"Basecall", "QualityValue", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses)),
             true,
@@ -64,8 +69,21 @@ public enum Spec {
             EnumSet.of(EnumDat.BaseCall, EnumDat.QualityValue),
             EnumSet.of(EnumDat.QualityValue),
             ".fq"
+    ),
+    UnknownSpec(
+            null,
+            null,
+            null,
+            true,
+            EnumGroups.BaseCalls,
+            EnumGroups.ZMW,
+            EnumGroups.ZMWMetrics,
+            null,
+            null,
+            null
     );
 
+    public final String readType;
     public final String[] dataDescription;
     public final Set<EnumGroups> groupSet;
     public final boolean writeAdapterInsert;
@@ -76,7 +94,8 @@ public enum Spec {
     public final Set<EnumDat> nonBaseDataSet;
     public final String suffix;
 
-    Spec(final String[] dataDescription,
+    Spec(final String readType,
+         final String[] dataDescription,
          final Set<EnumGroups> groupSet,
          final boolean writeAdapterInsert,
          final EnumGroups baseCalls,
@@ -85,6 +104,7 @@ public enum Spec {
          final Set<EnumDat> dataSet,
          final Set<EnumDat> nonBaseDataSet,
          final String suffix) {
+        this.readType = readType;
         this.dataDescription = dataDescription;
         this.groupSet = groupSet;
         this.writeAdapterInsert = writeAdapterInsert;
@@ -94,6 +114,15 @@ public enum Spec {
         this.dataSet = dataSet;
         this.nonBaseDataSet = nonBaseDataSet;
         this.suffix = suffix;
+    }
+
+    public static Spec fromReadType(final String readType) {
+        for (final Spec spec : values()) {
+            if (spec.getReadType().equals(readType)) {
+                return spec;
+            }
+        }
+        return UnknownSpec;
     }
 
     public Set<EnumDat> getDataSet() {
@@ -130,5 +159,9 @@ public enum Spec {
 
     public String getSuffix() {
         return suffix;
+    }
+
+    public String getReadType() {
+        return readType;
     }
 }
