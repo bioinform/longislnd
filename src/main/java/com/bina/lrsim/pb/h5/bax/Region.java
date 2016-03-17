@@ -82,6 +82,6 @@ public class Region {
   }
 
   public boolean isSequencing() {
-    return holeStatus == EnumHoleStatus.SEQUENCING.value;
+    return holeStatus == ((byte) EnumHoleStatus.SEQUENCING.ordinal());
   }
 }

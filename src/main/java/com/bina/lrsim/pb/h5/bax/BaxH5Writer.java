@@ -5,6 +5,7 @@ package com.bina.lrsim.pb.h5.bax;
  */
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import com.bina.lrsim.bioinfo.Locus;
@@ -241,13 +242,12 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     {
       // HoleStatus
       byte[] byteBuffer = new byte[size()];
-      for (int ii = 0; ii < size(); ++ii) {
-        byteBuffer[ii] = EnumHoleStatus.SEQUENCING.value;
-      }
+      Arrays.fill(byteBuffer, ((byte) EnumHoleStatus.SEQUENCING.ordinal()));
+
       final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleStatus", byteBuffer, dims1, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Type of ZMW that produced the data_ref"}, null, false);
-      att.add("LookupTable", EnumHoleStatus.names, new long[] {EnumHoleStatus.names.length}, false);
+      att.add("LookupTable", EnumHoleStatus.names);
       att.writeTo(obj);
     }
     {
