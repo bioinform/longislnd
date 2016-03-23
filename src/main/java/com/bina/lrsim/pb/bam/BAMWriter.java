@@ -105,7 +105,7 @@ public class BAMWriter extends ReadsWriter {
         alignment.setAttribute("sn", new float[] {7.94597f, 4.39955f, 10.1239f, 10.9799f});
         AddScore("sq", EnumDat.SubstitutionQV, begin, end);
         AddScore("st", EnumDat.SubstitutionTag, begin, end);
-        alignment.setAttribute("zm", Integer.valueOf(numReads));
+        alignment.setAttribute("zm", Integer.valueOf(firsthole + numReads));
         final boolean forward = (index / 2) % 2 == 0;
         final Integer flag = (index == 0 ? 0 : 1) | (index + 1 < readLengths.size() ? 2 : 0) | (forward ? 16 : 32);
         alignment.setAttribute("cx", flag);
