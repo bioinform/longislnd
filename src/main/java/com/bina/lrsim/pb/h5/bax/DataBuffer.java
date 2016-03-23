@@ -1,9 +1,10 @@
 package com.bina.lrsim.pb.h5.bax;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 /**
  * Created by bayo on 5/6/15.
@@ -11,25 +12,25 @@ import com.bina.lrsim.pb.PBSpec;
 
 class DataBuffer {
 
-  private final ArrayList<Integer> score_ = new ArrayList<Integer>();
-  private final ArrayList<ArrayList<Integer>> read_lengths_ = new ArrayList<>();
-  private final PBReadBuffer reads_;
+  private final List<Integer> score = new ArrayList<>();
+  private final List<List<Integer>> readLengths = new ArrayList<>();
+  private final PBReadBuffer reads;
   private int numAdapterInsert = 0;
 
-  public DataBuffer(PBSpec spec, int bufferSize) {
-    reads_ = new PBReadBuffer(spec, bufferSize);
+  public DataBuffer(Spec spec, int bufferSize) {
+    reads = new PBReadBuffer(spec, bufferSize);
   }
 
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score) {
-    reads_.addLast(read);
-    score_.add(score);
-    read_lengths_.add(readLengths);
+  public void addLast(PBReadBuffer read, List<Integer> readLengths, int score) {
+    reads.addLast(read);
+    this.score.add(score);
+    this.readLengths.add(readLengths);
     numAdapterInsert += readLengths.size();
     if (read.size() != readLengths.get(readLengths.size() - 1)) { throw new RuntimeException("something's wrong with insertion length"); }
   }
 
   public int getNumReads() {
-    return score_.size();
+    return score.size();
   }
 
   public int getNumAdapterInsert() {
@@ -37,19 +38,19 @@ class DataBuffer {
   }
 
   public PBReadBuffer getReadsRef() {
-    return reads_;
+    return reads;
   }
 
   public int getLength(int index) {
-    final ArrayList<Integer> tmp = getReadLengths(index);
+    final List<Integer> tmp = getReadLengths(index);
     return tmp.get(tmp.size() - 1);
   }
 
-  public ArrayList<Integer> getReadLengths(int index) {
-    return read_lengths_.get(index);
+  public List<Integer> getReadLengths(int index) {
+    return readLengths.get(index);
   }
 
   public int getScore(int index) {
-    return score_.get(index);
+    return score.get(index);
   }
 }

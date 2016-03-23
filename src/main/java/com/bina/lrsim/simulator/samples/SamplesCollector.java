@@ -19,9 +19,9 @@ import com.bina.lrsim.simulator.Event;
  */
 public class SamplesCollector extends Samples implements Closeable, com.bina.lrsim.interfaces.EventGroupsProcessor {
   private final static Logger log = Logger.getLogger(SamplesCollector.class.getName());
-  private final String outPrefix_;
-  private final DataOutputStream eventOut_;
-  private final DataOutputStream hpOut_;
+  private final String outPrefix;
+  private final DataOutputStream eventOut;
+  private final DataOutputStream hpOut;
 
   /**
    * Constructor
@@ -33,14 +33,14 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
    *        context
    * @throws IOException
    */
-  public SamplesCollector(String outPrefix, int leftFlank, int rightFlank, int hp_anchor, boolean writeEvents) throws IOException {
-    super(leftFlank, rightFlank, hp_anchor);
-    outPrefix_ = outPrefix;
-    eventOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(outPrefix_)))) : null;
-    hpOut_ = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.HP.filename(outPrefix_)))) : null;
-    Arrays.fill(event_base_count_ref(), 0);
-    Arrays.fill(event_count_ref(), 0);
-    log.info("flanks=(" + left_flank() + "," + right_flank() + ") k=" + k() + " num_kmers=" + num_kmer());
+  public SamplesCollector(String outPrefix, int leftFlank, int rightFlank, int hpAnchor, boolean writeEvents) throws IOException {
+    super(leftFlank, rightFlank, hpAnchor);
+    this.outPrefix = outPrefix;
+    eventOut = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.EVENTS.filename(this.outPrefix)))) : null;
+    hpOut = (writeEvents) ? new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Suffixes.HP.filename(this.outPrefix)))) : null;
+    Arrays.fill(getEventBaseCountRef(), 0);
+    Arrays.fill(getEventCountRef(), 0);
+    log.info("flanks=(" + getLeftFlank() + "," + getRightFlank() + ") k=" + getK() + " num_kmers=" + getNumKmer());
   }
 
   /**
@@ -56,24 +56,24 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
         continue;
       }
 
-      if (event.hp_len() == 1) {
-        final long current_count = kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value];
-        if (null!=eventOut_ && event.event().recordEvery > 0
-                && current_count % event.event().recordEvery == 0 && current_count / event.event().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
-          event.write(eventOut_);
+      if (event.getHpLen() == 1) {
+        final long current_count = getKmerEventCountRef()[EnumEvent.values().length * event.getKmer() + event.getEvent().ordinal()];
+        if (null!= eventOut && event.getEvent().recordEvery > 0
+                && current_count % event.getEvent().recordEvery == 0 && current_count / event.getEvent().recordEvery <= Heuristics.MAX_KMER_EVENT_SAMPLES) {
+          event.write(eventOut);
         }
-        final int idx = event.event().value;
+        final int idx = event.getEvent().ordinal();
 
-        ++event_count_ref()[idx];
-        ++event_base_count_ref()[idx];
-        if (event.event().equals(EnumEvent.INSERTION)) {
-          event_base_count_ref()[idx] += event.size() - 2;
+        ++getEventCountRef()[idx];
+        ++getEventBaseCountRef()[idx];
+        if (event.getEvent().equals(EnumEvent.INSERTION)) {
+          getEventBaseCountRef()[idx] += event.size() - 2;
         }
-        ++kmer_event_count_ref()[EnumEvent.values().length * event.kmer() + event.event().value];
+        ++getKmerEventCountRef()[EnumEvent.values().length * event.getKmer() + event.getEvent().ordinal()];
       } else {
-        if (event.hp_len() < max_rlen() && event.size() < max_slen()) {
-          add_kmer_rlen_slen_count(event.kmer(), event.hp_len(), event.size());
-          if (null != hpOut_) event.write(hpOut_);
+        if (event.getHpLen() < getMaxRlen() && event.size() < getMaxSlen()) {
+          addKmerRlenSlenCount(event.getKmer(), event.getHpLen(), event.size());
+          if (null != hpOut) event.write(hpOut);
         }
       }
     }
@@ -86,7 +86,7 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
    * @throws IOException
    */
   @Override
-  public void process(EventGroupFactory groups, int min_length, int flank_mask) throws IOException {
+  public void process(EventGroupFactory groups, int minLength, int flankMask) throws IOException {
     int ii = 0;
     for (EventGroup group : groups) {
       if (ii % 10000 == 0 && ii != 0) {
@@ -96,11 +96,11 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
         log.info("failed to retrieve group " + ii);
         continue;
       }
-      if (group.seq_length() < min_length) {
+      if (group.getSeqLength() < minLength) {
         continue;
       }
-      // super.lengths_ref().add(group.seq_length());
-      process(group.iterator(left_flank(), right_flank(), flank_mask, flank_mask, hp_anchor()));
+      // super.lengths_ref().add(group.getSeqLength());
+      process(group.iterator(getLeftFlank(), getRightFlank(), flankMask, flankMask, getHpAnchor()));
       ++ii;
     }
     log.info("processed " + ii + " groups");
@@ -111,15 +111,15 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
    */
   @Override
   public void close() throws IOException {
-    if (null != eventOut_) {
-      eventOut_.close();
+    if (null != eventOut) {
+      eventOut.close();
     }
-    if (null != hpOut_) {
-      hpOut_.close();
+    if (null != hpOut) {
+      hpOut.close();
     }
-    writeSummary(outPrefix_);
-    writeStats(outPrefix_);
-    writeIdx(outPrefix_);
+    writeSummary(outPrefix);
+    writeStats(outPrefix);
+    writeIdx(outPrefix);
   }
 
 }

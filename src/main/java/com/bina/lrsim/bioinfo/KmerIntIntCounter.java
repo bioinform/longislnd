@@ -84,19 +84,19 @@ public class KmerIntIntCounter implements Serializable {
   /**
    * create a new instance by deriving new kmers from existing kmer, then accumulate the stats
    *
-   * @param begin_k begining position of existing kmer
-   * @param end_k end position of existing kmer (exclusive)
+   * @param beginK begining position of existing kmer
+   * @param endK end position of existing kmer (exclusive)
    * @return new instance with statistics of shortened kmer
    */
-  public KmerIntIntCounter reduce(int begin_k, int end_k) {
-    final int new_k = end_k - begin_k;
-    if (new_k < 1 || begin_k < 0 || end_k > k) return null;
-    final KmerIntIntCounter ret = new KmerIntIntCounter(new_k, max1, max2);
+  public KmerIntIntCounter reduce(int beginK, int endK) {
+    final int newK = endK - beginK;
+    if (newK < 1 || beginK < 0 || endK > k) return null;
+    final KmerIntIntCounter ret = new KmerIntIntCounter(newK, max1, max2);
     for (int kk = 0; kk < maxKmer; ++kk) {
-      final int new_kmer = Kmerizer.fromASCII(Kmerizer.toByteArray(kk, k), begin_k, end_k);
+      final int newKmer = Kmerizer.fromASCII(Kmerizer.toByteArray(kk, k), beginK, endK);
       for (int r = 0; r < max1; ++r) {
         for (int s = 0; s < max2; ++s) {
-          ret.increment(new_kmer, r, s, this.get(kk, r, s));
+          ret.increment(newKmer, r, s, this.get(kk, r, s));
         }
       }
     }

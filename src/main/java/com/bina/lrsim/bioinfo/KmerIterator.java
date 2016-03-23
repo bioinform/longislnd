@@ -9,11 +9,11 @@ import java.util.Iterator;
  */
 public final class KmerIterator implements Iterator<Context> {
   private final static Logger log = Logger.getLogger(KmerIterator.class.getName());
-  private final byte[] seq_;
-  private int curr_;
-  private final int end_;
-  private final int leftFlank_;
-  private final int rightFlank_;
+  private final byte[] seq;
+  private int curr;
+  private final int end;
+  private final int leftFlank;
+  private final int rightFlank;
 
   /**
    * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
@@ -25,23 +25,23 @@ public final class KmerIterator implements Iterator<Context> {
    * @param rightFlank number of bp after the position of interest
    */
   KmerIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank) {
-    leftFlank_ = leftFlank;
-    rightFlank_ = rightFlank;
-    seq_ = ascii;
-    curr_ = begin + leftFlank;
-    end_ = end - rightFlank;
+    this.leftFlank = leftFlank;
+    this.rightFlank = rightFlank;
+    seq = ascii;
+    curr = begin + leftFlank;
+    this.end = end - rightFlank;
   }
 
   @Override
   public boolean hasNext() {
-    return curr_ < end_;
+    return curr < end;
   }
 
   @Override
   public Context next() {
     // there can be a running sum optimization
-    KmerContext c = new KmerContext(seq_, curr_, leftFlank_, rightFlank_);
-    ++curr_;
+    KmerContext c = new KmerContext(seq, curr, leftFlank, rightFlank);
+    ++curr;
     return c;
   }
 

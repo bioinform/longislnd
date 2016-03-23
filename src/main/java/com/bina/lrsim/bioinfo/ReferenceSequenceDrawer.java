@@ -6,8 +6,10 @@ import htsjdk.samtools.reference.ReferenceSequence;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,11 +17,11 @@ import java.util.Map;
  */
 public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator {
   private final static Logger log = Logger.getLogger(ReferenceSequenceDrawer.class.getName());
-  final Map<String, Chromosome> name_chromosome = new HashMap<String, Chromosome>();
-  final ArrayList<String> name_ = new ArrayList<String>();
-  FastaSequenceFile reference_;
+  final Map<String, Chromosome> nameChromosomeMap = new HashMap<>();
+  final List<String> name = new ArrayList<>();
+  FastaSequenceFile reference;
 
-  public static ReferenceSequenceDrawer Factory(String mode, String fasta) {
+  public static ReferenceSequenceDrawer Factory(final String mode, final String fasta) {
     switch (mode) {
       case "shotgun":
         return new ShotgunSequenceDrawer(fasta);
@@ -30,19 +32,19 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
     return null;
   }
 
-  public ReferenceSequenceDrawer(String filename) {
-    reference_ = new FastaSequenceFile(new java.io.File(filename), true);
-    for (ReferenceSequence rr = reference_.nextSequence(); null != rr; rr = reference_.nextSequence()) {
-      name_.add(rr.getName());
-      name_chromosome.put(rr.getName(), new Chromosome(rr));
+  public ReferenceSequenceDrawer(final String filename) {
+    reference = new FastaSequenceFile(new File(filename), true);
+    for (ReferenceSequence rr = reference.nextSequence(); null != rr; rr = reference.nextSequence()) {
+      name.add(rr.getName());
+      nameChromosomeMap.put(rr.getName(), new Chromosome(rr));
       log.info("read " + rr.getName());
     }
   }
 
-  public long num_non_n() {
+  public long getNonNCount() {
     long ret = 0;
-    for (Map.Entry<String, Chromosome> entry : name_chromosome.entrySet()) {
-      ret += entry.getValue().num_non_n();
+    for (Map.Entry<String, Chromosome> entry : nameChromosomeMap.entrySet()) {
+      ret += entry.getValue().getNonNCount();
     }
     return ret;
   }
@@ -59,41 +61,41 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
   protected abstract Fragment getSequenceImpl(int length, RandomGenerator gen);
 
   protected Fragment get(String name) {
-    final byte[] seq = name_chromosome.get(name).seq().getBases();
+    final byte[] seq = nameChromosomeMap.get(name).getSeq().getBases();
     return (seq != null) ? new Fragment(seq, new Locus(name, 0, seq.length, false)) : null;
   }
 
   protected Fragment get(int id) {
-    return get(name_.get(id));
+    return get(name.get(id));
   }
 
   protected static class Chromosome {
-    ReferenceSequence seq_;
-    int num_non_n_;
+    final ReferenceSequence seq;
+    int nonNCount;
 
     Chromosome(ReferenceSequence seq) {
-      seq_ = seq;
-      num_non_n_ = 0;
+      this.seq = seq;
+      nonNCount = 0;
 
-      for (byte bb : seq_.getBases()) {
+      for (byte bb : seq.getBases()) {
         final byte value = EnumBP.ascii2value(bb);
         if (value >= 0 && value < 4) {
-          ++num_non_n_;
+          nonNCount++;
         }
         if (value == EnumBP.Invalid.value) { throw new RuntimeException("reference contains " + bb); }
       }
     }
 
     public int size() {
-      return seq_.length();
+      return seq.length();
     }
 
-    public int num_non_n() {
-      return num_non_n_;
+    public int getNonNCount() {
+      return nonNCount;
     }
 
-    public ReferenceSequence seq() {
-      return seq_;
+    public ReferenceSequence getSeq() {
+      return seq;
     }
 
   }

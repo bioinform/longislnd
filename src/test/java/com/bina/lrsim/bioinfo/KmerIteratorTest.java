@@ -44,10 +44,10 @@ public class KmerIteratorTest {
     int count = 0;
     for (Iterator<Context> itr = new KmerIterator(fw, 0, fw.length, flank, flank); itr.hasNext();) {
       Context c = itr.next();
-      assertEquals(1, c.hp_len());
+      assertEquals(1, c.getHpLen());
 
 
-      byte[] sequence = Kmerizer.toByteArray(c.kmer(), flank + 1 + flank);
+      byte[] sequence = Kmerizer.toByteArray(c.getKmer(), flank + 1 + flank);
       for (int pos = 0; pos < sequence.length; ++pos) {
         assertEquals(fw[count + pos], sequence[pos]);
       }
@@ -66,7 +66,7 @@ public class KmerIteratorTest {
     int count = 0;
     for (Iterator<Context> itr = new KmerIterator(fw, 0, fw.length, flank, flank, true); itr.hasNext();) {
       Context c = itr.next();
-      assertEquals(1, c.hp_len());
+      assertEquals(1, c.getHpLen());
 
 
       byte[] sequence = Kmerizer.toByteArray(c.kmer(), flank + 1 + flank);

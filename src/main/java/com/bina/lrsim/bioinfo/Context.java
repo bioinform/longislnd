@@ -10,24 +10,24 @@ import java.util.Iterator;
  * kmer, hpLen are just common names of integers with unique mapping to a sequencing context
  */
 public class Context {
-  private final int kmer_;
-  private final int hp_len_;
+  private final int kmer;
+  private final int hpLen;
 
   public Context(int kmer, int hp_len) {
-    kmer_ = kmer;
-    hp_len_ = hp_len;
+    this.kmer = kmer;
+    hpLen = hp_len;
   }
 
-  public final int kmer() {
-    return kmer_;
+  public final int getKmer() {
+    return kmer;
   }
 
-  public final int hp_len() {
-    return hp_len_;
+  public final int getHpLen() {
+    return hpLen;
   }
 
   public String toString() {
-    return String.valueOf(kmer()) + " " + String.valueOf(hp_len());
+    return String.valueOf(getKmer()) + " " + String.valueOf(getHpLen());
   }
 
 

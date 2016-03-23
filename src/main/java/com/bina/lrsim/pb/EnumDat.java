@@ -31,8 +31,8 @@ public enum EnumDat {
     this.mapper = mapper;
   }
 
-  public static interface ToPrimitiveByteArray {
-    public byte[] execute(Object obj);
+  public interface ToPrimitiveByteArray {
+    byte[] execute(Object obj);
   }
 
   private static class Identity implements ToPrimitiveByteArray {

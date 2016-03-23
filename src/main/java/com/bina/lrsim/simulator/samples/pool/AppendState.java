@@ -8,11 +8,11 @@ package com.bina.lrsim.simulator.samples.pool;
  * a class which describe appendTo results
  */
 public class AppendState {
-  public AppendState(byte[] last_event, boolean success) {
-    this.last_event = last_event;
+  public AppendState(byte[] lastEvent, boolean success) {
+    this.lastEvent = lastEvent;
     this.success = success;
   }
 
   public final boolean success;
-  public final byte[] last_event;
+  public final byte[] lastEvent;
 }

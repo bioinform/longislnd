@@ -13,17 +13,17 @@ import java.util.List;
  * Created by bayolau on 1/8/16.
  */
 public abstract class ReadsWriter implements Closeable {
-  protected final String filename_;
-  protected final String moviename_;
-  protected final int firsthole_;
-  protected final PBSpec spec;
-  private final ArrayList<Locus> loci_;
+  protected final String filename;
+  protected final String moviename;
+  protected final int firsthole;
+  protected final Spec spec;
+  private final List<Locus> loci;
 
-  public ReadsWriter(PBSpec spec, String filename, String moviename, int firsthole) {
-    this.loci_ = new ArrayList<Locus>();
-    this.filename_ = filename;
-    this.moviename_ = moviename;
-    this.firsthole_ = firsthole;
+  public ReadsWriter(Spec spec, String filename, String moviename, int firsthole) {
+    this.loci = new ArrayList<>();
+    this.filename = filename;
+    this.moviename = moviename;
+    this.firsthole = firsthole;
     this.spec = spec;
   }
 
@@ -31,12 +31,12 @@ public abstract class ReadsWriter implements Closeable {
   public abstract void close() throws IOException;
 
   public final void addLocus(Locus locus) {
-    this.loci_.add(locus);
+    loci.add(locus);
   }
 
   public final void writeLociBed(String prefix, String moviename, int firsthole) {
     boolean writing = false;
-    for (Locus entry : this.loci_) {
+    for (Locus entry : loci) {
       if (null != entry) {
         writing = true;
         break;
@@ -45,7 +45,7 @@ public abstract class ReadsWriter implements Closeable {
     if (!writing) return;
     try (FileWriter fw = new FileWriter(new File(prefix + ".bed"))) {
       int shift = 0;
-      for (Locus entry : this.loci_) {
+      for (Locus entry : loci) {
         if (null != entry) {
           writeBedLine(fw, moviename + "/" + String.valueOf(firsthole + shift), entry);
         }
@@ -56,20 +56,20 @@ public abstract class ReadsWriter implements Closeable {
     }
   }
 
-  protected final void writeBedLine(FileWriter fw, String record_name, Locus locus) throws IOException {
+  protected final void writeBedLine(FileWriter fw, String recordName, Locus locus) throws IOException {
     fw.write(locus.getChrom());
     fw.write('\t');
     fw.write(String.valueOf(locus.getBegin0()));
     fw.write('\t');
     fw.write(String.valueOf(locus.getEnd0()));
     fw.write('\t');
-    fw.write(record_name);
+    fw.write(recordName);
     fw.write("\t500\t");
     fw.write(locus.isRc() ? '-' : '+');
     fw.write(System.lineSeparator());
   }
 
-  public abstract void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci);
+  public abstract void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clrLoci);
 
   public abstract int size();
 }

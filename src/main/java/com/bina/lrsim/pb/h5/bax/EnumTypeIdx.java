@@ -1,20 +1,31 @@
 package com.bina.lrsim.pb.h5.bax;
 
+import java.util.Arrays;
+
 /**
  * Created by bayo on 5/6/15.
  */
 public enum EnumTypeIdx {
-  TypeAdapter(0, "Adapter"), TypeInsert(1, "Insert"), TypeHQRegion(2, "HQRegion");
+  TypeAdapter("Adapter"), TypeInsert("Insert"), TypeHQRegion("HQRegion");
 
-  static String[] getDescriptionArray() {
-    return new String[] {TypeAdapter.description, TypeInsert.description, TypeHQRegion.description};
+  public static final String[] descriptionArray;
+
+  static {
+    descriptionArray = new String[values().length];
+    int i = 0;
+    for (EnumTypeIdx enumTypeIdx : values()) {
+      descriptionArray[i] = enumTypeIdx.description;
+      i++;
+    }
   }
 
-  EnumTypeIdx(int value, String description) {
-    this.value = value;
+  static String[] getDescriptionArray() {
+    return descriptionArray;
+  }
+
+  EnumTypeIdx(final String description) {
     this.description = description;
   }
 
   public final String description;
-  public final int value;
 }

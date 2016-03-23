@@ -15,14 +15,14 @@ import java.util.Arrays;
 class AlnIndex {
 
   private final static Logger log = Logger.getLogger(AlnIndex.class.getName());
-  private int[] data_ = null;
-  private int num_rows_;
-  private int num_cols_;
+  private int[] data = null;
+  private int numRows;
+  private int numCols;
 
   public AlnIndex() {
-    num_rows_ = 0;
-    num_cols_ = EnumIdx.values().length;
-    data_ = new int[num_cols_ * 1000];
+    numRows = 0;
+    numCols = EnumIdx.values().length;
+    data = new int[numCols * 1000];
   }
 
   public AlnIndex(H5File h5) {
@@ -30,32 +30,32 @@ class AlnIndex {
   }
 
   public void add(int[] single) {
-    while (data_.length < (num_rows_ + 1) * num_cols_) { // just to be safe, but no sane situation will do it twice
-      data_ = Arrays.copyOf(data_, (data_.length + num_cols_) * 2);
+    while (data.length < (numRows + 1) * numCols) { // just to be safe, but no sane situation will do it twice
+      data = Arrays.copyOf(data, (data.length + numCols) * 2);
     }
-    final int shift = num_cols_ * num_rows_;
-    for (int cc = 0; cc < num_cols_; ++cc) {
-      data_[shift + cc] = single[cc];
+    final int shift = numCols * numRows;
+    for (int cc = 0; cc < numCols; ++cc) {
+      data[shift + cc] = single[cc];
     }
-    ++num_rows_;
+    ++numRows;
   }
 
   public void save(H5File h5, String path) throws IOException {
-    final long[] dims = new long[] {(long) num_rows_, (long) num_cols_};
-    H5ScalarDSIO.Write(h5, path, data_, dims, false);
+    final long[] dims = new long[] {(long) numRows, (long) numCols};
+    H5ScalarDSIO.Write(h5, path, data, dims, false);
   }
 
   public int size() {
-    return num_rows_;
+    return numRows;
   }
 
-  public int get(int alignment_index, EnumIdx c) {
-    return data_[alignment_index * num_cols_ + c.value];
+  public int get(int alignmentIndex, EnumIdx c) {
+    return data[alignmentIndex * numCols + c.ordinal()];
   }
 
-  public int[] get(int alignment_index) {
-    final int begin = alignment_index * num_cols_;
-    return Arrays.copyOfRange(data_, begin, begin + num_cols_);
+  public int[] get(int alignmentIndex) {
+    final int begin = alignmentIndex * numCols;
+    return Arrays.copyOfRange(data, begin, begin + numCols);
   }
 
 
@@ -74,9 +74,9 @@ class AlnIndex {
       int[] d = (int[]) obj.getData();
       if (d.length != nr * nc) throw new RuntimeException("bad AlnIndex data_ref");
 
-      data_ = Arrays.copyOf(d, d.length);
-      num_rows_ = nr;
-      num_cols_ = nc;
+      data = Arrays.copyOf(d, d.length);
+      numRows = nr;
+      numCols = nc;
     } catch (Exception e) {
       log.info(e, e);
       log.info(e.toString());
@@ -107,11 +107,11 @@ class AlnIndex {
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    for (int row = 0; row < num_rows_; ++row) {
+    for (int row = 0; row < numRows; ++row) {
       sb.append("AlnIdx " + row + "\t");
-      for (int col = 0; col < num_cols_; ++col) {
+      for (int col = 0; col < numCols; ++col) {
         sb.append(" ");
-        sb.append(data_[row * num_cols_ + col]);
+        sb.append(data[row * numCols + col]);
       }
       sb.append("\n");
     }

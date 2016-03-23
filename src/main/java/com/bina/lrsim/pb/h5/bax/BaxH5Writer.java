@@ -5,7 +5,7 @@ package com.bina.lrsim.pb.h5.bax;
  */
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.bina.lrsim.bioinfo.Locus;
@@ -21,31 +21,31 @@ import com.bina.lrsim.pb.h5.Attributes;
 import com.bina.lrsim.pb.h5.H5ScalarDSIO;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 
 public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
-  private final DataBuffer buffer_;
+  private final DataBuffer buffer;
 
-  public BaxH5Writer(PBSpec spec, String filename, String moviename, int firsthole) {
+  public BaxH5Writer(Spec spec, String filename, String moviename, int firsthole) {
     super(spec, filename, moviename, firsthole);
-    buffer_ = new DataBuffer(super.spec, 100000);
+    buffer = new DataBuffer(super.spec, 100000);
   }
 
   @Override
   public void close() throws IOException {
-    log.info("Writing to " + this.filename_ + " as movie " + this.moviename_);
-    H5File h5 = new H5File(this.filename_, FileFormat.CREATE);
+    log.info("Writing to " + this.filename + " as movie " + this.moviename);
+    H5File h5 = new H5File(this.filename, FileFormat.CREATE);
     try {
       h5.open();
-      AttributesFactory af = new AttributesFactory(size(), this.moviename_, spec);
+      AttributesFactory af = new AttributesFactory(size(), this.moviename, spec);
       writeGroups(h5, af);
       writeBaseCalls(h5, af);
-      writeZWM(h5, this.firsthole_);
-      writeRegions(h5, this.firsthole_);
+      writeZWM(h5, this.firsthole);
+      writeRegions(h5, this.firsthole);
       h5.close();
-      writeLociBed(this.filename_, this.moviename_, this.firsthole_);
+      writeLociBed(this.filename, this.moviename, this.firsthole);
     } catch (IOException e) {
       // The HDF5 API throws the base class Exception, so let's just catch them all and rethrow
       // run-time exception
@@ -61,8 +61,8 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
   }
 
   @Override
-  public void addLast(PBReadBuffer read, ArrayList<Integer> readLengths, int score, Locus locus, List<Locus> clr_loci) {
-    buffer_.addLast(read, readLengths, score);
+  public void addLast(PBReadBuffer read, List<Integer> readLengths, int score, Locus locus, List<Locus> clrLoci) {
+    buffer.addLast(read, readLengths, score);
     addLocus(locus);
   }
 
@@ -78,10 +78,10 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
   }
 
   private void writeBaseCalls(H5File h5, AttributesFactory af) throws IOException {
-    long[] dims = new long[] {buffer_.getReadsRef().size()};
+    long[] dims = new long[] {buffer.getReadsRef().size()};
     for (EnumDat e : spec.getDataSet()) {
       try {
-        final HObject obj = H5ScalarDSIO.Write(h5, spec.getBaseCallsEnum().path + e.path, buffer_.getReadsRef().get(e).toByteArray(), dims, e.isSigned);
+        final HObject obj = H5ScalarDSIO.Write(h5, spec.getBaseCallsEnum().path + e.path, buffer.getReadsRef().get(e).toByteArray(), dims, e.isSigned);
         af.get(e).writeTo(obj);
       } catch (Exception exception) {
         throw new IOException("failed to write " + e.path);
@@ -92,30 +92,30 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   private void writePasses(H5File h5) throws IOException {
     final int fakeNumPasses = 3;
-    final long[] dims_reads = new long[] {(long) size()};
-    final long[] dims_passes = new long[] {fakeNumPasses * (long) size()};
-    byte[] byte_buffer = new byte[fakeNumPasses * size()];
-    int[] int_buffer = new int[fakeNumPasses * size()];
+    final long[] dimsReads = new long[] {(long) size()};
+    final long[] dimsPasses = new long[] {fakeNumPasses * (long) size()};
+    byte[] byteBuffer = new byte[fakeNumPasses * size()];
+    int[] intBuffer = new int[fakeNumPasses * size()];
     MersenneTwister gen = new MersenneTwister(1111);
     {
       for (int ii = 0; ii < size(); ++ii) {
         int value = gen.nextBoolean() ? 1 : 0;
         for (int jj = 0; jj < fakeNumPasses; ++jj, value = (value + 1) % 2) {
-          byte_buffer[fakeNumPasses * ii + jj] = (byte) value;
+          byteBuffer[fakeNumPasses * ii + jj] = (byte) value;
         }
       }
       {
-        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitAfter", byte_buffer, dims_passes, false);
+        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitAfter", byteBuffer, dimsPasses, false);
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the end of this pass"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
         att.writeTo(obj);
       }
       for (int ii = 0; ii < fakeNumPasses * size(); ++ii) {
-        byte_buffer[ii] = (byte) ((byte_buffer[ii] + 1) % 2);
+        byteBuffer[ii] = (byte) ((byteBuffer[ii] + 1) % 2);
       }
       {
-        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitBefore", byte_buffer, dims_passes, false);
+        final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/AdapterHitBefore", byteBuffer, dimsPasses, false);
         Attributes att = new Attributes();
         att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Flag indicating if an adapter hit was detected at the beginning of this pass"}, null, false);
         att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
@@ -124,9 +124,9 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     }
     {
       for (int ii = 0; ii < size(); ++ii) {
-        int_buffer[ii] = fakeNumPasses;
+        intBuffer[ii] = fakeNumPasses;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/NumPasses", int_buffer, dims_reads, true);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/NumPasses", intBuffer, dimsReads, true);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW event-stream counts"}, null, false);
       att.writeTo(obj);
@@ -135,10 +135,10 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
       for (int ii = 0; ii < size(); ++ii) {
         int value = gen.nextBoolean() ? 1 : 0;
         for (int jj = 0; jj < fakeNumPasses; ++jj, value = (value + 1) % 2) {
-          byte_buffer[fakeNumPasses * ii + jj] = (byte) value;
+          byteBuffer[fakeNumPasses * ii + jj] = (byte) value;
         }
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassDirection", byte_buffer, dims_passes, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassDirection", byteBuffer, dimsPasses, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Direction of pass across the SMRTbell"}, null, false);
       att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
@@ -147,10 +147,10 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     {
       for (int ii = 0; ii < size(); ++ii) {
         for (int jj = 0; jj < fakeNumPasses; ++jj) {
-          int_buffer[fakeNumPasses * ii + jj] = buffer_.getLength(ii);
+          intBuffer[fakeNumPasses * ii + jj] = buffer.getLength(ii);
         }
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassNumBases", int_buffer, dims_passes, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassNumBases", intBuffer, dimsPasses, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Number of bases in circular consensus pass"}, null, false);
       att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
@@ -158,17 +158,17 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     }
     {
       for (int ii = 0; ii < size(); ++ii) {
-        int_buffer[ii] = 0;
+        intBuffer[ii] = 0;
       }
       for (int ii = 0; ii < size(); ++ii) {
         // this is not strictly correct wrt
-        final int adapter_length = 50;
-        int shift = adapter_length;
-        for (int jj = 0; jj < fakeNumPasses; ++jj, shift += buffer_.getLength(ii) + adapter_length) {
-          int_buffer[fakeNumPasses * ii + jj] = shift;
+        final int adapterLength = 50;
+        int shift = adapterLength;
+        for (int jj = 0; jj < fakeNumPasses; ++jj, shift += buffer.getLength(ii) + adapterLength) {
+          intBuffer[fakeNumPasses * ii + jj] = shift;
         }
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassStartBase", int_buffer, dims_passes, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.CPasses.path + "/PassStartBase", intBuffer, dimsPasses, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Index of first base in circular consensus pass"}, null, false);
       att.add(EnumAttributes.INDEX_FIELD.fieldName, new String[] {"NumPasses"}, null, false);
@@ -178,92 +178,87 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   @Override
   public int size() {
-    return buffer_.getNumReads();
+    return buffer.getNumReads();
   }
 
   private static void writeRegions(int[] buffer, int shift, int hole, int type, int start, int end, int score) {
-    buffer[shift + EnumRegionsIdx.HoleNumber.value] = hole;
-    buffer[shift + EnumRegionsIdx.RegionType.value] = type;
-    buffer[shift + EnumRegionsIdx.RegionStart.value] = start;
-    buffer[shift + EnumRegionsIdx.RegionEnd.value] = end;
-    buffer[shift + EnumRegionsIdx.RegionScore.value] = score;
+    buffer[shift + EnumRegionsIdx.HoleNumber.ordinal()] = hole;
+    buffer[shift + EnumRegionsIdx.RegionType.ordinal()] = type;
+    buffer[shift + EnumRegionsIdx.RegionStart.ordinal()] = start;
+    buffer[shift + EnumRegionsIdx.RegionEnd.ordinal()] = end;
+    buffer[shift + EnumRegionsIdx.RegionScore.ordinal()] = score;
   }
 
   private void writeRegions(H5File h5, int firsthole) throws IOException {
-    final int numEntries = size() + (spec.writeAdapterInsert() ? buffer_.getNumAdapterInsert() : 0);
+    final int numEntries = size() + (spec.writeAdapterInsert() ? buffer.getNumAdapterInsert() : 0);
     final int[] buffer = new int[numEntries * EnumRegionsIdx.values().length];
     int shift = 0;
     final int ins_score = -1; // insert score seems to be -1 in real data
     for (int rr = 0; rr < size(); ++rr) {
       final int hole = firsthole + rr;
-      final int score = buffer_.getScore(rr);
-      ArrayList<Integer> read_lengths = buffer_.getReadLengths(rr);
+      final int score = this.buffer.getScore(rr);
+      final List<Integer> readLengths = this.buffer.getReadLengths(rr);
       if (spec.writeAdapterInsert()) {
-        writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, 0, read_lengths.get(0), ins_score);
+        writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.ordinal(), 0, readLengths.get(0), ins_score);
         shift += EnumRegionsIdx.values().length;
-        for (int ii = 2; ii < read_lengths.size(); ii += 2) {
-          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.value, read_lengths.get(ii - 1), read_lengths.get(ii), ins_score);
+        for (int ii = 2; ii < readLengths.size(); ii += 2) {
+          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeInsert.ordinal(), readLengths.get(ii - 1), readLengths.get(ii), ins_score);
           shift += EnumRegionsIdx.values().length;
         }
-        for (int ii = 1; ii < read_lengths.size(); ii += 2) {
-          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeAdapter.value, read_lengths.get(ii - 1), read_lengths.get(ii), score);
+        for (int ii = 1; ii < readLengths.size(); ii += 2) {
+          writeRegions(buffer, shift, hole, EnumTypeIdx.TypeAdapter.ordinal(), readLengths.get(ii - 1), readLengths.get(ii), score);
           shift += EnumRegionsIdx.values().length;
         }
       }
-      writeRegions(buffer, shift, hole, EnumTypeIdx.TypeHQRegion.value, 0, read_lengths.get(read_lengths.size() - 1), score);
+      writeRegions(buffer, shift, hole, EnumTypeIdx.TypeHQRegion.ordinal(), 0, readLengths.get(readLengths.size() - 1), score);
       shift += EnumRegionsIdx.values().length;
     }
     long[] dims = new long[] {buffer.length / EnumRegionsIdx.values().length, EnumRegionsIdx.values().length};
     final HObject obj = H5ScalarDSIO.Write(h5, EnumGroups.PulseData.path + "/Regions", buffer, dims, true);
     Attributes att = new Attributes();
-    att.add("ColumnNames", EnumRegionsIdx.getDescriptionArray(), new long[] {EnumRegionsIdx.values().length}, false);
-    att.add("RegionDescriptions", new String[] {"Adapter Hit", "Insert Region", "High Quality bases region. Score is 1000 * predicted accuracy, where predicted accuray is 0 to 1.0"}, new long[] {3}, false); // typo
-                                                                                                                                                                                                               // foolows
-                                                                                                                                                                                                               // pacbio's
-                                                                                                                                                                                                               // typo
-    att.add("RegionSources", new String[] {"AdapterFinding", "AdapterFinding", "PulseToBase Region classifer"}, new long[] {3}, false); // typo follows pacbio's
-                                                                                                                                        // typo
-    att.add("RegionTypes", EnumTypeIdx.getDescriptionArray(), new long[] {EnumTypeIdx.values().length}, false);
+    att.add("ColumnNames", EnumRegionsIdx.descriptionArray);
+    att.add("RegionDescriptions", new String[] {"Adapter Hit", "Insert Region", "High Quality bases region. Score is 1000 * predicted accuracy, where predicted accuray is 0 to 1.0"}); // typo foolows pacbio's typo
+    att.add("RegionSources", new String[] {"AdapterFinding", "AdapterFinding", "PulseToBase Region classifer"}); // typo follows pacbio's typo
+    att.add("RegionTypes", EnumTypeIdx.getDescriptionArray());
     att.writeTo(obj);
   }
 
 
   public void writeZWM(H5File h5, int firsthole) throws IOException {
-    final long[] dims_1 = new long[] {(long) size()};
-    final long[] dims_2 = new long[] {(long) size(), (long) 2};
+    final long[] dims1 = new long[] {(long) size()};
+    final long[] dims2 = new long[] {(long) size(), (long) 2};
 
-    int[] int_buffer = new int[size()];
+    int[] intBuffer = new int[size()];
     {
       // HoleNumber
       for (int ii = 0; ii < size(); ++ii) {
-        int_buffer[ii] = firsthole + ii;
+        intBuffer[ii] = firsthole + ii;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleNumber", int_buffer, dims_1, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleNumber", intBuffer, dims1, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Number assigned to each ZMW on the chip"}, null, false);
       att.writeTo(obj);
     }
     {
       // HoleStatus
-      byte[] byte_buffer = new byte[size()];
-      for (int ii = 0; ii < size(); ++ii) {
-        byte_buffer[ii] = EnumHoleStatus.SEQUENCING.value;
-      }
-      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleStatus", byte_buffer, dims_1, false);
+      byte[] byteBuffer = new byte[size()];
+      Arrays.fill(byteBuffer, ((byte) EnumHoleStatus.SEQUENCING.ordinal()));
+
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleStatus", byteBuffer, dims1, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Type of ZMW that produced the data_ref"}, null, false);
-      att.add("LookupTable", new String[] {"SEQUENCING", "ANTIHOLE", "FIDUCIAL", "SUSPECT", "ANTIMIRROR", "FDZMW", "FBZMW", "ANTIBEAMLET", "OUTSIDEFOV"}, new long[] {9}, false);
+      att.add("LookupTable", EnumHoleStatus.names);
       att.writeTo(obj);
     }
     {
       // NumXY
-      short[] short_buffer = new short[size() * 2];
+      short[] shortBuffer = new short[size() * 2];
       for (int ii = 0; ii < size(); ++ii) {
         int holenumber = ii + firsthole;
-        short_buffer[2 * ii] = (short) (holenumber % 2);
-        short_buffer[2 * ii + 1] = (short) holenumber;
+        shortBuffer[2 * ii] = (short) (holenumber % 2);
+        shortBuffer[2 * ii + 1] = (short) holenumber;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleXY", short_buffer, dims_2, true);
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/HoleXY", shortBuffer, dims2, true);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Grid coordinates assigned to each ZMW on the chip"}, null, false);
       att.writeTo(obj);
@@ -271,20 +266,20 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     {
       // NumEvent
       for (int ii = 0; ii < size(); ++ii) {
-        int_buffer[ii] = buffer_.getLength(ii);
+        intBuffer[ii] = buffer.getLength(ii);
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/NumEvent", int_buffer, dims_1, true);
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWEnum().path + "/NumEvent", intBuffer, dims1, true);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW event-stream counts"}, null, false);
       att.writeTo(obj);
     }
     {
       // Productivity
-      byte[] byte_buffer = new byte[size()];
+      byte[] byteBuffer = new byte[size()];
       for (int ii = 0; ii < size(); ++ii) {
-        byte_buffer[ii] = 1;
+        byteBuffer[ii] = 1;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWMetricsEnum().path + "/Productivity", byte_buffer, dims_1, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWMetricsEnum().path + "/Productivity", byteBuffer, dims1, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"ZMW productivity classification"}, null, false);
       att.add(EnumAttributes.UNITS_OR_ENCODING.fieldName, new String[] {"0:Empty,1:Productive,2:Other,255:NotDefined"}, null, false);
@@ -292,11 +287,11 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     }
     {
       // ReadScore
-      float[] float_buffer = new float[size()];
+      float[] floatBuffer = new float[size()];
       for (int ii = 0; ii < size(); ++ii) {
-        float_buffer[ii] = (float) (buffer_.getScore(ii)) / (float) 1001;
+        floatBuffer[ii] = (float) (buffer.getScore(ii)) / (float) 1001;
       }
-      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWMetricsEnum().path + "/ReadScore", float_buffer, dims_1, false);
+      final HObject obj = H5ScalarDSIO.Write(h5, spec.getZMWMetricsEnum().path + "/ReadScore", floatBuffer, dims1, false);
       Attributes att = new Attributes();
       att.add(EnumAttributes.DESCRIPTION.fieldName, new String[] {"Read raw accuracy prediction"}, null, false);
       att.writeTo(obj);
