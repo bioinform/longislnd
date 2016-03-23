@@ -27,6 +27,8 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
         return new ShotgunSequenceDrawer(fasta);
       case "fragment":
         return new FragmentSequenceDrawer(fasta);
+      case "shotgunfragment":
+        return new ShotgunFragmentSequenceDrawer(fasta);
     }
     log.error("sequencing type must be shotgun or fragment, given" + mode);
     return null;

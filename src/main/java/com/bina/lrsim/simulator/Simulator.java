@@ -66,22 +66,17 @@ public class Simulator {
         // draw a list of smrt belts
         Pair<int[], Integer> lenScore = drawer.getRandomLengthScore(gen);
         final int[] insertLengths = lenScore.getFirst();
-        int maxLen = -1;
-        for (int len : insertLengths) {
-          if (len > maxLen) maxLen = len;
-        }
+        MultiPassSpec multiPassSpec = new MultiPassSpec(insertLengths);
 
-        final Fragment fragment = seqGen.getFragment(maxLen, gen);
+        final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, gen);
         final Locus locus = fragment.getLocus();
         nameCounter.putIfAbsent(locus.getChrom(), new AtomicLong((long) 0));
         nameCounter.get(locus.getChrom()).incrementAndGet();
         final byte[] sequence = fragment.getSeq();
         // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
-        if (sequence.length < maxLen) {
-          final float ratio = (float) sequence.length / (float) maxLen;
-          maxLen = sequence.length;
-          for (int ii = 0; ii < insertLengths.length; ++ii) {
-            insertLengths[ii] *= ratio;
+        for (int ii = 0; ii < insertLengths.length; ++ii) {
+          if(insertLengths[ii] > sequence.length) {
+            insertLengths[ii] = sequence.length;
           }
         }
 
@@ -105,9 +100,9 @@ public class Simulator {
           final int insertLength = insertLengths[insIdx];
           final boolean firstClr = insIdx == 0;
           final boolean lastClr = insIdx + 1 == insertLengths.length;
-          final int begin = firstClr ? maxLen - insertLength : 0;
-          final int end = lastClr ? insertLength : maxLen;
-          final boolean isShort = insertLength < Heuristics.SMRT_INSERT_FRACTION * maxLen && !firstClr && !lastClr;
+          final int begin = firstClr ? sequence.length - insertLength : 0;
+          final int end = lastClr ? insertLength : sequence.length;
+          final boolean isShort = insertLength < Heuristics.SMRT_INSERT_FRACTION * sequence.length && !firstClr && !lastClr;
           if (!isShort || !skipIfShort) {
             if (!firstClr) {
               // prepend with a "perfect" adaptor sequence

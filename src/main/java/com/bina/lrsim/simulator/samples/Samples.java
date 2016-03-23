@@ -303,12 +303,8 @@ public abstract class Samples {
     List<Integer> newScores = new ArrayList<>(scores.size());
 
     for (int idx = 0; idx < lengths.size(); ++idx) {
-      final int localMax = NumberUtils.max(lengths.get(idx));
-      int numPasses = 0;
-      for(int length: lengths.get(idx)) {
-        if (length > Heuristics.SMRT_INSERT_FRACTION * localMax) { ++numPasses; } // ugly hack, should be done something else, no time to fix
-      }
-      if ( numPasses < limits.minNumPasses || numPasses > limits.maxNumPasses || localMax > limits.maxFragmentLength || localMax < limits.minFragmentLength) {
+      final MultiPassSpec spec = new MultiPassSpec(lengths.get(idx));
+      if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
       newLengths.add(lengths.get(idx));
