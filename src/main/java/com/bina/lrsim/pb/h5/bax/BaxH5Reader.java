@@ -9,7 +9,7 @@ import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
 import com.bina.lrsim.pb.h5.H5ScalarDSIO;
-import com.bina.lrsim.pb.PBSpec;
+import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.interfaces.RegionGroup;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
@@ -19,25 +19,25 @@ import org.apache.log4j.Logger;
  */
 public class BaxH5Reader implements RegionGroup {
   private final static Logger log = Logger.getLogger(BaxH5Reader.class.getName());
-  private H5File h5_ = null;
-  private final PBSpec spec;
-  private String movieName_ = null;
+  private H5File h5 = null;
+  private final Spec spec;
+  private String movieName = null;
 
-  public BaxH5Reader(String filename, PBSpec spec) {
+  public BaxH5Reader(String filename, Spec spec) {
     this.load(filename);
     this.spec = spec;
   }
 
   public void load(String filename) {
-    h5_ = new H5File(filename, FileFormat.READ);
-    movieName_ = null;
+    h5 = new H5File(filename, FileFormat.READ);
+    movieName = null;
     try {
-      movieName_ = ((String[]) Attributes.extract(h5_.get(EnumGroups.RunInfo.path), "MovieName"))[0];
+      movieName = ((String[]) Attributes.extract(h5.get(EnumGroups.RunInfo.path), "MovieName"))[0];
     } catch (Exception e) {
       log.warn("failed to retrieve movie name from " + filename);
     }
-    if (null == movieName_) {
-      movieName_ = "";
+    if (null == movieName) {
+      movieName = "";
     }
   }
 
@@ -58,10 +58,10 @@ public class BaxH5Reader implements RegionGroup {
     ReadIterator(Iterator<Region> r) {
       regions = r;
       try {
-        holeNumber = (int[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/HoleNumber");
-        numEvents = (int[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/NumEvent");
-        seq = (byte[]) H5ScalarDSIO.Read(h5_, spec.getBaseCallsEnum().path + "/Basecall");
-        byte[] tmp = (byte[]) H5ScalarDSIO.Read(h5_, spec.getBaseCallsEnum().path + "/QualityValue");
+        holeNumber = (int[]) H5ScalarDSIO.Read(h5, spec.getZMWEnum().path + "/HoleNumber");
+        numEvents = (int[]) H5ScalarDSIO.Read(h5, spec.getZMWEnum().path + "/NumEvent");
+        seq = (byte[]) H5ScalarDSIO.Read(h5, spec.getBaseCallsEnum().path + "/Basecall");
+        byte[] tmp = (byte[]) H5ScalarDSIO.Read(h5, spec.getBaseCallsEnum().path + "/QualityValue");
         qual = Arrays.copyOf(tmp, tmp.length); // to be shifted by 33
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -80,7 +80,7 @@ public class BaxH5Reader implements RegionGroup {
             for (int ii = b; ii < e; ++ii) {
               qual[base_shift + ii] += 33;
             }
-            queue.add(new FastqRecord(new String(movieName_ + "/" + holeNumber[shift] + "/" + b + "_" + e), new String(seq, base_shift + b, len), null, new String(qual, base_shift + b, len)));
+            queue.add(new FastqRecord(new String(movieName + "/" + holeNumber[shift] + "/" + b + "_" + e), new String(seq, base_shift + b, len), null, new String(qual, base_shift + b, len)));
           }
         }
         base_shift += numEvents[shift];
@@ -102,7 +102,7 @@ public class BaxH5Reader implements RegionGroup {
 
   @Override
   public Iterator<Region> iterator() {
-    return (spec.getZMWEnum().equals(EnumGroups.CZMW)) ? new CCSRegionIterator() : new RegionIterator();
+    return (spec.getZMWEnum() == EnumGroups.CZMW) ? new CCSRegionIterator() : new RegionIterator();
   }
 
   private class CCSRegionIterator implements Iterator<Region> {
@@ -114,20 +114,20 @@ public class BaxH5Reader implements RegionGroup {
     CCSRegionIterator() {
       curr = 0;
       try {
-        holeStatus = (byte[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
-        numEvents = (int[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/NumEvent");
+        holeStatus = (byte[]) H5ScalarDSIO.Read(h5, spec.getZMWEnum().path + "/HoleStatus");
+        numEvents = (int[]) H5ScalarDSIO.Read(h5, spec.getZMWEnum().path + "/NumEvent");
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
       float[] fp;
       try {
-        fp = (float[]) H5ScalarDSIO.Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
+        fp = (float[]) H5ScalarDSIO.Read(h5, spec.getZMWMetricsEnum().path + "/ReadScore");
       } catch (IOException e) {
         fp = null;
       }
       try {
         if (null == fp) {
-          fp = (float[]) H5ScalarDSIO.Read(h5_, spec.getZMWMetricsEnum().path + "/PredictedAccuracy");
+          fp = (float[]) H5ScalarDSIO.Read(h5, spec.getZMWMetricsEnum().path + "/PredictedAccuracy");
         }
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -158,14 +158,14 @@ public class BaxH5Reader implements RegionGroup {
     private int[] regionData;
     private float[] holeScore;
     private byte[] holeStatus;
-    int min_hole = Integer.MAX_VALUE;
+    int minHole = Integer.MAX_VALUE;
 
     RegionIterator() {
       curr = 0;
       try {
-        regionData = (int[]) H5ScalarDSIO.Read(h5_, EnumGroups.PulseData.path + "/Regions");
-        holeScore = (float[]) H5ScalarDSIO.Read(h5_, spec.getZMWMetricsEnum().path + "/ReadScore");
-        holeStatus = (byte[]) H5ScalarDSIO.Read(h5_, spec.getZMWEnum().path + "/HoleStatus");
+        regionData = (int[]) H5ScalarDSIO.Read(h5, EnumGroups.PulseData.path + "/Regions");
+        holeScore = (float[]) H5ScalarDSIO.Read(h5, spec.getZMWMetricsEnum().path + "/ReadScore");
+        holeStatus = (byte[]) H5ScalarDSIO.Read(h5, spec.getZMWEnum().path + "/HoleStatus");
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -178,11 +178,11 @@ public class BaxH5Reader implements RegionGroup {
 
     @Override
     public Region next() {
-      int hole_number = regionData[curr + EnumRegionsIdx.HoleNumber.value];
-      min_hole = Math.min(hole_number, min_hole);
+      int holeNumber = regionData[curr + EnumRegionsIdx.HoleNumber.ordinal()];
+      minHole = Math.min(holeNumber, minHole);
       int next = curr + EnumRegionsIdx.values().length;
-      for (; next < regionData.length && regionData[next + EnumRegionsIdx.HoleNumber.value] == hole_number; next += EnumRegionsIdx.values().length) {}
-      Region r = new Region(regionData, curr, next, holeScore[hole_number - min_hole], holeStatus[hole_number - min_hole]);
+      for (; next < regionData.length && regionData[next + EnumRegionsIdx.HoleNumber.ordinal()] == holeNumber; next += EnumRegionsIdx.values().length) {}
+      Region r = new Region(regionData, curr, next, holeScore[holeNumber - minHole], holeStatus[holeNumber - minHole]);
       curr = next;
       return r;
     }

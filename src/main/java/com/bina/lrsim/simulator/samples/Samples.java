@@ -1,10 +1,9 @@
 package com.bina.lrsim.simulator.samples;
 
 import java.io.*;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -21,94 +20,94 @@ import com.bina.lrsim.util.ArrayUtils;
 public abstract class Samples {
   private final static Logger base_log = Logger.getLogger(Samples.class.getName());
 
-  private final long[] event_base_count_ = new long[EnumEvent.values().length];
-  private final long[] event_count_ = new long[EnumEvent.values().length];
-  private long[] kmer_event_count_;
-  private ArrayList<int[]> lengths_;
-  private ArrayList<Integer> scores_;
+  private final long[] eventBaseCount = new long[EnumEvent.values().length];
+  private final long[] eventCount = new long[EnumEvent.values().length];
+  private long[] kmerEventCount;
+  private List<int[]> lengths;
+  private List<Integer> scores;
 
-  private KmerIntIntCounter kmer_rlen_slen_count_;
+  private KmerIntIntCounter kmerRlenSlenCount;
 
-  private int left_flank_;
-  private int right_flank_;
-  private int k_;
-  private int num_kmer_;
-  private int hp_anchor_;
+  private int leftFlank;
+  private int rightFlank;
+  private int k;
+  private int numKmer;
+  private int hpAnchor;
 
-  public final long[] event_base_count_ref() {
-    return event_base_count_;
+  public final long[] getEventBaseCountRef() {
+    return eventBaseCount;
   }
 
-  public final long[] event_count_ref() {
-    return event_count_;
+  public final long[] getEventCountRef() {
+    return eventCount;
   }
 
-  public final long[] kmer_event_count_ref() {
-    return kmer_event_count_;
+  public final long[] getKmerEventCountRef() {
+    return kmerEventCount;
   }
 
-  public int max_rlen() {
-    return kmer_rlen_slen_count_.max1;
+  public int getMaxRlen() {
+    return kmerRlenSlenCount.max1;
   }
 
-  public int max_slen() {
-    return kmer_rlen_slen_count_.max2;
+  public int getMaxSlen() {
+    return kmerRlenSlenCount.max2;
   }
 
-  public final long kmer_rlen_slen_count(int kmer, int rlen, int slen) {
-    return kmer_rlen_slen_count_.get(kmer, rlen, slen);
+  public final long getKmerRlenSlenCount(int kmer, int rlen, int slen) {
+    return kmerRlenSlenCount.get(kmer, rlen, slen);
   }
 
-  public void add_kmer_rlen_slen_count(int kmer, int rlen, int slen) {
-    kmer_rlen_slen_count_.increment(kmer, rlen, slen);
+  public void addKmerRlenSlenCount(int kmer, int rlen, int slen) {
+    kmerRlenSlenCount.increment(kmer, rlen, slen);
   }
 
   public final int getLengthSize() {
-    return lengths_.size();
+    return lengths.size();
   }
 
   public final int[] getLength(int index) {
-    return Arrays.copyOf(lengths_.get(index), lengths_.get(index).length);
+    return Arrays.copyOf(lengths.get(index), lengths.get(index).length);
   }
 
   public final int getScore(int index) {
-    return scores_.get(index);
+    return scores.get(index);
   }
 
-  public final int left_flank() {
-    return left_flank_;
+  public final int getLeftFlank() {
+    return leftFlank;
   }
 
-  public final int right_flank() {
-    return right_flank_;
+  public final int getRightFlank() {
+    return rightFlank;
   }
 
-  public final int hp_anchor() {
-    return hp_anchor_;
+  public final int getHpAnchor() {
+    return hpAnchor;
   }
 
-  public final int num_kmer() {
-    return num_kmer_;
+  public final int getNumKmer() {
+    return numKmer;
   }
 
-  public final int k() {
-    return k_;
+  public final int getK() {
+    return k;
   }
 
   public final void accumulateStats(Samples other) {
-    if (left_flank_ != other.left_flank_) throw new RuntimeException("inconsistent left flank");
-    if (right_flank_ != other.right_flank_) throw new RuntimeException("inconsistent right flank");
-    if (k_ != other.k_) throw new RuntimeException("inconsistent k");
-    if (num_kmer_ != other.num_kmer_) throw new RuntimeException("inconsistent numKmer");
-    if (hp_anchor_ != other.hp_anchor_) throw new RuntimeException("inconsistent left flank");
+    if (leftFlank != other.leftFlank) throw new RuntimeException("inconsistent left flank");
+    if (rightFlank != other.rightFlank) throw new RuntimeException("inconsistent right flank");
+    if (k != other.k) throw new RuntimeException("inconsistent k");
+    if (numKmer != other.numKmer) throw new RuntimeException("inconsistent numKmer");
+    if (hpAnchor != other.hpAnchor) throw new RuntimeException("inconsistent left flank");
 
-    ArrayUtils.axpy(1, other.event_base_count_, event_base_count_);
-    ArrayUtils.axpy(1, other.event_count_, event_count_);
-    ArrayUtils.axpy(1, other.kmer_event_count_, kmer_event_count_);
-    kmer_rlen_slen_count_.accumulate(other.kmer_rlen_slen_count_);
-    lengths_.addAll(other.lengths_);
-    scores_.addAll(other.scores_);
-    base_log.info("after accumulation " + lengths_.size() + " " + scores_.size() /*+ " " + this.toString()*/);
+    ArrayUtils.axpy(1, other.eventBaseCount, eventBaseCount);
+    ArrayUtils.axpy(1, other.eventCount, eventCount);
+    ArrayUtils.axpy(1, other.kmerEventCount, kmerEventCount);
+    kmerRlenSlenCount.accumulate(other.kmerRlenSlenCount);
+    lengths.addAll(other.lengths);
+    scores.addAll(other.scores);
+    base_log.info("after accumulation " + lengths.size() + " " + scores.size() /*+ " " + this.toString()*/);
   }
 
   /**
@@ -119,7 +118,7 @@ public abstract class Samples {
    */
   public Samples(String prefix) throws IOException {
     loadIdx(prefix);
-    kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
+    kmerEventCount = new long[numKmer * EnumEvent.values().length];
     loadStats(prefix);
     loadLengths(prefix);
     loadScores(prefix);
@@ -134,63 +133,63 @@ public abstract class Samples {
    * @param hp_anchor number of bp to anchor a homopoloymer
    */
   public Samples(int leftFlank, int rightFlank, int hp_anchor) {
-    left_flank_ = leftFlank;
-    right_flank_ = rightFlank;
-    k_ = left_flank_ + 1 + right_flank_;
-    num_kmer_ = 1 << (2 * k_);
-    hp_anchor_ = hp_anchor;
-    kmer_event_count_ = new long[num_kmer_ * EnumEvent.values().length];
-    lengths_ = new ArrayList<int[]>(1000);
-    scores_ = new ArrayList<Integer>(1000);
-    kmer_rlen_slen_count_ = new KmerIntIntCounter(2 * hp_anchor + 1, 100, 200);
+    this.leftFlank = leftFlank;
+    this.rightFlank = rightFlank;
+    k = this.leftFlank + 1 + this.rightFlank;
+    numKmer = 1 << (2 * k);
+    hpAnchor = hp_anchor;
+    kmerEventCount = new long[numKmer * EnumEvent.values().length];
+    lengths = new ArrayList<>(1000);
+    scores = new ArrayList<>(1000);
+    kmerRlenSlenCount = new KmerIntIntCounter(2 * hp_anchor + 1, 100, 200);
   }
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("samples statistics\n");
-    sb.append("BP_STATS:" + EnumEvent.getPrettyStats(event_base_count_));
+    sb.append("BP_STATS:" + EnumEvent.getPrettyStats(eventBaseCount));
     sb.append("\n");
-    sb.append("EVENT_STATS: " + EnumEvent.getPrettyStats(event_count_));
+    sb.append("EVENT_STATS: " + EnumEvent.getPrettyStats(eventCount));
     sb.append("\n");
-    if (kmer_rlen_slen_count_ != null) {
-      sb.append(kmer_rlen_slen_count_.reduce(hp_anchor(), hp_anchor() + 1).toString("HP_REDUCED_STATS: "));
+    if (kmerRlenSlenCount != null) {
+      sb.append(kmerRlenSlenCount.reduce(getHpAnchor(), getHpAnchor() + 1).toString("HP_REDUCED_STATS: "));
     }
     sb.append(stringifyKmerStats("KMER_STATS: "));
-    if (kmer_rlen_slen_count_ != null) {
-      sb.append(kmer_rlen_slen_count_.toString("HP_STATS: "));
+    if (kmerRlenSlenCount != null) {
+      sb.append(kmerRlenSlenCount.toString("HP_STATS: "));
     }
     return sb.toString();
   }
 
   protected final void writeIdx(String prefix) throws IOException {
     DataOutputStream dos = new DataOutputStream(new FileOutputStream(Suffixes.IDX.filename(prefix)));
-    dos.writeInt(left_flank_);
-    dos.writeInt(right_flank_);
-    dos.writeInt(k_);
-    dos.writeInt(num_kmer_);
-    dos.writeInt(hp_anchor_);
-    for (long entry : event_base_count_) {
+    dos.writeInt(leftFlank);
+    dos.writeInt(rightFlank);
+    dos.writeInt(k);
+    dos.writeInt(numKmer);
+    dos.writeInt(hpAnchor);
+    for (long entry : eventBaseCount) {
       dos.writeLong(entry);
     }
-    for (long entry : event_count_) {
+    for (long entry : eventCount) {
       dos.writeLong(entry);
     }
     dos.flush();
     dos.close();
   }
 
-  private final void loadIdx(String prefix) throws IOException {
+  private void loadIdx(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new FileInputStream(Suffixes.IDX.filename(prefix)));
-    left_flank_ = dis.readInt();
-    right_flank_ = dis.readInt();
-    k_ = dis.readInt();
-    num_kmer_ = dis.readInt();
-    hp_anchor_ = dis.readInt();
-    for (int ii = 0; ii < event_base_count_.length; ++ii) {
-      event_base_count_[ii] = dis.readLong();
+    leftFlank = dis.readInt();
+    rightFlank = dis.readInt();
+    k = dis.readInt();
+    numKmer = dis.readInt();
+    hpAnchor = dis.readInt();
+    for (int ii = 0; ii < eventBaseCount.length; ++ii) {
+      eventBaseCount[ii] = dis.readLong();
     }
-    for (int ii = 0; ii < event_count_.length; ++ii) {
-      event_count_[ii] = dis.readLong();
+    for (int ii = 0; ii < eventCount.length; ++ii) {
+      eventCount[ii] = dis.readLong();
     }
     dis.close();
   }
@@ -209,14 +208,14 @@ public abstract class Samples {
 
   protected final void writeStats(String prefix) throws IOException {
     try(ObjectOutputStream oout = new ObjectOutputStream((new FileOutputStream(Suffixes.STATS.filename(prefix))))) {
-      oout.writeObject(kmer_event_count_);
-      oout.writeObject(kmer_rlen_slen_count_);
+      oout.writeObject(kmerEventCount);
+      oout.writeObject(kmerRlenSlenCount);
     }
     /*
     RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix), "rw");
     FileChannel file = fos.getChannel();
-    MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_WRITE, 0, Long.SIZE / 8 * kmer_event_count_.length);
-    for (long entry : kmer_event_count_) {
+    MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_WRITE, 0, Long.SIZE / 8 * kmerEventCount.length);
+    for (long entry : kmerEventCount) {
       buf.putLong(entry);
     }
     buf.force();
@@ -227,8 +226,8 @@ public abstract class Samples {
 
   private final void loadStats(String prefix) throws IOException {
     try(ObjectInputStream oin = new ObjectInputStream((new FileInputStream(Suffixes.STATS.filename(prefix))))) {
-      kmer_event_count_ = (long[]) oin.readObject();
-      kmer_rlen_slen_count_ = (KmerIntIntCounter) oin.readObject();
+      kmerEventCount = (long[]) oin.readObject();
+      kmerRlenSlenCount = (KmerIntIntCounter) oin.readObject();
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
       throw new IOException();
@@ -236,11 +235,11 @@ public abstract class Samples {
     /*
     RandomAccessFile fos = new RandomAccessFile(Suffixes.STATS.filename(prefix), "r");
     FileChannel file = fos.getChannel();
-    MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE / 8 * kmer_event_count_.length);
+    MappedByteBuffer buf = file.map(FileChannel.MapMode.READ_ONLY, 0, Long.SIZE / 8 * kmerEventCount.length);
     StringBuilder sb = new StringBuilder();
     sb.append(" ");
-    for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
-      kmer_event_count_[ii] = buf.getLong();
+    for (int ii = 0; ii < kmerEventCount.length; ++ii) {
+      kmerEventCount[ii] = buf.getLong();
     }
     base_log.debug(stringifyKmerStats("KMER_STATS: "));
     file.close();
@@ -250,20 +249,20 @@ public abstract class Samples {
 
   public final String stringifyKmerStats(String prefix) {
     StringBuilder sb = new StringBuilder();
-    long[] local_log = new long[EnumEvent.values().length];
-    for (int ii = 0; ii < kmer_event_count_.length; ++ii) {
-      local_log[ii % EnumEvent.values().length] = kmer_event_count_[ii];
+    long[] localLog = new long[EnumEvent.values().length];
+    for (int ii = 0; ii < kmerEventCount.length; ++ii) {
+      localLog[ii % EnumEvent.values().length] = kmerEventCount[ii];
       if (ii % EnumEvent.values().length + 1 == EnumEvent.values().length) {
-        sb.append(prefix + Kmerizer.toString(ii / EnumEvent.values().length, 1 + left_flank_ + right_flank_));
+        sb.append(prefix + Kmerizer.toString(ii / EnumEvent.values().length, 1 + leftFlank + rightFlank));
         double total = 0;
-        for (long l : local_log) {
+        for (long l : localLog) {
           total += l;
         }
-        for (long l : local_log) {
+        for (long l : localLog) {
           sb.append(String.format("%6.2f", 100 * l / total));
         }
         sb.append("       ");
-        for (long l : local_log) {
+        for (long l : localLog) {
           sb.append(String.format(" %d", l));
         }
         sb.append("\n");
@@ -274,72 +273,72 @@ public abstract class Samples {
 
   protected final void loadLengths(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
-    int new_size = dis.readInt();
-    lengths_ = new ArrayList<int[]>(new_size);
-    for (int ii = 0; ii < new_size; ++ii) {
-      final int num_inserts = dis.readInt();
-      int[] tmp = new int[num_inserts];
-      for (int jj = 0; jj < num_inserts; ++jj) {
+    int newSize = dis.readInt();
+    lengths = new ArrayList<>(newSize);
+    for (int ii = 0; ii < newSize; ++ii) {
+      final int numInserts = dis.readInt();
+      int[] tmp = new int[numInserts];
+      for (int jj = 0; jj < numInserts; ++jj) {
         tmp[jj] = dis.readInt();
       }
-      lengths_.add(tmp);
+      lengths.add(tmp);
     }
     dis.close();
-    base_log.info("loaded " + lengths_.size() + " length");
+    base_log.info("loaded " + lengths.size() + " length");
   }
 
   protected final void loadScores(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.SCORE.filename(prefix))));
-    int new_size = dis.readInt();
-    scores_ = new ArrayList<Integer>(new_size);
-    for (int ii = 0; ii < new_size; ++ii) {
-      scores_.add(dis.readInt());
+    int newSize = dis.readInt();
+    scores = new ArrayList<>(newSize);
+    for (int ii = 0; ii < newSize; ++ii) {
+      scores.add(dis.readInt());
     }
     dis.close();
-    base_log.info("loaded " + scores_.size() + " score");
+    base_log.info("loaded " + scores.size() + " score");
   }
 
   protected final void filterScoreLength(LengthLimits limits) {
-    ArrayList<int[]> new_lengths_ = new ArrayList<int[]>(lengths_.size());
-    ArrayList<Integer> new_scores_ = new ArrayList<Integer>(scores_.size());
+    List<int[]> newLengths = new ArrayList<>(lengths.size());
+    List<Integer> newScores = new ArrayList<>(scores.size());
 
-    for (int idx = 0; idx < lengths_.size(); ++idx) {
-      final MultiPassSpec spec = new MultiPassSpec(lengths_.get(idx));
-      if ( spec.numPasses < limits.min_num_passes || spec.numPasses > limits.max_num_passes || spec.fragmentLength > limits.max_fragment_length || spec.fragmentLength < limits.min_fragment_length) {
+    for (int idx = 0; idx < lengths.size(); ++idx) {
+      final MultiPassSpec spec = new MultiPassSpec(lengths.get(idx));
+      if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
-      new_lengths_.add(lengths_.get(idx));
-      new_scores_.add(scores_.get(idx));
+      newLengths.add(lengths.get(idx));
+      newScores.add(scores.get(idx));
     }
-    base_log.info("length distribution filtering decreased samples from " + lengths_.size() + " to " + new_lengths_.size());
-    lengths_ = new_lengths_;
-    scores_ = new_scores_;
+    base_log.info("length distribution filtering decreased samples from " + lengths.size() + " to " + newLengths.size());
+    lengths = newLengths;
+    scores = newScores;
   }
 
   public enum Suffixes {
     EVENTS(".events"), STATS(".stats"), IDX(".idx"), LENGTH(".len"), SCORE(".scr"), SUMMARY(".summary"), HP(".hp");
-    private String suffix_;
+    private String suffix;
 
     Suffixes(String s) {
-      suffix_ = s;
+      suffix = s;
     }
 
     public String filename(String prefix) {
-      return prefix + suffix_;
+      return prefix + suffix;
     }
   }
 
   static public class LengthLimits {
-    public final int min_fragment_length;
-    public final int max_fragment_length;
-    public final int min_num_passes;
-    public final int max_num_passes;
+    public final int minFragmentLength;
+    public final int maxFragmentLength;
+    public final int minNumPasses;
+    public final int maxNumPasses;
 
-    public LengthLimits(int min_fragment_length, int max_fragment_length, int min_num_passes, int max_num_passes) {
-      this.min_fragment_length = min_fragment_length;
-      this.max_fragment_length = max_fragment_length;
-      this.min_num_passes = min_num_passes;
-      this.max_num_passes = max_num_passes;
+    public LengthLimits(int minFragmentLength, int maxFragmentLength, int minNumPasses, int maxNumPasses) {
+      this.minFragmentLength = minFragmentLength;
+      this.maxFragmentLength = maxFragmentLength;
+      this.minNumPasses = minNumPasses;
+      this.maxNumPasses = maxNumPasses;
     }
   }
 }

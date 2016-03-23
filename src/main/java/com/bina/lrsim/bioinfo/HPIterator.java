@@ -21,12 +21,12 @@ import org.apache.log4j.Logger;
  */
 public final class HPIterator implements Iterator<Context> {
   private final static Logger log = Logger.getLogger(HPIterator.class.getName());
-  private final byte[] seq_;
-  private int curr_;
-  private int end_;
-  private final int leftFlank_;
-  private final int rightFlank_;
-  private final int hpAnchor_;
+  private final byte[] seq;
+  private int curr;
+  private int end;
+  private final int leftFlank;
+  private final int rightFlank;
+  private final int hpAnchor;
 
   /**
    * Constructor to iterate the kmer context of through [begin,end) of a ascii stream
@@ -39,36 +39,36 @@ public final class HPIterator implements Iterator<Context> {
    * @param hpAnchor number of bp to anchor homopolymer
    */
   public HPIterator(byte[] ascii, int begin, int end, int leftFlank, int rightFlank, int hpAnchor) {
-    leftFlank_ = leftFlank;
-    rightFlank_ = rightFlank;
-    hpAnchor_ = hpAnchor;
-    seq_ = ascii;
+    this.leftFlank = leftFlank;
+    this.rightFlank = rightFlank;
+    this.hpAnchor = hpAnchor;
+    seq = ascii;
 
-    curr_ = begin + leftFlank;
-    end_ = end - rightFlank;
-    for (; curr_ > 0 && curr_ < seq_.length && seq_[curr_] == seq_[curr_ - 1]; ++curr_) {}
-    for (; 0 <= end_ - 2 && seq_[end_ - 1] == seq_[end_ - 2]; --end_) {}
+    curr = begin + leftFlank;
+    this.end = end - rightFlank;
+    for (; curr > 0 && curr < seq.length && seq[curr] == seq[curr - 1]; ++curr) {}
+    for (; 0 <= this.end - 2 && seq[this.end - 1] == seq[this.end - 2]; --this.end) {}
   }
 
   @Override
   public boolean hasNext() {
-    return curr_ < end_;
+    return curr < end;
   }
 
   @Override
   public Context next() {
     // find the next base which is different
-    int diff_pos = curr_ + 1;
-    for (; diff_pos < seq_.length && seq_[diff_pos] == seq_[curr_]; ++diff_pos) {}
+    int diffPos = curr + 1;
+    for (; diffPos < seq.length && seq[diffPos] == seq[curr]; ++diffPos) {}
 
-    if (diff_pos + rightFlank_ > seq_.length) {
-      curr_ = diff_pos;
+    if (diffPos + rightFlank > seq.length) {
+      curr = diffPos;
       return null;
     } else {
-      final byte[] buffer = Arrays.copyOfRange(seq_, curr_ - leftFlank_, diff_pos + rightFlank_);
+      final byte[] buffer = Arrays.copyOfRange(seq, curr - leftFlank, diffPos + rightFlank);
 
-      curr_ = diff_pos;
-      return new HPContext(buffer, leftFlank_, rightFlank_, hpAnchor_);
+      curr = diffPos;
+      return new HPContext(buffer, leftFlank, rightFlank, hpAnchor);
     }
   }
 

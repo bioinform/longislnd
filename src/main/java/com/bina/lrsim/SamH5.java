@@ -24,7 +24,7 @@ public class SamH5 {
       System.exit(1);
     }
 
-    CmpH5Writer writer = new CmpH5Writer(args[0], new File(args[1]));
+    final CmpH5Writer writer = new CmpH5Writer(args[0], new File(args[1]));
 
     for (int ii = 2; ii < args.length; ++ii) {
       for (SAMRecord record : SamReaderFactory.makeDefault().open(new File(args[ii]))) {

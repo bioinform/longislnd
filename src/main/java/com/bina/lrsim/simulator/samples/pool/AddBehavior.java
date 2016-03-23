@@ -7,39 +7,39 @@ import org.apache.log4j.Logger;
  */
 public class AddBehavior {
   private final static Logger log = Logger.getLogger(AddBehavior.class.getName());
-  private final int delta_q;
-  private final int min_q;
-  private final int max_q;
+  private final int deltaQ;
+  private final int minQ;
+  private final int maxQ;
 
   /**
    * constructor
    *
-   * @param delta_q how to change q
-   * @param min_q minimum of changed q value, ignored if < 0 or larger than original qv
-   * @param max_q maximum of changed q value, ignored if < min_q or smaller than original qv
+   * @param deltaQ how to change q
+   * @param minQ minimum of changed q value, ignored if < 0 or larger than original qv
+   * @param maxQ maximum of changed q value, ignored if < minQ or smaller than original qv
    */
-  public AddBehavior(int delta_q, int min_q, int max_q) {
-    this.delta_q = delta_q;
-    if (max_q >= min_q && min_q >= 0) {
-      this.min_q = min_q;
-      this.max_q = max_q;
+  public AddBehavior(int deltaQ, int minQ, int maxQ) {
+    this.deltaQ = deltaQ;
+    if (maxQ >= minQ && minQ >= 0) {
+      this.minQ = minQ;
+      this.maxQ = maxQ;
     } else {
-      log.warn("min/max q = " + min_q + "/" + max_q + " ignored.");
-      this.min_q = 0;
-      this.max_q = Integer.MAX_VALUE;
+      log.warn("min/max q = " + minQ + "/" + maxQ + " ignored.");
+      this.minQ = 0;
+      this.maxQ = Integer.MAX_VALUE;
     }
   }
 
   /**
    * apply qv transform, keeps old qv if it's beyond cap
    *
-   * @param old_qv an original quality value
+   * @param oldQv an original quality value
    * @return modified quality value
    */
-  public int newQV(int old_qv) {
-    final int ma = Math.max(old_qv, max_q);
-    final int mi = Math.min(old_qv, min_q);
-    return Math.max(mi, Math.min(old_qv + delta_q, ma));
+  public int newQV(int oldQv) {
+    final int ma = Math.max(oldQv, maxQ);
+    final int mi = Math.min(oldQv, minQ);
+    return Math.max(mi, Math.min(oldQv + deltaQ, ma));
   }
 
 }

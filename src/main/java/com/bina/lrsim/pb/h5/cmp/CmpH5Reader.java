@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.bina.lrsim.pb.Spec;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 
@@ -17,27 +18,26 @@ import org.apache.log4j.Logger;
 import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.pb.EnumDat;
-import com.bina.lrsim.pb.PBSpec;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 
 public class CmpH5Reader implements EventGroupFactory {
   private final static Logger log = Logger.getLogger(LRSim.class.getName());
-  private H5File h5_ = null;
-  private AlnIndex AlnIndex_ = null;
-  private AlnGroup AlnGroup_ = null;
-  private Map<String, AlnData> path_data_ = null;
-  private String last_path_;
-  private AlnData last_data_;
-  private final PBSpec spec;
+  private H5File h5 = null;
+  private AlnIndex alnIndex = null;
+  private AlnGroup alnGroup = null;
+  private Map<String, AlnData> pathData = null;
+  private String lastPath;
+  private AlnData lastData;
+  private final Spec spec;
 
-  public CmpH5Reader(String filename, PBSpec spec) {
+  public CmpH5Reader(String filename, Spec spec) {
     this.spec = spec;
     load(filename);
   }
 
   public int size() {
-    return AlnIndex_.size();
+    return alnIndex.size();
   }
 
   @Override
@@ -69,35 +69,35 @@ public class CmpH5Reader implements EventGroupFactory {
   }
 
   public CmpH5Alignment getEventGroup(int index) {
-    String path = AlnGroup_.path(AlnIndex_.get(index, EnumIdx.AlnGroupID));
+    String path = alnGroup.path(alnIndex.get(index, EnumIdx.AlnGroupID));
     if (path == null) return null;
     /*
-     * AlnData data_ref = path_data_.get(path); if (null == data_ref) { data_ref = new AlnData(h5_, path); path_data_.put(path, data_ref); }
+     * AlnData data_ref = pathData.get(path); if (null == data_ref) { data_ref = new AlnData(h5, path); pathData.put(path, data_ref); }
      */
-    if (last_path_ == null || !path.equals(last_path_)) {
+    if (lastPath == null || !path.equals(lastPath)) {
       log.debug("loading alignment group " + path);
-      last_data_ = new AlnData(h5_, path);
-      last_path_ = path;
+      lastData = new AlnData(h5, path);
+      lastPath = path;
     }
-    return new CmpH5Alignment(AlnIndex_.get(index), last_data_, spec);
+    return new CmpH5Alignment(alnIndex.get(index), lastData, spec);
   }
 
   public void load(String filename) {
-    h5_ = new H5File(filename, FileFormat.READ);
-    AlnIndex_ = new AlnIndex(h5_);
-    AlnGroup_ = new AlnGroup(h5_);
-    path_data_ = new HashMap<String, AlnData>();
+    h5 = new H5File(filename, FileFormat.READ);
+    alnIndex = new AlnIndex(h5);
+    alnGroup = new AlnGroup(h5);
+    pathData = new HashMap<>();
   }
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(AlnIndex_.toString());
-    sb.append(AlnGroup_.toString());
+    sb.append(alnIndex.toString());
+    sb.append(alnGroup.toString());
     sb.append("cmp conversion table:\n");
     sb.append(EnumBP.tableToString());
     sb.append("last data_ref alnarray:\n");
-    AlnData tmp = new AlnData(h5_, AlnGroup_.path(2));
-    sb.append(AlnGroup_.path(2) + "\n");
+    AlnData tmp = new AlnData(h5, alnGroup.path(2));
+    sb.append(alnGroup.path(2) + "\n");
 
     byte[] bb = tmp.get(EnumDat.AlnArray);
     sb.append(bb.length);

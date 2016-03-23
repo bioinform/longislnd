@@ -7,6 +7,7 @@ package com.bina.lrsim.pb;
 
 import java.io.ByteArrayOutputStream;
 import java.util.EnumMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -14,29 +15,29 @@ public class PBReadBuffer {
   private static final int INITIAL_SIZE = 1000;
   private final static Logger log = Logger.getLogger(PBReadBuffer.class.getName());
   // util.ByteBuffer can save a full copy operation everytime a byte[] is extracted
-  private final EnumMap<EnumDat, ByteArrayOutputStream> data_ = new EnumMap<EnumDat, ByteArrayOutputStream>(EnumDat.class);
-  private final PBSpec spec;
+  private final Map<EnumDat, ByteArrayOutputStream> data = new EnumMap<>(EnumDat.class);
+  private final Spec spec;
 
-  public PBReadBuffer(PBSpec spec) {
+  public PBReadBuffer(Spec spec) {
     this(spec,INITIAL_SIZE);
   }
 
-  public PBReadBuffer(PBSpec spec, int reserveSize) {
+  public PBReadBuffer(Spec spec, int reserveSize) {
     this.spec = spec;
     for (EnumDat e : spec.getDataSet()) {
-      data_.put(e, new ByteArrayOutputStream(reserveSize));
+      data.put(e, new ByteArrayOutputStream(reserveSize));
     }
     reserve(reserveSize);
   }
 
   public int size() {
-    return data_.get(EnumDat.BaseCall).size();
+    return data.get(EnumDat.BaseCall).size();
   }
 
   public void reserve(int size) {
     // ByteArrayOutputStream's ensureCapacity is private, oh well
     /*
-     * for (EnumDat e : EnumDat.getBaxSet()) { data_.get(e).reserve(size); }
+     * for (EnumDat e : EnumDat.getBaxSet()) { data.get(e).reserve(size); }
      */
   }
 
@@ -45,14 +46,14 @@ public class PBReadBuffer {
 
   public void clear() {
     for (EnumDat e : spec.getDataSet()) {
-      data_.get(e).reset();
+      data.get(e).reset();
     }
   }
 
   public void addASCIIBases(byte[] asciiSeq, byte[] defaultSeq, byte[] defaultScores) {
     for (EnumDat e : spec.getDataSet()) {
       final byte[] buffer;
-      if (e.equals(EnumDat.BaseCall)) {
+      if (e == EnumDat.BaseCall) {
         buffer = asciiSeq;
       } else if (e.isScore) {
         buffer = defaultScores;
@@ -60,14 +61,14 @@ public class PBReadBuffer {
       else {
         buffer = defaultSeq;
       }
-      data_.get(e).write(buffer, 0, asciiSeq.length);
+      data.get(e).write(buffer, 0, asciiSeq.length);
     }
   }
 
   public void addLast(BaseCalls other) {
     for (EnumDat e : spec.getDataSet()) {
       for (int pp = 0; pp < other.size(); ++pp) {
-        data_.get(e).write(other.get(pp, e));
+        data.get(e).write(other.get(pp, e));
       }
     }
   }
@@ -75,7 +76,7 @@ public class PBReadBuffer {
   public void addLast(PBReadBuffer other) {
     for (EnumDat e : spec.getDataSet()) {
       final byte[] tmp = other.get(e).toByteArray();
-      data_.get(e).write(tmp, 0, tmp.length); // the (byte[]) version throws IO exception
+      data.get(e).write(tmp, 0, tmp.length); // the (byte[]) version throws IO exception
     }
   }
 
@@ -83,7 +84,7 @@ public class PBReadBuffer {
     if ((end - begin) % EnumDat.numBytes != 0) throw new RuntimeException("invalid size");
     for (int itr = begin; itr < end; itr += EnumDat.numBytes) {
       for (EnumDat e : spec.getDataSet()) {
-        data_.get(e).write(other[itr + e.value]);
+        data.get(e).write(other[itr + e.value]);
       }
     }
   }
@@ -93,13 +94,13 @@ public class PBReadBuffer {
     for (EnumDat e : spec.getDataSet()) {
       sb.append("\n");
       sb.append(e.path + "\n");
-      if (e.equals(EnumDat.BaseCall) || e.equals(EnumDat.DeletionTag) || e.equals(EnumDat.SubstitutionTag)) {
-        for (int ii = 0; ii < data_.get(e).size(); ++ii) {
-          // sb.append((char)data_.get(e).get(ii));
+      if (e == EnumDat.BaseCall || e == EnumDat.DeletionTag || e == EnumDat.SubstitutionTag) {
+        for (int ii = 0; ii < data.get(e).size(); ++ii) {
+          // sb.append((char)data.get(e).get(ii));
         }
       } else {
-        for (int ii = 0; ii < data_.get(e).size(); ++ii) {
-          // sb.append((char)(data_.get(e).get(ii)+33));
+        for (int ii = 0; ii < data.get(e).size(); ++ii) {
+          // sb.append((char)(data.get(e).get(ii)+33));
         }
       }
     }
@@ -107,6 +108,6 @@ public class PBReadBuffer {
   }
 
   public ByteArrayOutputStream get(EnumDat e) {
-    return data_.get(e);
+    return data.get(e);
   }
 }

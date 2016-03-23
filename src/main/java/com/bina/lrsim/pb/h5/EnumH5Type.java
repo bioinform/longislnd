@@ -25,9 +25,9 @@ public enum EnumH5Type {
    * @return a H5Datatype
    */
   public static H5Datatype getH5Datatype(Object obj, long[] dims, boolean isSigned) {
-    final EnumH5Type type = class_parameters_.get(obj.getClass());
+    final EnumH5Type type = classParameters.get(obj.getClass());
 
-    int numBytes = type.h5NumBytes_;
+    int numBytes = type.h5NumBytes;
     int sign = Datatype.SIGN_NONE;
 
     if (obj instanceof String[] ) {
@@ -60,27 +60,27 @@ public enum EnumH5Type {
       }
       */
     }
-    return new H5Datatype(type.h5Type_, numBytes, type.h5Order_, sign);
+    return new H5Datatype(type.h5Type, numBytes, type.h5Order, sign);
   }
 
 
   EnumH5Type(Class<?> a, int b, int c, int d) {
     class_ = a;
-    h5Type_ = b;
-    h5NumBytes_ = c;
-    h5Order_ = d;
+    h5Type = b;
+    h5NumBytes = c;
+    h5Order = d;
   }
 
   private Class<?> class_;
-  private int h5Type_;
-  private int h5NumBytes_;
-  private int h5Order_;
+  private int h5Type;
+  private int h5NumBytes;
+  private int h5Order;
 
-  private static final Map<Object, EnumH5Type> class_parameters_ = new HashMap<Object, EnumH5Type>();
+  private static final Map<Object, EnumH5Type> classParameters = new HashMap<>();
 
   static {
     for(EnumH5Type e: EnumSet.allOf(EnumH5Type.class)) {
-      class_parameters_.put(e.class_,e);
+      classParameters.put(e.class_,e);
     }
   }
 

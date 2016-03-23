@@ -4,6 +4,7 @@ import org.apache.commons.math3.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by bayolau on 1/7/16.
@@ -12,24 +13,24 @@ import java.util.Collections;
 public class IDPCodecV1 {
 
   public static final int MAX_CODE = 255;
-  private static final int _maxFramepoint;
-  private static final ArrayList<Integer> _framepoints;
-  private static final ArrayList<Integer> _frameToCode;
+  private static final int maxFramepoint;
+  private static final List<Integer> framepoints;
+  private static final List<Integer> frameToCode;
 
   static {
-    _framepoints = _makeFramepoints();
-    final Pair<ArrayList<Integer>, Integer> pair = _makeLookup(_framepoints);
-    _frameToCode = pair.getFirst();
-    _maxFramepoint = pair.getSecond();
+    framepoints = makeFramepoints();
+    final Pair<List<Integer>, Integer> pair = makeLookup(framepoints);
+    frameToCode = pair.getFirst();
+    maxFramepoint = pair.getSecond();
   }
 
   public static int framesToCode(int nframes) {
-    nframes = Math.min(nframes, _maxFramepoint);
-    return _frameToCode.get(nframes);
+    nframes = Math.min(nframes, maxFramepoint);
+    return frameToCode.get(nframes);
   }
 
   public static int codeToFrames(int code) {
-    return _framepoints.get(code);
+    return framepoints.get(code);
   }
 
   public static int downsampleFrames(int nframes) {
@@ -37,11 +38,11 @@ public class IDPCodecV1 {
   }
 
   // line-by-line translation of _BamSupport.py
-  private static ArrayList<Integer> _makeFramepoints() {
+  private static List<Integer> makeFramepoints() {
     final int B = 2;
     final int t = 6;
     final int T = (int) (Math.pow(2, t) + 0.5);
-    ArrayList<Integer> framepoints = new ArrayList<>();
+    final List<Integer> framepoints = new ArrayList<>();
     int next = 0;
     for (int i = 0; i < 256 / T; ++i) {
       final int grain = (int) (Math.pow(B, i) + 0.5);
@@ -54,8 +55,8 @@ public class IDPCodecV1 {
   }
 
   // line-by-line translation of _BamSupport.py
-  private static Pair<ArrayList<Integer>, Integer> _makeLookup(ArrayList<Integer> framepoints) {
-    ArrayList<Integer> frameToCode = new ArrayList<Integer>(Collections.nCopies(Collections.max(framepoints) + 1, -1));
+  private static Pair<List<Integer>, Integer> makeLookup(final List<Integer> framepoints) {
+    final List<Integer> frameToCode = new ArrayList<>(Collections.nCopies(Collections.max(framepoints) + 1, -1));
     int i = 0, fl = -1, fu = -1; // python code was written like this
     for (i = 0; i + 1 < framepoints.size(); ++i) {
       fl = framepoints.get(i);
@@ -74,6 +75,6 @@ public class IDPCodecV1 {
       }
     }
     frameToCode.set(fu, i);
-    return new Pair<ArrayList<Integer>, Integer>(frameToCode, fu);
+    return new Pair<>(frameToCode, fu);
   }
 }

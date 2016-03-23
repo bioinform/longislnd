@@ -16,34 +16,34 @@ import com.bina.lrsim.interfaces.EventGroupsProcessor;
  */
 public class AdHocProcessor implements EventGroupsProcessor {
   private final static Logger log = Logger.getLogger(AdHocProcessor.class.getName());
-  final int max_seq_len;
-  final int target_ref_len;
+  final int maxSeqLen;
+  final int targetRefLen;
   final int anchor;
-  final long[] seq_count;
+  final long[] seqCount;
 
-  public AdHocProcessor(final int target_ref_len, final int max_seq_len, final int anchor) {
-    this.max_seq_len = max_seq_len;
-    this.target_ref_len = target_ref_len;
+  public AdHocProcessor(final int targetRefLen, final int maxSeqLen, final int anchor) {
+    this.maxSeqLen = maxSeqLen;
+    this.targetRefLen = targetRefLen;
     this.anchor = anchor;
-    seq_count = new long[max_seq_len + 1];
+    seqCount = new long[maxSeqLen + 1];
   }
 
   private void Put(int seq_len) {
-    if (seq_len <= max_seq_len) ++seq_count[seq_len];
+    if (seq_len <= maxSeqLen) ++seqCount[seq_len];
   }
 
   private long Get(int seq_len) {
-    return seq_count[seq_len];
+    return seqCount[seq_len];
   }
 
   @Override
-  public void process(EventGroupFactory groups, int min_length, int flank_mask) throws IOException {
+  public void process(EventGroupFactory groups, int minLength, int flankMask) throws IOException {
     long groupcount = 0;
     for (EventGroup group : groups) {
-      if (group.seq_length() < min_length) continue;
+      if (group.getSeqLength() < minLength) continue;
 
       int begin = 0;
-      for (int count = 0; count < flank_mask && begin < group.size(); ++begin) {
+      for (int count = 0; count < flankMask && begin < group.size(); ++begin) {
         final byte base = group.getSeq(begin);
         if (base != EnumBP.Gap.ascii) {
           ++count;
@@ -51,7 +51,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
       }
 
       int end = group.size();
-      for (int count = 0; count < flank_mask && end > 0; --end) {
+      for (int count = 0; count < flankMask && end > 0; --end) {
         final byte base = group.getSeq(end - 1);
         if (base != EnumBP.Gap.ascii) {
           ++count;
@@ -67,14 +67,14 @@ public class AdHocProcessor implements EventGroupsProcessor {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(target_ref_len);
+    sb.append(targetRefLen);
     sb.append(": ");
-    for (int ii = 0; ii < seq_count.length; ++ii) {
-      if (seq_count[ii] > 0) {
+    for (int ii = 0; ii < seqCount.length; ++ii) {
+      if (seqCount[ii] > 0) {
         sb.append(" ");
         sb.append(ii);
         sb.append("-");
-        sb.append(seq_count[ii]);
+        sb.append(seqCount[ii]);
       }
     }
     return sb.toString();
@@ -138,7 +138,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
 //            valid = false;
           }
           ++ref_len;
-          if(ref_len <= target_ref_len) {
+          if(ref_len <= targetRefLen) {
             if(ref_base != org_base) {
               hp_of_target = false;
             }
@@ -152,7 +152,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
           }
         }
 
-        if (ref_len <= target_ref_len) {
+        if (ref_len <= targetRefLen) {
           if (group.getSeq(pos) != EnumBP.Gap.ascii) {
             ++seq_len;
           }
@@ -161,7 +161,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
         }
       }
 
-      if (ref_len != target_ref_len + 1) continue;
+      if (ref_len != targetRefLen + 1) continue;
 /*
       for (int aa = 0; aa < anchor; ++aa) {
         if (group.getSeq(pos + aa) != group.getRef(pos + aa)) {
@@ -173,7 +173,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
       if (valid && hp_of_target)
       {
         /*
-        if(seq_len < target_ref_len) {
+        if(seq_len < targetRefLen) {
           StringBuilder s = new StringBuilder();
           StringBuilder r = new StringBuilder();
           for (int ii = loc_start-1; ii < pos+1; ++ii) {
@@ -182,7 +182,7 @@ public class AdHocProcessor implements EventGroupsProcessor {
           }
           log.info(s.toString());
           log.info(r.toString());
-          log.info(target_ref_len + "->" + seq_len);
+          log.info(targetRefLen + "->" + seq_len);
         }
         */
         Put(seq_len);

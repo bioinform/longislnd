@@ -46,19 +46,19 @@ public class H5Append {
       log.info(oh5.open());
       log.info(oh5.open());
 
-      int file_space = H5.H5Screate_simple(1, new long[] {0}, new long[]{HDF5Constants.H5S_UNLIMITED});
+      int fileSpace = H5.H5Screate_simple(1, new long[] {0}, new long[]{HDF5Constants.H5S_UNLIMITED});
 
       int plist = H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE);
       H5.H5Pset_layout(plist, HDF5Constants.H5D_CHUNKED);
-      final int bayo_chunk_size = 10000;
-      H5.H5Pset_chunk(plist, 1, new long[] {bayo_chunk_size});
+      final int bayoChunkSize = 10000;
+      H5.H5Pset_chunk(plist, 1, new long[] {bayoChunkSize});
 
       int type = HDF5Constants.H5T_NATIVE_UCHAR;
 
-      int dset = H5.H5Dcreate(file, "dset1", type, file_space, HDF5Constants.H5P_DEFAULT, plist, HDF5Constants.H5P_DEFAULT);
+      int dset = H5.H5Dcreate(file, "dset1", type, fileSpace, HDF5Constants.H5P_DEFAULT, plist, HDF5Constants.H5P_DEFAULT);
 
       H5.H5Pclose(plist);
-      H5.H5Sclose(file_space);
+      H5.H5Sclose(fileSpace);
 
       byte[] c1 = new byte[] {1, 3, 5, 7, 9, 11, 13};
       byte[] c2 = new byte[] {2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22};
@@ -66,25 +66,25 @@ public class H5Append {
       {
         log.info(H5.H5Dget_storage_size(dset));
         H5.H5Dset_extent(dset, new long[] {c1.length});
-        file_space = H5.H5Dget_space(dset);
-        H5.H5Sselect_hyperslab(file_space, HDF5Constants.H5S_SELECT_SET, new long[]{0}, null, new long[]{c1.length}, null);
+        fileSpace = H5.H5Dget_space(dset);
+        H5.H5Sselect_hyperslab(fileSpace, HDF5Constants.H5S_SELECT_SET, new long[]{0}, null, new long[]{c1.length}, null);
 
         H5.H5Sset_extent_simple(mem_space, 1, new long[]{c1.length}, null);
-        H5.H5Dwrite(dset, type, mem_space, file_space, HDF5Constants.H5P_DEFAULT, c1);
+        H5.H5Dwrite(dset, type, mem_space, fileSpace, HDF5Constants.H5P_DEFAULT, c1);
 
-        H5.H5Sclose(file_space);
+        H5.H5Sclose(fileSpace);
         log.info(H5.H5Dget_storage_size(dset));
       }
       {
         log.info(H5.H5Dget_storage_size(dset));
         H5.H5Dset_extent(dset, new long[] {c1.length + c2.length});
-        file_space = H5.H5Dget_space(dset);
-        H5.H5Sselect_hyperslab(file_space, HDF5Constants.H5S_SELECT_SET, new long[] {c1.length}, null, new long[]{c2.length}, null);
+        fileSpace = H5.H5Dget_space(dset);
+        H5.H5Sselect_hyperslab(fileSpace, HDF5Constants.H5S_SELECT_SET, new long[] {c1.length}, null, new long[]{c2.length}, null);
 
         H5.H5Sset_extent_simple(mem_space, 1, new long[]{c2.length}, null);
-        H5.H5Dwrite(dset, type, mem_space, file_space, HDF5Constants.H5P_DEFAULT, c2);
+        H5.H5Dwrite(dset, type, mem_space, fileSpace, HDF5Constants.H5P_DEFAULT, c2);
 
-        H5.H5Sclose(file_space);
+        H5.H5Sclose(fileSpace);
         log.info(H5.H5Dget_storage_size(dset));
       }
 
@@ -102,47 +102,47 @@ public class H5Append {
     try {
       int file = H5.H5Fcreate(filename, HDF5Constants.H5F_ACC_TRUNC, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
 
-      long[] max_dims = new long[] {HDF5Constants.H5S_UNLIMITED};
-      int file_space = H5.H5Screate_simple(1, new long[] {0}, max_dims);
+      long[] maxDims = new long[] {HDF5Constants.H5S_UNLIMITED};
+      int fileSpace = H5.H5Screate_simple(1, new long[] {0}, maxDims);
 
       int plist = H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE);
       H5.H5Pset_layout(plist, HDF5Constants.H5D_CHUNKED);
-      final int bayo_chunk_size = 10000;
-      H5.H5Pset_chunk(plist, 1, new long[] {bayo_chunk_size});
+      final int bayoChunkSize = 10000;
+      H5.H5Pset_chunk(plist, 1, new long[] {bayoChunkSize});
 
       int type = HDF5Constants.H5T_NATIVE_UCHAR;
 
-      int dset = H5.H5Dcreate(file, "dset1", type, file_space, HDF5Constants.H5P_DEFAULT, plist, HDF5Constants.H5P_DEFAULT);
+      int dset = H5.H5Dcreate(file, "dset1", type, fileSpace, HDF5Constants.H5P_DEFAULT, plist, HDF5Constants.H5P_DEFAULT);
 
       H5.H5Pclose(plist);
-      H5.H5Sclose(file_space);
+      H5.H5Sclose(fileSpace);
 
       byte[] c1 = new byte[] {1, 3, 5, 7, 9, 11, 13};
       byte[] c2 = new byte[] {2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22};
       {
         log.info(H5.H5Dget_storage_size(dset));
         H5.H5Dset_extent(dset, new long[] {c1.length});
-        file_space = H5.H5Dget_space(dset);
-        H5.H5Sselect_hyperslab(file_space, HDF5Constants.H5S_SELECT_SET, new long[] {0}, null, new long[] {c1.length}, null);
+        fileSpace = H5.H5Dget_space(dset);
+        H5.H5Sselect_hyperslab(fileSpace, HDF5Constants.H5S_SELECT_SET, new long[] {0}, null, new long[] {c1.length}, null);
 
         int mem_space = H5.H5Screate_simple(1, new long[] {c1.length}, null);
-        H5.H5Dwrite(dset, type, mem_space, file_space, HDF5Constants.H5P_DEFAULT, c1);
+        H5.H5Dwrite(dset, type, mem_space, fileSpace, HDF5Constants.H5P_DEFAULT, c1);
         H5.H5Sclose(mem_space);
 
-        H5.H5Sclose(file_space);
+        H5.H5Sclose(fileSpace);
         log.info(H5.H5Dget_storage_size(dset));
       }
       {
         log.info(H5.H5Dget_storage_size(dset));
         H5.H5Dset_extent(dset, new long[] {c1.length + c2.length});
-        file_space = H5.H5Dget_space(dset);
-        H5.H5Sselect_hyperslab(file_space, HDF5Constants.H5S_SELECT_SET, new long[] {c1.length}, null, new long[] {c2.length}, null);
+        fileSpace = H5.H5Dget_space(dset);
+        H5.H5Sselect_hyperslab(fileSpace, HDF5Constants.H5S_SELECT_SET, new long[] {c1.length}, null, new long[] {c2.length}, null);
 
         int mem_space = H5.H5Screate_simple(1, new long[] {c2.length}, null);
-        H5.H5Dwrite(dset, type, mem_space, file_space, HDF5Constants.H5P_DEFAULT, c2);
+        H5.H5Dwrite(dset, type, mem_space, fileSpace, HDF5Constants.H5P_DEFAULT, c2);
         H5.H5Sclose(mem_space);
 
-        H5.H5Sclose(file_space);
+        H5.H5Sclose(fileSpace);
         log.info(H5.H5Dget_storage_size(dset));
       }
 
