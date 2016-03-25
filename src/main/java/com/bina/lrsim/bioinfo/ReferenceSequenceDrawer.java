@@ -7,19 +7,15 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by bayolau on 9/2/15.
  */
 public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator {
   private final static Logger log = Logger.getLogger(ReferenceSequenceDrawer.class.getName());
-  final Map<String, Chromosome> nameChromosomeMap = new HashMap<>();
-  final List<String> name = new ArrayList<>();
-  FastaSequenceFile reference;
+  private final Map<String, Chromosome> nameChromosomeMap = new HashMap<>();
+  private final List<String> name = new ArrayList<>();
 
   public static ReferenceSequenceDrawer Factory(final String mode, final String fasta) {
     switch (mode) {
@@ -35,7 +31,7 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
   }
 
   public ReferenceSequenceDrawer(final String filename) {
-    reference = new FastaSequenceFile(new File(filename), true);
+    FastaSequenceFile reference = new FastaSequenceFile(new File(filename), true);
     for (ReferenceSequence rr = reference.nextSequence(); null != rr; rr = reference.nextSequence()) {
       name.add(rr.getName());
       nameChromosomeMap.put(rr.getName(), new Chromosome(rr));
@@ -69,6 +65,10 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
 
   protected Fragment get(int id) {
     return get(name.get(id));
+  }
+
+  public final List<String> getNames() {
+    return Collections.unmodifiableList(name);
   }
 
   protected static class Chromosome {

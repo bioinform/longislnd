@@ -32,7 +32,7 @@ import com.bina.lrsim.simulator.samples.pool.HPBCPool;
  */
 public class SamplesDrawer extends Samples {
   private final static Logger log = Logger.getLogger(SamplesDrawer.class.getName());
-  final Map<EnumEvent, BaseCallsPool> kmerEventDrawer = new EnumMap<>(EnumEvent.class);
+  final private Map<EnumEvent, BaseCallsPool> kmerEventDrawer = new EnumMap<>(EnumEvent.class);
   private HPBCPool hpEventDrawer;
   private final Spec spec;
   private final long[] customFrequency;

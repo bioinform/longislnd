@@ -17,7 +17,7 @@ public class ShotgunFragmentSequenceDrawer extends ReferenceSequenceDrawer {
 
   public ShotgunFragmentSequenceDrawer(String filename) {
     super(filename);
-    for (String entry : name) {
+    for (String entry : getNames()) {
       refBases.add((long) get(entry).getSeq().length);
     }
   }

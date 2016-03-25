@@ -19,9 +19,6 @@ import org.apache.log4j.Logger;
 public class HPBCPool extends BaseCallsPool {
   private final static Logger log = Logger.getLogger(HPBCPool.class.getName());
 
-  // this is a hack until we have a proper full-blown homopolyer error rate scaling
-  private final static int MIN_POOL_SIZE = 20;
-
   private List<List<List<byte[]>>> data; // data[kmer][hp_len] contains a pool of byte[] base calls
 
   public HPBCPool(Spec spec, int numKmers, int entryPerKmer) {

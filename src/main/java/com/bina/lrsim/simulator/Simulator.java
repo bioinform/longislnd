@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.bina.lrsim.bioinfo.*;
 import com.bina.lrsim.pb.ReadsWriter;
@@ -27,10 +28,10 @@ import com.bina.lrsim.util.Monitor;
  */
 public class Simulator {
   private final static Logger log = Logger.getLogger(Simulator.class.getName());
-  private final long[] baseCounter = new long[EnumEvent.values().length];
-  private final long[] eventCounter = new long[EnumEvent.values().length];
-  final ConcurrentHashMap<String, AtomicLong> nameCounter = new ConcurrentHashMap<>();
-  private RandomFragmentGenerator seqGen;
+  private final AtomicLongArray baseCounter = new AtomicLongArray(EnumEvent.values.length);
+  private final AtomicLongArray eventCounter = new AtomicLongArray(EnumEvent.values.length);
+  private final ConcurrentHashMap<String, AtomicLong> nameCounter = new ConcurrentHashMap<>();
+  private final RandomFragmentGenerator seqGen;
 
   /**
    * Constructor
@@ -53,13 +54,13 @@ public class Simulator {
    */
   public int simulate(final String path, final String movieName, final int firsthole, SamplesDrawer drawer, int totalBases, final Spec spec, RandomGenerator gen) throws IOException {
     try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, firsthole)) {
+      long[] localBaseCounter = new long[baseCounter.length()];
       PBReadBuffer read = new PBReadBuffer(spec);
-      log.info("generating reads");
 
       for (int numBases = 0; numBases < totalBases;) {
         read.clear();
         if (read.size() != 0) {
-          log.info("couldn't clear buffer");
+          log.error("couldn't clear buffer");
           throw new RuntimeException("different lengths!");
         }
 
@@ -113,7 +114,7 @@ public class Simulator {
             for (Iterator<Context> itr = new HPIterator(fwRc.get(insIdx % 2), begin, end, drawer.getLeftFlank(), drawer.getRightFlank(), drawer.getHpAnchor()); itr.hasNext();) {
               final Context con = itr.next();
               if (null != con) {
-                deletion = drawer.appendTo(read, con, deletion, gen, baseCounter);
+                deletion = drawer.appendTo(read, con, deletion, gen, localBaseCounter);
               }
             }
 
@@ -146,14 +147,16 @@ public class Simulator {
 
         writer.addLast(read, sectionEnds, lenScore.getSecond(), locus, clrLoci);
         numBases += read.size();
-        if (writer.size() % 10000 == 1) {
-          log.info(toString());
-        }
       }
-      log.info(toString());
-      log.info("generated " + writer.size() + " reads.");
-      log.info("Memory usage: " + Monitor.PeakMemoryUsage());
-      log.info("Memory usage: " + Monitor.PeakMemoryUsage());
+      for (int index = 0; index < localBaseCounter.length; ++index) {
+        baseCounter.getAndAdd(index, localBaseCounter[index]);
+      }
+      synchronized (log) {
+        log.info(toString());
+        log.info("generated " + writer.size() + " reads.");
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
+        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
+      }
       return writer.size();
     }
   }
@@ -161,9 +164,16 @@ public class Simulator {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("simulated statistics\n");
-    sb.append(EnumEvent.getPrettyStats(baseCounter));
+    long[] tmp = new long[baseCounter.length()];
+    for (int index = 0; index < tmp.length; ++index) {
+      tmp[index] = baseCounter.get(index);
+    }
+    sb.append(EnumEvent.getPrettyStats(tmp));
     sb.append("\n");
-    sb.append(EnumEvent.getPrettyStats(eventCounter));
+    for (int index = 0; index < tmp.length; ++index) {
+      tmp[index] = eventCounter.get(index);
+    }
+    sb.append(EnumEvent.getPrettyStats(tmp));
     sb.append("\n");
     for (ConcurrentHashMap.Entry<String, AtomicLong> entry : nameCounter.entrySet()) {
       sb.append(entry.getKey());

@@ -20,7 +20,7 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
     final boolean rc = gen.nextBoolean();
 
     // select a fragment with equal probability
-    final Fragment fragment = get(gen.nextInt(name.size()));
+    final Fragment fragment = get(gen.nextInt(getNames().size()));
     final byte[] refSeq = fragment.getSeq(); // this is a reference don't modify it
 
     // if fragment is shorter than indicated length, return the whole fragment
