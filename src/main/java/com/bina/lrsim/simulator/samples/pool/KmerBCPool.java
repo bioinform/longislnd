@@ -1,6 +1,7 @@
 package com.bina.lrsim.simulator.samples.pool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.bina.lrsim.pb.EnumDat;
@@ -49,11 +50,15 @@ public class KmerBCPool extends BaseCallsPool {
     int draw = gen.nextInt(data.get(context.getKmer()).size());
     final byte[] b = data.get(context.getKmer()).get(draw);
     if (as != null && (b[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value])) {
-      b[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
-      b[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
-      b[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
+      final byte[] tmp = Arrays.copyOf(b, b.length);
+      tmp[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
+      tmp[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
+      tmp[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
+      buffer.addLast(tmp, 0, tmp.length);
     }
-    buffer.addLast(b, 0, b.length);
-    return new AppendState(b, true);
+    else {
+      buffer.addLast(b, 0, b.length);
+    }
+    return new AppendState(null, true);
   }
 }

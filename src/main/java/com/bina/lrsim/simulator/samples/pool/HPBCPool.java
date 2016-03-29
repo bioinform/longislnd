@@ -1,6 +1,7 @@
 package com.bina.lrsim.simulator.samples.pool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.bina.lrsim.pb.EnumDat;
@@ -56,7 +57,6 @@ public class HPBCPool extends BaseCallsPool {
 
   @Override
   public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
-
     final int kmer = context.getKmer();
     final int hpLen = context.getHpLen();
     if (hpLen < data.get(kmer).size()) {
@@ -64,11 +64,15 @@ public class HPBCPool extends BaseCallsPool {
       if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
         if (as != null && b.length > 0 && (b[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value])) {
-          b[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
-          b[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
-          b[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
+          final byte[] tmp = Arrays.copyOf(b, b.length);
+          tmp[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
+          tmp[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
+          tmp[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
+          buffer.addLast(tmp, 0, tmp.length);
         }
-        buffer.addLast(b, 0, b.length);
+        else {
+          buffer.addLast(b, 0, b.length);
+        }
         return new AppendState(null, true);
       }
     }
