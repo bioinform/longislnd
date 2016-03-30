@@ -2,8 +2,9 @@ package com.bina.lrsim.bioinfo;
 
 // import org.apache.commons.math3.random.MersenneTwister;
 
+import com.bina.lrsim.util.ThreadLocalResources;
+
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by bayo on 5/8/15.
@@ -11,7 +12,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * kmerize up to 16bp, randomly select a base for N
  */
 public class Kmerizer {
-  // private static MersenneTwister gen_ = new MersenneTwister(1111);
 
   /**
    * kmerize a ascii stream of up to 16 bp
@@ -29,7 +29,7 @@ public class Kmerizer {
       int val = EnumBP.ascii2value(ascii[ii]);
       if ( val < 0 || val >=4 ) {
 //        throw new RuntimeException("unsupported base call " + ascii[ii]);
-        val = ThreadLocalRandom.current().nextInt(4);
+        val = ThreadLocalResources.random().nextInt(4);
       }
       out += val;
     }

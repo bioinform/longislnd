@@ -3,6 +3,7 @@ package com.bina.lrsim.simulator;
 import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
+import com.bina.lrsim.util.ThreadLocalResources;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.log4j.Logger;
@@ -60,6 +61,7 @@ public class ParallelSimulator {
     @Override
     public void run() {
       try {
+        ThreadLocalResources.random().setSeed(seed);
         sim.simulate(outDir, movieName, 0, samples, targetNumBases, spec, new MersenneTwister(seed));
       } catch (IOException e) {
         log.error("Failed to generate " + movieName + " with seed " + seed);
