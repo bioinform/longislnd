@@ -7,11 +7,11 @@ import java.util.*;
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
 import com.bina.lrsim.pb.*;
-import org.apache.commons.math3.random.RandomGenerator;
+import com.bina.lrsim.simulator.ParallelSimulator;
+import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.simulator.EnumEvent;
-import com.bina.lrsim.simulator.Simulator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
 
@@ -82,35 +82,21 @@ public class SimulatorDriver {
     final ReferenceSequenceDrawer wr = ReferenceSequenceDrawer.Factory(sequencingMode, fasta);
     if (wr == null) System.exit(1);
 
-    final Simulator sim = new Simulator(wr);
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    final RandomGenerator gen = new org.apache.commons.math3.random.MersenneTwister(seed);
-    log.info("Memory usage: " + Monitor.PeakMemoryUsage());
-
-    int currentFileIndex = 0;
-    int simulatedReads = 0;
     final int targetChunk = (int) Math.min(wr.getNonNCount(), 200000000);
     log.info("each file will have ~" + targetChunk + " bases");
 
     final String moviePrefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
+    final String movieSuffix = "_c" + identifier + "_s1_p0";
 
     final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(minFragmentLength, maxFragmentLength, minNumPasses, maxNumPasses);
     final SamplesDrawer samples = new SamplesDrawer(modelPrefixes.split(","), spec, samplePer, eventsFrequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
     log.info(samples.toString());
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    // the following can be parallelized
-    for (long simulatedBases = 0; simulatedBases <= totalBases; ++currentFileIndex) {
-      final String movieName = moviePrefix + String.format("%05d", currentFileIndex) + "_c" + identifier + "_s1_p0";
-      final int target = (int) Math.min(targetChunk, Math.max(0, totalBases - simulatedBases));
-      log.info("simulating roughly " + targetChunk + " for " + movieName);
-      simulatedReads += sim.simulate(outDir, movieName, simulatedReads, samples, target, spec, gen);
-      log.info("total number of reads is " + simulatedReads);
-      simulatedBases += target + 1;
-    }
+    ParallelSimulator.process(wr, outDir, moviePrefix, movieSuffix, samples, targetChunk, totalBases, spec, new MersenneTwister(seed));
 
     log.info("finished.");
   }
-
 }
