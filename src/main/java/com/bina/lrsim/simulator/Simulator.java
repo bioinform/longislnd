@@ -155,7 +155,6 @@ public class Simulator {
         log.info(toString());
         log.info("generated " + writer.size() + " reads.");
         log.info("Memory usage: " + Monitor.PeakMemoryUsage());
-        log.info("Memory usage: " + Monitor.PeakMemoryUsage());
       }
       return writer.size();
     }
