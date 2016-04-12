@@ -58,6 +58,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_frag", help="Maximum length of fragment", type=int, default=1000000000)
     parser.add_argument("--min_pass", help="Minimum passes", type=int, default=10)
     parser.add_argument("--max_pass", help="Maximum passes", type=int, default=15)
+    parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
 
     args = parser.parse_args()
 
@@ -72,8 +73,9 @@ if __name__ == "__main__":
     # Get the model prefix
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
-    command_line = "java -Djava.library.path={hdf5} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass}".format(
+    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass}".format(
         hdf5=args.hdf5,
+        jvm_opt=args.jvm_opt,
         jar=args.lrsim,
         out=args.out,
         movie_id=args.movie_id,

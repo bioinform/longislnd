@@ -28,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--lrsim", help="Path to lrsim JAR", default=os.path.join(mydir, "LRSim.jar"))
     parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
     parser.add_argument("--num_threads", type=int, help="maximum number of concurrent process", default=1)
+    parser.add_argument("--jvm_opt", type=str, help="options to jvm", default=" -Xmx2g ")
 
     args = parser.parse_args()
 
@@ -41,8 +42,9 @@ if __name__ == "__main__":
       fofn = fofn_cmp_h5[:-7]
       assert os.path.exists(fofn)
       prefix = os.path.join(args.model_dir, ".".join(map(str,(fofn_cmp_h5, args.read_type, args.flank, args.min_length, args.flank_mask))))
-      command_line = "java -Djava.library.path={hdf5} -jar {jar} sample {prefix} {fofncmph5} {read_type} {flank} {flank} {min_length} {flank_mask}".format(
+      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} sample {prefix} {fofncmph5} {read_type} {flank} {flank} {min_length} {flank_mask}".format(
           hdf5=args.hdf5,
+          jvm_opt=args.jvm_opt,
           jar=args.lrsim,
           prefix=prefix,
           fofncmph5=fofn_cmp_h5,
@@ -51,8 +53,9 @@ if __name__ == "__main__":
           min_length=args.min_length,
           flank_mask=args.flank_mask)
       works.append((command_line, prefix+".log", prefix+".err"))
-      command_line = "java -Djava.library.path={hdf5} -jar {jar} region {prefix} {fofn} {read_type} {qual} ".format(
+      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} region {prefix} {fofn} {read_type} {qual} ".format(
           hdf5=args.hdf5,
+          jvm_opt=args.jvm_opt,
           jar=args.lrsim,
           prefix=prefix,
           fofn=fofn,
