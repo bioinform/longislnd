@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import com.bina.lrsim.pb.RunInfo;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.pb.h5.bax.BaxH5Writer;
 import com.bina.lrsim.pb.PBReadBuffer;
@@ -42,7 +43,7 @@ public class FastqH5 {
 
     int currentFileIndex = 0;
     String movieName = moviePrefix + String.format("%05d", currentFileIndex++) + "_cFromFastq_s1_p0";
-    BaxH5Writer writer = new BaxH5Writer(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, 0);
+    BaxH5Writer writer = new BaxH5Writer(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, 0, new RunInfo());
     final int targetChunk = 200000000;
     int size = 0;
     for (int ii = 1; ii < args.length; ++ii) {
@@ -51,7 +52,7 @@ public class FastqH5 {
         if (size > targetChunk) {
           writer.close();
           movieName = moviePrefix + String.format("%05d", currentFileIndex++) + "_cFromFastq_s1_p0";
-          writer = new BaxH5Writer(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, 0);
+          writer = new BaxH5Writer(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, 0, new RunInfo());
           size = 0;
         }
         read.clear();

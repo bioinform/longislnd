@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.bina.lrsim.pb.RunInfo;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
@@ -25,6 +26,7 @@ public abstract class Samples {
   private long[] kmerEventCount;
   private List<int[]> lengths;
   private List<Integer> scores;
+  private final List<RunInfo> runinfos = new ArrayList<RunInfo>();
 
   private KmerIntIntCounter kmerRlenSlenCount;
 
@@ -66,6 +68,14 @@ public abstract class Samples {
     return lengths.size();
   }
 
+  public final int getNumRunInfo() {
+    return runinfos.size();
+  }
+
+  public final RunInfo getRunInfo(int index) {
+    return runinfos.get(index);
+  }
+
   public final int[] getLength(int index) {
     return Arrays.copyOf(lengths.get(index), lengths.get(index).length);
   }
@@ -105,6 +115,7 @@ public abstract class Samples {
     ArrayUtils.axpy(1, other.eventCount, eventCount);
     ArrayUtils.axpy(1, other.kmerEventCount, kmerEventCount);
     kmerRlenSlenCount.accumulate(other.kmerRlenSlenCount);
+    runinfos.addAll(other.runinfos);
     lengths.addAll(other.lengths);
     scores.addAll(other.scores);
     base_log.info("after accumulation " + lengths.size() + " " + scores.size() /*+ " " + this.toString()*/);
@@ -119,6 +130,7 @@ public abstract class Samples {
   public Samples(String prefix) throws IOException {
     loadIdx(prefix);
     kmerEventCount = new long[numKmer * EnumEvent.values().length];
+    loadRunInfo(prefix);
     loadStats(prefix);
     loadLengths(prefix);
     loadScores(prefix);
@@ -222,6 +234,15 @@ public abstract class Samples {
     file.close();
     fos.close();
     */
+  }
+
+  private final void loadRunInfo(String prefix) throws IOException {
+    try (ObjectInputStream runInfoIn = new ObjectInputStream(new FileInputStream(Samples.Suffixes.RUNINFO.filename(prefix)))) {
+      runinfos.add((RunInfo) runInfoIn.readObject());
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new IOException();
+    }
   }
 
   private final void loadStats(String prefix) throws IOException {

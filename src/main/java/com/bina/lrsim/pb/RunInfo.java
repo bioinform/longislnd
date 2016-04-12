@@ -24,6 +24,15 @@ public class RunInfo implements java.io.Serializable {
     sequencingKit = ExtractString(h5, "SequencingKit");
   }
 
+  public RunInfo() {
+    bindingKit = "100256000";
+    instrumentName = "42213";
+    movieName = "unknown";
+    platformName = "Springfield";
+    sequencingChemistry = "P5-C3";
+    sequencingKit = "100254800";
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
