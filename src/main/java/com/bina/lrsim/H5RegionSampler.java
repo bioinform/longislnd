@@ -113,19 +113,5 @@ public class H5RegionSampler {
       score_out.writeInt(numReads);
     }
     log.info("number of reads/subreads/bases: " + numReads + "/" + numSubReads + "/" + baseCount);
-    /*
-    try(ObjectInputStream runInfoIn = new ObjectInputStream(new FileInputStream(Samples.Suffixes.RUNINFO.filename(outPrefix))))
-    {
-      RunInfo obj = (RunInfo) runInfoIn.readObject();
-      System.out.println(obj.bindingKit);
-      System.out.println(obj.instrumentName);
-      System.out.println(obj.movieName);
-      System.out.println(obj.platformName);
-      System.out.println(obj.sequencingChemistry);
-      System.out.println(obj.sequencingKit);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    */
   }
 }

@@ -10,8 +10,11 @@ from multiprocessing import Pool
 mydir = os.path.dirname(os.path.realpath(__file__))
 
 def Worker(trio):
-   subprocess.check_call(trio[0], stdout=open(trio[1],"w"), stderr=open(trio[2], "w"), shell=True)
-   return trio
+   try:
+     subprocess.check_call(trio[0], stdout=open(trio[1],"w"), stderr=open(trio[2], "w"), shell=True)
+   except subprocess.CalledProcessError as e:
+     return (e.returncode, trio)
+   return (0, trio)
   
 if __name__ == "__main__":
     FORMAT = '%(levelname)s %(asctime)-15s %(name)-20s %(message)s'
@@ -64,7 +67,16 @@ if __name__ == "__main__":
       works.append((command_line, prefix+".r.log", prefix+".r.err"))
 
     pool = Pool(args.num_threads)
-    for trio in pool.imap_unordered(Worker, works):
-        logger.info("done with " + " ".join(trio))
+    error = False
+    for (returncode, trio) in pool.imap_unordered(Worker, works):
+        spec = " > ".join(trio)
+        if returncode == 0:
+            logger.info("done with " + spec)
+        else:
+            logger.error(str(returncode) + " returned by " + spec)
+            error = True
 
-    logger.info("Done.")
+    if error:
+      logger.error("Error detected")
+    else:
+      logger.info("Done.")
