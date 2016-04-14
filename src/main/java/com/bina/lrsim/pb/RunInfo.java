@@ -12,6 +12,7 @@ public class RunInfo implements java.io.Serializable {
   public final String instrumentName;
   public final String movieName;
   public final String platformName;
+  public final String runCode;
   public final String sequencingChemistry;
   public final String sequencingKit;
 
@@ -20,6 +21,7 @@ public class RunInfo implements java.io.Serializable {
     instrumentName = ExtractString(h5, "InstrumentName");
     movieName = ExtractString(h5, "MovieName");
     platformName = ExtractString(h5, "PlatformName");
+    runCode = ExtractString(h5, "RunCode");
     sequencingChemistry = ExtractString(h5, "SequencingChemistry");
     sequencingKit = ExtractString(h5, "SequencingKit");
   }
@@ -29,6 +31,7 @@ public class RunInfo implements java.io.Serializable {
     instrumentName = "42213";
     movieName = "unknown";
     platformName = "Springfield";
+    runCode = "2013-10-19_NGAT-213_CHM1h-3-Titration-P5C3_40-B01_2";
     sequencingChemistry = "P5-C3";
     sequencingKit = "100254800";
   }
@@ -47,6 +50,9 @@ public class RunInfo implements java.io.Serializable {
     sb.append(" ");
     sb.append("platformName: ");
     sb.append(platformName);
+    sb.append(" ");
+    sb.append("runCode: ");
+    sb.append(runCode);
     sb.append(" ");
     sb.append("sequencingChemistry: ");
     sb.append(sequencingChemistry);

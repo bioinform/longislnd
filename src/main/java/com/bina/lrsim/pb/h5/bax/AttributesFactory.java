@@ -188,7 +188,7 @@ class AttributesFactory {
         att.add("MovieName", new String[] {movieName}, null, false);
         att.add("PlatformId", new int[] {2}, null, false);
         att.add("PlatformName", new String[] {runInfo.platformName}, null, false);
-        att.add("RunCode", new String[] {"2013-10-19_NGAT-213_CHM1h-3-Titration-P5C3_40-B01_2"}, null, false);
+        att.add("RunCode", new String[] {runInfo.runCode}, null, false);
         att.add("RunId", new int[] {1}, null, false);
         att.add("SequencingChemistry", new String[] {runInfo.sequencingChemistry}, null, false);
         att.add("SequencingKit", new String[] {runInfo.sequencingKit}, null, false);
