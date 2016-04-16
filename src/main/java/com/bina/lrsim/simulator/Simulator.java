@@ -10,15 +10,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.bina.lrsim.bioinfo.*;
-import com.bina.lrsim.pb.ReadsWriter;
-import com.bina.lrsim.pb.ReadsWriterFactory;
+import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.pb.PBReadBuffer;
-import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
@@ -53,7 +50,7 @@ public class Simulator {
    * @param gen random number generator
    */
   public int simulate(final String path, final String movieName, final int firsthole, SamplesDrawer drawer, int totalBases, final Spec spec, RandomGenerator gen) throws IOException {
-    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, firsthole)) {
+    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, firsthole, drawer.getNumRunInfo() > 0 ? drawer.getRunInfo(0) : new RunInfo())) {
       long[] localBaseCounter = new long[baseCounter.length()];
       PBReadBuffer read = new PBReadBuffer(spec);
 

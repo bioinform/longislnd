@@ -26,8 +26,9 @@ public class BAMWriter extends ReadsWriter {
   private final EnumMap<EnumDat, byte[]> enumData = new EnumMap<>(EnumDat.class);
   private int numReads;
   private final FileWriter clrBed;
+  private final RunInfo runInfo;
 
-  public BAMWriter(Spec spec, String filename, String moviename, int firsthole) {
+  public BAMWriter(Spec spec, String filename, String moviename, int firsthole, RunInfo runInfo) {
     super(spec, filename, moviename, firsthole);
     FileWriter tmp = null;
     try {
@@ -36,10 +37,20 @@ public class BAMWriter extends ReadsWriter {
       tmp = null;
     }
     clrBed = tmp;
+    this.runInfo = runInfo;
     readGroupRecord = new SAMReadGroupRecord(this.moviename);
     readGroupRecord.setPlatform("PACBIO");
     readGroupRecord.setPlatformUnit(this.moviename);
-    readGroupRecord.setDescription("READTYPE=SUBREAD;DeletionQV=dq;DeletionTag=dt;InsertionQV=iq;MergeQV=mq;SubstitutionQV=sq;Ipd:CodecV1=ip;BINDINGKIT=100372700;SEQUENCINGKIT=100356200;BASECALLERVERSION=2.3.0.4.162638;FRAMERATEHZ=75.000000");
+    {
+      StringBuilder sb = new StringBuilder();
+      sb.append("READTYPE=SUBREAD;DeletionQV=dq;DeletionTag=dt;InsertionQV=iq;MergeQV=mq;SubstitutionQV=sq;Ipd:CodecV1=ip;");
+      sb.append("BINDINGKIT=");
+      sb.append(runInfo.bindingKit);
+      sb.append(";SEQUENCINGKIT=");
+      sb.append(runInfo.sequencingKit);
+      sb.append(";BASECALLERVERSION=2.3.0.4.162638;FRAMERATEHZ=75.000000");
+      readGroupRecord.setDescription(sb.toString());
+    }
 
     programRecord = new SAMProgramRecord("LongISLND");
     programRecord.setProgramName("LongISLND");

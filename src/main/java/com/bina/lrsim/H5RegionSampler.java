@@ -6,7 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bina.lrsim.pb.RunInfo;
 import com.bina.lrsim.pb.Spec;
+import ncsa.hdf.object.FileFormat;
+import ncsa.hdf.object.h5.H5File;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.pb.h5.bax.BaxH5Reader;
@@ -50,6 +53,7 @@ public class H5RegionSampler {
     long baseCount = 0;
 
     try (DataOutputStream lenOut = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.LENGTH.filename(outPrefix))));
+         ObjectOutputStream runInfoOut = new ObjectOutputStream(new FileOutputStream(Samples.Suffixes.RUNINFO.filename(outPrefix)));
          DataOutputStream scoreOut = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.SCORE.filename(outPrefix))))) {
       lenOut.writeInt(-1);
       scoreOut.writeInt(-1);
@@ -60,6 +64,7 @@ public class H5RegionSampler {
           String filename = line.trim(); // for each listed file
           if (filename.length() > 0) {
             log.info("processing " + filename);
+            runInfoOut.writeObject(new RunInfo(new H5File(filename, FileFormat.READ)));
             for (Region rr : new BaxH5Reader(filename, spec)) {
               if (rr.isSequencing() && rr.getReadScore() >= minReadScore) {
                 if (spec == Spec.CcsSpec) {

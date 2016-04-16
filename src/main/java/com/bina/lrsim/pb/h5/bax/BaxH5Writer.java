@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.bina.lrsim.bioinfo.Locus;
+import com.bina.lrsim.pb.RunInfo;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.HObject;
@@ -27,10 +28,12 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
 
   private final static Logger log = Logger.getLogger(BaxH5Writer.class.getName());
   private final DataBuffer buffer;
+  private final RunInfo runInfo;
 
-  public BaxH5Writer(Spec spec, String filename, String moviename, int firsthole) {
+  public BaxH5Writer(Spec spec, String filename, String moviename, int firsthole, RunInfo runInfo) {
     super(spec, filename, moviename, firsthole);
     buffer = new DataBuffer(super.spec, 100000);
+    this.runInfo = runInfo;
   }
 
   @Override
@@ -39,7 +42,7 @@ public class BaxH5Writer extends com.bina.lrsim.pb.ReadsWriter {
     H5File h5 = new H5File(this.filename, FileFormat.CREATE);
     try {
       h5.open();
-      AttributesFactory af = new AttributesFactory(size(), this.moviename, spec);
+      AttributesFactory af = new AttributesFactory(size(), this.moviename, spec, runInfo);
       writeGroups(h5, af);
       writeBaseCalls(h5, af);
       writeZWM(h5, this.firsthole);

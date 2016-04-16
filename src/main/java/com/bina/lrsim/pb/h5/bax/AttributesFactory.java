@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.bina.lrsim.pb.RunInfo;
 import com.bina.lrsim.pb.h5.Attributes;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.Spec;
@@ -19,7 +20,7 @@ class AttributesFactory {
   private Map<EnumDat, Attributes> ofDat = new EnumMap<>(EnumDat.class);
   private Map<EnumGroups, Attributes> ofGrp = new EnumMap<>(EnumGroups.class);
 
-  public AttributesFactory(int numReads, String movieName, Spec spec) {
+  public AttributesFactory(int numReads, String movieName, Spec spec, RunInfo runInfo) {
     {// for enum dat
       {
         Attributes att = new Attributes();
@@ -179,18 +180,18 @@ class AttributesFactory {
       }
       {
         Attributes att = new Attributes();
-        att.add("BindingKit", new String[] {"100256000"}, null, false);
+        att.add("BindingKit", new String[] {runInfo.bindingKit}, null, false);
         att.add("Control", new String[] {""}, null, false);
         att.add("InstrumentId", new int[] {1}, null, false);
-        att.add("InstrumentName", new String[] {"42213"}, null, false);
+        att.add("InstrumentName", new String[] {runInfo.instrumentName}, null, false);
         att.add("IsControlUsed", new String[] {"False"}, null, false);
         att.add("MovieName", new String[] {movieName}, null, false);
         att.add("PlatformId", new int[] {2}, null, false);
-        att.add("PlatformName", new String[] {"Springfield"}, null, false);
-        att.add("RunCode", new String[] {"2013-10-19_NGAT-213_CHM1h-3-Titration-P5C3_40-B01_2"}, null, false);
+        att.add("PlatformName", new String[] {runInfo.platformName}, null, false);
+        att.add("RunCode", new String[] {runInfo.runCode}, null, false);
         att.add("RunId", new int[] {1}, null, false);
-        att.add("SequencingChemistry", new String[] {"P5-C3"}, null, false);
-        att.add("SequencingKit", new String[] {"100254800"}, null, false);
+        att.add("SequencingChemistry", new String[] {runInfo.sequencingChemistry}, null, false);
+        att.add("SequencingKit", new String[] {runInfo.sequencingKit}, null, false);
         ofGrp.put(EnumGroups.RunInfo, att);
       }
       {

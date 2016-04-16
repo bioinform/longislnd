@@ -10,7 +10,7 @@ import java.io.File;
  * Created by bayolau on 1/8/16.
  */
 public class ReadsWriterFactory {
-  public static ReadsWriter makeWriter(Spec spec, String fileName, String movieName, int firstHole) {
-    return BamFileIoUtils.isBamFile(new File(fileName)) ? new BAMWriter(spec, fileName, movieName, firstHole) : new BaxH5Writer(spec, fileName, movieName, firstHole);
+  public static ReadsWriter makeWriter(Spec spec, String fileName, String movieName, int firstHole, RunInfo runInfo) {
+    return BamFileIoUtils.isBamFile(new File(fileName)) ? new BAMWriter(spec, fileName, movieName, firstHole, runInfo) : new BaxH5Writer(spec, fileName, movieName, firstHole, runInfo);
   }
 }
