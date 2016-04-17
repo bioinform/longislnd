@@ -21,7 +21,7 @@ import com.bina.lrsim.util.Monitor;
 public class SimulatorDriver {
   private final static Logger log = Logger.getLogger(SimulatorDriver.class.getName());
   private final static String usage = "parameters: out_dir movie_id read_type sequencing_mode fasta model_prefix total_bases sample_per seed [min fragment length ] [max fragment length] [min passes] [max passes] [" + EnumEvent.getListDescription() + "]";
-  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "clrbam"));
+  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "clrbam", "fastq"));
 
   /**
    * create a file of simulated reads based on the given FASTA and model
@@ -72,7 +72,7 @@ public class SimulatorDriver {
     }
 
     if (!VALID_READ_TYPES.contains(readType)) {
-      log.error("read_type must be clrbam, bax or ccs");
+      log.error("read_type must be fastq, clrbam, bax or ccs");
       log.info(usage);
       System.exit(1);
     }
