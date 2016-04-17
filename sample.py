@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument("--lrsim", help="Path to lrsim JAR", default=os.path.join(mydir, "LRSim.jar"))
     parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
     parser.add_argument("--num_threads", type=int, help="maximum number of concurrent process", default=1)
-    parser.add_argument("--jvm_opt", type=str, help="options to jvm", default=" -Xmx2g ")
+    parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
 
     args = parser.parse_args()
 
