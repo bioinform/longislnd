@@ -118,10 +118,12 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
 <p>Usage of the Java JAR can be carried out/demonstrated by the following convinient Python scripts.</p>
 <code>simulate.py</code>
 <ul>
+  <li>execute with <code>-h</code> for a list of options</li>
   <li>simulate sequences given a model and a genome</li>
 </ul>
 <code>sample.py</code>
 <ul>
+  <li>execute with <code>-h</code> for a list of options</li>
   <li>please refer to the Example below for input preparation.</li>
   <li>build model used by <code>simulate.py.</code></li>
   <li>for PacBio's read, the script will look for files whose names are:</li>
@@ -131,32 +133,53 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
   </ul>
 </ul>
 
-<h2>Example</h2>
-<p>This is a toy demonstration of LongISLND, from downloading data, to alignment, to learning, and to simulation. Please execute in order.</p>
-<p>Change working directory to <code>sampling_example</code>.</p>
-<ul>
-  <li><code>setup_smrt23.sh</code></li>
+<h2>Examples</h2>
+<p>This is a toy demonstration of LongISLND, from downloading data, to alignment, to learning, and to simulation.</p>
+<h3>Preparation</h3>
+<p>This sets up PacBio's SMRTAnalysis2.3, if it's not already available to you. All the <code>download_and_align.sh</code> scripts assume an installation location of <code>sampling_example/smrtanalysis</code>, please change those scripts if you want to use your own version ofr SMARTAnalysis.</p>
+<ol>
+  <li>Change working directory to <code>sampling_example</code>.</li>
+  <li>execute <code>setup_smrt23.sh</code></li>
   <ul>
     <li>download and build PacBio's SMRTAnalysis2.3</li>
     <li>(to avoid complications) select NONE in answering the question "What job management system will you be using?"
   </ul>
-</ul>
-<p>Change working directory into <code>sampling_example/ecoli</code>.</p>
+</ol>
+
+<h3>P6 E. coli</h3>
+<ol>
+<li>Change working directory to <code>sampling_example/ecoli</code>.</li>
+<li>execute <code>download_and_align.sh</code></li>
 <ul>
-<li><code>download_and_align.sh</code></li>
-<ul>
-  <li>assume <code>setup_smrt23.sh</code> was executed in the directory <code>sampling_example</code></li>
-  <li>download and align ecoli data</li>
-  <li>generate *.fofn and *.fofn.cmp5 used by <code>sample.py</code>
+  <li>download ecoli data and assembly</li>
+  <li>align to corresponding assembly</li>
+  <li>generate *.fofn and *.fofn.cmp5 used by <code>sample.py</code></li>
 </ul>
-</ul>
-<ul>
-  <li><code>learn_and_simulate.sh</code></li>
+  <li>execute <code>learn_and_simulate.sh</code></li>
   <ul>
-    <li>assume <code>download_and_align.sh</code> succeeded</li>
-    <li>learn model from aligned data</li>
-    <li>simulate reads and output in PacBio's BAM format</li>
+    <li>invoke <code>sample.py</code> to learn model from aligned data</li>
+    <li>invoke <code>simulate.py</code> to simulate reads and output in PacBio's BAM format, stored in the default <code>out</code> directory.</li>
   </ul>
+</ol>
+<!--
+<h3>P6 CHM1</h3>
+<p>This is storage/io/compute-intensive due to the scale of the human-scale sequencing data.</p>
+<ol>
+<li>Change working directory to <code>sampling_example/p6_chm1</code>.</li>
+<li>execute <code>download_and_align.sh</code></li>
+<ul>
+  <li>download a subset of P6 CHM1 data</li>
+  <li>download the MHAP assembly</li>
+  <li>align to corresponding assembly</li>
+  <li>generate *.fofn and *.fofn.cmp5 used by <code>sample.py</code></li>
 </ul>
+  <li>execute <code>learn.sh</code></li>
+  <ul>
+    <li>learn model from aligned data</li>
+  </ul>
+  <li>please refer to <code>sampling_example/ecoli/learn_and_simulate.sh</code> for a single-line simulation command</li>
+</ol>
+-->
+
 
 </body>
