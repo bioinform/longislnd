@@ -49,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_dir", help="Directory with the model", default=os.path.join(mydir, "run"))
     parser.add_argument("--out", help="Output directory", default="out")
     parser.add_argument("--movie_id", help="Movie id", default="clrbam_p6")
-    parser.add_argument("--read_type", help="Read type", default="clrbam")
+    parser.add_argument("--read_type", help="Read type. For example, fastq/bax/clrbam for FASTQ/PacBio-H5/PacBio-BAM.", default="clrbam")
     parser.add_argument("--sequencing_mode", help="Sequencing mode", default="shotgun")
     parser.add_argument("--coverage", help="Coverage", type=float, default=50)
     parser.add_argument("--sample_per", help="Sample per", type=int, default=100)
@@ -58,9 +58,11 @@ if __name__ == "__main__":
     parser.add_argument("--max_frag", help="Maximum length of fragment", type=int, default=1000000000)
     parser.add_argument("--min_pass", help="Minimum passes", type=int, default=1)
     parser.add_argument("--max_pass", help="Maximum passes", type=int, default=1000000000)
+    parser.add_argument("--custom_rate", help="i:d:s:m, where i/d/s/m are integer-frequency of insertion/deletion/substitution/match. For example, 0:0:0:1 means perfect sequencing.", type=str, default=None)
     parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
-
     args = parser.parse_args()
+    if args.custom_rate is None:
+      args.custom_rate = ""
 
     if not os.path.isdir(args.out):
         os.makedirs(args.out)
@@ -73,7 +75,7 @@ if __name__ == "__main__":
     # Get the model prefix
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
-    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass}".format(
+    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass} {custom_rate}".format(
         hdf5=args.hdf5,
         jvm_opt=args.jvm_opt,
         jar=args.lrsim,
@@ -89,7 +91,9 @@ if __name__ == "__main__":
         min_frag=args.min_frag,
         max_frag=args.max_frag,
         min_pass=args.min_pass,
-        max_pass=args.max_pass)
+        max_pass=args.max_pass,
+        custom_rate=args.custom_rate
+        )
     logger.info("Running {}".format(command_line))
     subprocess.check_call(command_line, stdout=open(os.path.join(args.out, "run.out"), "w"), stderr=open(os.path.join(args.out, "run.log"), "w"), shell=True)
     logger.info("Done.")
