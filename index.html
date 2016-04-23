@@ -103,7 +103,7 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
 <p>Github repository: <a href="https://github.com/bioinform/longislnd" onclick="trackOutboundLink('https://github.com/bioinform/longislnd'); return false;">https://github.com/bioinform/longislnd</a></p>
 <h2>System Requirements</h2>
 <p>
-   The following Python packages must be installed:
+   The following must be installed:
    <ul>
       <li>Java 1.7</li>
       <li>Maven. if in doubt, check <a href="https://github.com/bayolau/build_env/blob/master/maven3.3.9" onclick="trackOutboundLink('https://github.com/bayolau/build_env/blob/master/maven3.3.9'); return false;">https://github.com/bayolau/build_env/blob/master/maven3.3.9</a> for build and load examples</li>
@@ -161,7 +161,6 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
     <li>invoke <code>simulate.py</code> to simulate reads and output in PacBio's BAM format, stored in the default <code>out</code> directory.</li>
   </ul>
 </ol>
-<!--
 <h3>P6 CHM1</h3>
 <p>This is storage/io/compute-intensive due to the scale of the human-scale sequencing data.</p>
 <ol>
@@ -176,10 +175,10 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
   <li>execute <code>learn.sh</code></li>
   <ul>
     <li>learn model from aligned data</li>
+    <li>NUM_THREADS can be changed to parallelized learning. At least 3GB per thread is recommended.</li>
   </ul>
-  <li>please refer to <code>sampling_example/ecoli/learn_and_simulate.sh</code> for a single-line simulation command</li>
+  <li>please use <code>simulate.py</code> as in  <code>sampling_example/ecoli/learn_and_simulate.sh</code> to simulate</li>
 </ol>
--->
 
 
 </body>
