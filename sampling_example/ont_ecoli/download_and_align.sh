@@ -11,9 +11,12 @@ curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA411/ERA411499/oxfordnanopore_native/flowcel
 curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA411/ERA411499/oxfordnanopore_native/flowcell_33_LomanLabz_PC_K12_0.4SPRI_Histag.tar | tar x
 
 #ERX708231
-curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA411/ERA411499/oxfordnanopore_native/flowcell_39.tar | tarx
+curl ftp://ftp.sra.ebi.ac.uk/vol1/ERA411/ERA411499/oxfordnanopore_native/flowcell_39.tar | tar x
 
-#tar xf flowcell_20_LomanLabz_PC_Ecoli_K12_R7.3.tar
-#tar xf flowcell_32_LomanLabz_K12_His_tag.tar
-#tar xf flowcell_33_LomanLabz_PC_K12_0.4SPRI_Histag.tar
-#tar xf flowcell_39.tar
+#extract fastq
+JVM_OPT=-Djava.library.path=../../build/lib
+JAR=../../LRSim.jar
+java ${JVM_OPT} -jar ${JAR} fast5extract fastq flowcell_20
+java ${JVM_OPT} -jar ${JAR} fast5extract fastq flowcell_32
+java ${JVM_OPT} -jar ${JAR} fast5extract fastq flowcell_33
+java ${JVM_OPT} -jar ${JAR} fast5extract fastq flowcell_39_K12_Histag

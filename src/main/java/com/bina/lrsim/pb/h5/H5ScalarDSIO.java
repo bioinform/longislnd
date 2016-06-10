@@ -4,6 +4,7 @@ package com.bina.lrsim.pb.h5;
  * Created by bayo on 5/1/15.
  */
 
+import com.bina.lrsim.util.H5Wrapper;
 import ncsa.hdf.object.Dataset;
 import ncsa.hdf.object.h5.H5File;
 import ncsa.hdf.object.h5.H5ScalarDS;
@@ -22,6 +23,10 @@ public class H5ScalarDSIO {
     } catch (Exception e) { // H5 API throws this base class
       throw new IOException("failed to read from " + path);
     }
+  }
+
+  public static Object Read(H5Wrapper h5, String path) throws IOException {
+    return Read(h5.getH5(), path);
   }
 
   public static Dataset Write(H5File h5, String path, Object buffer, long[] dims, boolean isSigned) throws IOException {

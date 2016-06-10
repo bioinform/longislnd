@@ -51,6 +51,10 @@ public class LRSim {
         LengthInspector.main(pass_args);
         break;
 
+      case "fast5extract": // length inspection
+        Fast5Extract.main(pass_args);
+        break;
+
       default:
         System.err.println(usage);
     }
