@@ -70,7 +70,7 @@ public class H5Sampler {
             log.error("please specify reference file with --reference");
           }
           else if(this.reference.exists()) {
-            return new SamReader(this.inFile, this.reference.toString());
+            return new SamReader(new File(this.inFile), this.reference);
           }
           else {
             log.error("missing reference file: --reference "+ this.reference.toString());
