@@ -1,10 +1,12 @@
 package com.bina.lrsim;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import htsjdk.samtools.BamFileIoUtils;;
 import htsjdk.samtools.util.IOUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.CmdLineException;
@@ -53,7 +55,7 @@ public class H5Sampler {
     private int flankMask;
 
     @Option(name = "--reference", required = false, usage = "path to reference file")
-    private String reference = "";
+    private File reference = null;
 
     @Option(name = "hpAnchor", required = false, hidden = true, usage = "homopolymer anchor")
     private int hpAnchor = 2;
@@ -63,30 +65,36 @@ public class H5Sampler {
 
     EventGroupFactory getGroupFactory() {
       if (readType.equals("fastq")) {
-        if (this.inFile.endsWith(IOUtil.SAM_FILE_EXTENSION)) {
-          return new SamReader(this.inFile, this.reference);
+        if (this.inFile.endsWith(IOUtil.SAM_FILE_EXTENSION) || this.inFile.endsWith(BamFileIoUtils.BAM_FILE_EXTENSION)) {
+          if(this.reference == null) {
+            log.error("please specify reference file with --reference");
+          }
+          else if(this.reference.exists()) {
+            return new SamReader(this.inFile, this.reference.toString());
+          }
+          else {
+            log.error("missing reference file: --reference "+ this.reference.toString());
+          }
         } else {
           log.error("fastq spec is supported only with SAM/BAM input, please contact developer if more is needed");
-          return null;
         }
+        return null;
       } else if (readType.equals("bax")) {
         if (this.inFile.endsWith("cmp.h5")) {
           return new CmpH5Reader(this.inFile, Spec.BaxSampleSpec);
         } else {
           log.error("bax spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
-          return null;
         }
       } else if (readType.equals("ccs")) {
         if (this.inFile.endsWith("cmp.h5")) {
-          log.error("bax spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
           return new CmpH5Reader(this.inFile, Spec.CcsSpec);
         } else {
-          return null;
+          log.error("ccs spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
         }
       } else {
         log.error("valid --readType: " + StringUtils.join(VALID_READ_TYPES, ", "));
-        return null;
       }
+      return null;
     }
 
     private ProgramOptions() {}
