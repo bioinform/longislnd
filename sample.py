@@ -45,7 +45,7 @@ if __name__ == "__main__":
       fofn = fofn_cmp_h5[:-7]
       assert os.path.exists(fofn)
       prefix = os.path.join(args.model_dir, ".".join(map(str,(fofn_cmp_h5, args.read_type, args.flank, args.min_length, args.flank_mask))))
-      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} sample {prefix} {fofncmph5} {read_type} {flank} {flank} {min_length} {flank_mask}".format(
+      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} sample --outPrefix {prefix} --inFile {fofncmph5} --readType {read_type} --leftFlank {flank} --rightFlank {flank} --minLength {min_length} --flankMask {flank_mask}".format(
           hdf5=args.hdf5,
           jvm_opt=args.jvm_opt,
           jar=args.lrsim,
