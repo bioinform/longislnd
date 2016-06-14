@@ -6,11 +6,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.bina.lrsim.util.ProgramOptions;
 import htsjdk.samtools.BamFileIoUtils;;
 import htsjdk.samtools.util.IOUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.apache.log4j.Logger;
 
@@ -26,12 +25,9 @@ import com.bina.lrsim.simulator.samples.SamplesCollector;
 public class H5Sampler {
   private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
 
-  private static class ProgramOptions {
-    private final static Logger log = Logger.getLogger(ProgramOptions.class.getName());
+  public static class ModuleOptions extends ProgramOptions {
+    private final static Logger log = Logger.getLogger(ModuleOptions.class.getName());
     private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq"));
-
-    @Option(name = "--help", aliases = "-h", usage = "print help message")
-    private boolean help;
 
     @Option(name = "--outPrefix", required = true, usage = "prefix of output model files")
     private String outPrefix;
@@ -63,7 +59,7 @@ public class H5Sampler {
     @Option(name = "--noWrite", required = false, hidden = true, usage = "do not write model")
     private boolean noWrite;
 
-    EventGroupFactory getGroupFactory() {
+    private EventGroupFactory getGroupFactory() {
       if (readType.equals("fastq")) {
         if (this.inFile.endsWith(IOUtil.SAM_FILE_EXTENSION) || this.inFile.endsWith(BamFileIoUtils.BAM_FILE_EXTENSION)) {
           if(this.reference == null) {
@@ -96,33 +92,13 @@ public class H5Sampler {
       }
       return null;
     }
-
-    private ProgramOptions() {}
-
-    static private ProgramOptions parse(String[] args) {
-      ProgramOptions ret = new ProgramOptions();
-      CmdLineParser parser = new CmdLineParser(ret);
-      try {
-        parser.parseArgument(args);
-      } catch (CmdLineException e) {
-        log.error(e.getMessage());
-        ret.help = true;
-      }
-      if (ret.help) {
-        System.err.println("parameters for " + H5Sampler.class.getName() + " module");
-        parser.printUsage(System.err);
-        return null;
-      } else {
-        return ret;
-      }
-    }
   }
 
   /**
    * collect context-specific samples of reference->read edits from an alignment file
    */
   public static void main(String[] args) throws IOException {
-    final ProgramOptions po = ProgramOptions.parse(args);
+    final ModuleOptions po = ProgramOptions.parse(args, ModuleOptions.class);
     if (po == null) {
       System.exit(1);
     }
