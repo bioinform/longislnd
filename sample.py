@@ -66,7 +66,7 @@ if __name__ == "__main__":
           flank_mask=args.flank_mask,
           reference=args.reference)
       works.append((command_line, prefix+".log", prefix+".err"))
-      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} region {prefix} {read_file} {read_type} {qual} ".format(
+      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} region --outPrefix {prefix} --inFile {read_file} --readType {read_type} --minReadScore {qual} ".format(
           hdf5=args.hdf5,
           jvm_opt=args.jvm_opt,
           jar=args.lrsim,
@@ -74,7 +74,7 @@ if __name__ == "__main__":
           read_file=read_file,
           read_type=args.read_type,
           qual=args.qual)
-#      works.append((command_line, prefix+".r.log", prefix+".r.err"))
+      works.append((command_line, prefix+".r.log", prefix+".r.err"))
 
     pool = Pool(args.num_threads)
     error = False
