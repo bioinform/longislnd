@@ -2,6 +2,7 @@ package com.bina.lrsim.sam;
 
 import java.util.Iterator;
 
+import com.bina.lrsim.bioinfo.EnumBP;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.PairwiseAlignment;
@@ -81,6 +82,23 @@ public class SamAlignment implements EventGroup {
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext) {
           ref[refNext] = ' ';
         }
+      }
+    }
+    if(samRecord.getReadNegativeStrandFlag() && ref.length > 0) {
+      byte btmp;
+      int itmp;
+      for(int front = 0, back = ref.length - 1; front <= back; ++front, --back) {
+        btmp = EnumBP.ascii_rc(ref[front]);
+        ref[front] = EnumBP.ascii_rc(ref[back]);
+        ref[back] = btmp;
+
+        btmp = EnumBP.ascii_rc(seq[front]);
+        seq[front] = EnumBP.ascii_rc(seq[back]);
+        seq[back] = btmp;
+
+        itmp = seqDataIdx[front];
+        seqDataIdx[front] = seqDataIdx[back];
+        seqDataIdx[back] = itmp;
       }
     }
     // log.info(new String(seq));
