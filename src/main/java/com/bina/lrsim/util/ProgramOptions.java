@@ -19,15 +19,11 @@ abstract public class ProgramOptions {
     Derived ret = null;
     try {
       ret = c.newInstance();
-    } catch (InstantiationException e) {
-      log.error(e.getMessage());
-      return null;
-    } catch (IllegalAccessException e) {
+    } catch (ReflectiveOperationException e) {
       log.error(e.getMessage());
       return null;
     }
     CmdLineParser parser = new CmdLineParser(ret);
-    boolean help = false;
     try {
       parser.parseArgument(args);
     } catch (CmdLineException e) {
@@ -38,9 +34,7 @@ abstract public class ProgramOptions {
       System.err.println("parameters for " + c.getName() + " module");
       parser.printUsage(System.err);
       return null;
-    } else {
-      return ret;
     }
+    return ret;
   }
-
 }

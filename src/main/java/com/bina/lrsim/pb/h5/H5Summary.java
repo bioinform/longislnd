@@ -4,7 +4,6 @@ package com.bina.lrsim.pb.h5;
  * Created by bayo on 4/30/15.
  */
 
-import com.bina.lrsim.LongISLND;
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 import ncsa.hdf.object.FileFormat;
@@ -18,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class H5Summary {
+  private final static Logger log = Logger.getLogger(H5Summary.class.getName());
   public static void list_data(H5File h5, String full_path) throws Exception {
     H5ScalarDS obj = (H5ScalarDS) h5.get(full_path);
     obj.init();
@@ -77,5 +77,4 @@ public class H5Summary {
     }
   }
 
-  private final static Logger log = Logger.getLogger(LongISLND.class.getName());
 }
