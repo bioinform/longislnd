@@ -111,6 +111,7 @@ public class SamAlignment implements EventGroup {
 
   @Override
   public byte getData(EnumDat ed, int seqIdx) {
+    if (ed == EnumDat.QualityValue) { return this.samRecord.getBaseQualities()[seqIdx]; }
     return 0;
   }
 
