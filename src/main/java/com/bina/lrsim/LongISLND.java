@@ -28,11 +28,11 @@ public class LongISLND {
         break;
 
       case "sample": // run sampling
-        AlignmentSampler.main(pass_args);
+        H5Sampler.main(pass_args);
         break;
 
       case "region": // run sampling of regions
-        ReadsSampler.main(pass_args);
+        H5RegionSampler.main(pass_args);
         break;
 
       case "h5fastq": // h5 to fastq conversion
