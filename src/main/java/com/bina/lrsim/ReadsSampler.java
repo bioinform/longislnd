@@ -24,8 +24,8 @@ import org.kohsuke.args4j.Option;
 /**
  * Created by bayo on 5/11/15.
  */
-public class H5RegionSampler {
-  private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
+public class ReadsSampler {
+  private final static Logger log = Logger.getLogger(ReadsSampler.class.getName());
   private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq"));
 
   public static class ModuleOptions extends ProgramOptions {

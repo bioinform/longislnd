@@ -22,8 +22,8 @@ import com.bina.lrsim.simulator.samples.SamplesCollector;
 /**
  * Created by bayo on 5/11/15.
  */
-public class H5Sampler {
-  private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
+public class AlignmentSampler {
+  private final static Logger log = Logger.getLogger(AlignmentSampler.class.getName());
 
   public static class ModuleOptions extends ProgramOptions {
     private final static Logger log = Logger.getLogger(ModuleOptions.class.getName());

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate reads from reference FASTA", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--fasta", help="FASTA to simulate reads from", required=True)
-    parser.add_argument("--lrsim", help="Path to lrsim JAR", default=os.path.join(mydir, "LRSim.jar"))
+    parser.add_argument("--jar", help="Path to LongISLND JAR", default=os.path.join(mydir, "LongISLND.jar"))
     parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
     parser.add_argument("--model_dir", help="Directory with the model", default=os.path.join(mydir, "run"))
     parser.add_argument("--out", help="Output directory", default="out")
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass} {custom_rate}".format(
         hdf5=args.hdf5,
         jvm_opt=args.jvm_opt,
-        jar=args.lrsim,
+        jar=args.jar,
         out=args.out,
         movie_id=args.movie_id,
         read_type=args.read_type,

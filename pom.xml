@@ -57,11 +57,11 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputFile>LRSim.jar</outputFile>
+                            <outputFile>LongISLND.jar</outputFile>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.bina.lrsim.LRSim
+                                    <mainClass>com.bina.lrsim.LongISLND
                                     </mainClass>
                                 </transformer>
                             </transformers>

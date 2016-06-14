@@ -6,10 +6,10 @@ import java.util.Arrays;
 /**
  * Created by bayo on 4/30/15.
  */
-public class LRSim {
+public class LongISLND {
 
-  private static String VERSION = "LRSim " + LRSim.class.getPackage().getImplementationVersion();
-  private static String usage = "java -jar LRSim.jar <mode> [parameters] \n" + "       mode    -- simulate/sample/region\n" + "       parameters -- see mode description by not specifying parameters\n";
+  private static String VERSION = "LongISLND " + LongISLND.class.getPackage().getImplementationVersion();
+  private static String usage = "java -jar LongISLND.jar <mode> [parameters] \n" + "       mode    -- simulate/sample/region\n" + "       parameters -- see mode description by not specifying parameters\n";
 
   public static void main(String[] args) throws IOException {
 
@@ -28,11 +28,11 @@ public class LRSim {
         break;
 
       case "sample": // run sampling
-        H5Sampler.main(pass_args);
+        AlignmentSampler.main(pass_args);
         break;
 
       case "region": // run sampling of regions
-        H5RegionSampler.main(pass_args);
+        ReadsSampler.main(pass_args);
         break;
 
       case "h5fastq": // h5 to fastq conversion
