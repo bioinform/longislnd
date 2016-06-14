@@ -24,8 +24,9 @@ public class Fast5ConverterVisitor extends SimpleFileVisitor<Path> implements Cl
   private final static Set<String> VALID_OUTPUT_TYPES = new HashSet<>(Arrays.asList("fastq", "fq"));
 
   final private Writer writer;
+  final private String h5Loc;
 
-  public Fast5ConverterVisitor(String prefix, String type) throws IOException {
+  public Fast5ConverterVisitor(String prefix, String type, String h5Loc) throws IOException {
     if (!isOutputSupported(type)) { throw new UnsupportedOperationException("valid formats are " + supportedTypesString()); }
     final File filename = new File(prefix + "." + type);
     if (filename.exists()) {
@@ -33,6 +34,7 @@ public class Fast5ConverterVisitor extends SimpleFileVisitor<Path> implements Cl
       if (filename.isDirectory()) { throw new IOError(new Exception(filename.toString() + " exists as a directory")); }
     }
     this.writer = new BufferedWriter(new FileWriter(filename));
+    this.h5Loc = h5Loc;
   }
 
   public static boolean isOutputSupported(String type) {
@@ -48,11 +50,11 @@ public class Fast5ConverterVisitor extends SimpleFileVisitor<Path> implements Cl
     final String sfile = file.toString();
     if (FilenameUtils.getExtension(sfile).equals("fast5")) {
       try (H5Wrapper h5 = new H5Wrapper(sfile, FileFormat.READ)) {
-        String[] data = (String[]) H5ScalarDSIO.Read(h5, "/Analyses/Basecall_2D_000/BaseCalled_2D/Fastq");
+        String[] data = (String[]) H5ScalarDSIO.Read(h5, this.h5Loc);
         this.writer.write(data[0]);
         this.writer.write('\n');
       } catch (IOException e) {
-        log.error("failed to extract from " + sfile, e);
+        log.error("failed to extract from " + sfile + " at " + this.h5Loc, e);
       }
     }
     return FileVisitResult.CONTINUE;

@@ -17,7 +17,7 @@ declare -a FOLDERS=(flowcell_20 flowcell_32 flowcell_33 flowcell_39_K12_Histag)
 
 #extract fastq
 JVM_OPT=-Djava.library.path=../../build/lib
-JAR=../../LRSim.jar
+JAR=../../LongISLND.jar
 for FOLDER in "${FOLDERS[@]}"
 do
   java ${JVM_OPT} -jar ${JAR} fast5extract fastq ${FOLDER}
