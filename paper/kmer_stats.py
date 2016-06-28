@@ -71,7 +71,8 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='compute kmer stats')
   parser.add_argument('-k', type=int, default = None, help='kmer size')
   parser.add_argument('--pattern', default="KMER_STATS:", type=str,help='pattern to look for')
+  parser.add_argument('--directory', default="", help="glob *summary this directory)")
   args = parser.parse_args()
 
-  files = glob.glob("*summary")
+  files = glob.glob(args.directory+"*summary")
   process(files, args.pattern, args.k)
