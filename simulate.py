@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 import glob
+import sys
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 
@@ -97,5 +98,10 @@ if __name__ == "__main__":
         custom_rate=args.custom_rate
         )
     logger.info("Running {}".format(command_line))
-    subprocess.check_call(command_line, stdout=open(os.path.join(args.out, "run.out"), "w"), stderr=open(os.path.join(args.out, "run.log"), "w"), shell=True)
+    try:
+        subprocess.check_call(command_line, stdout=open(os.path.join(args.out, "run.out"), "w"), stderr=open(os.path.join(args.out, "run.log"), "w"), shell=True)
+    except:
+        logger.error("Failed to run {}".format(command_line))
+        logger.error("Please check logs : %s and %s"%(os.path.join(args.out, "run.out"), os.path.join(args.out, "run.log")))
+        sys.exit(1)
     logger.info("Done.")
