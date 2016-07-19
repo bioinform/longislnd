@@ -45,7 +45,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate reads from reference FASTA", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--fasta", help="FASTA to simulate reads from", required=True)
-    parser.add_argument("--lrsim", help="Path to lrsim JAR", default=os.path.join(mydir, "LRSim.jar"))
+    parser.add_argument("--jar", help="Path to LongISLND JAR", default=os.path.join(mydir, "LongISLND.jar"))
     parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
     parser.add_argument("--model_dir", help="Directory with the model", default=os.path.join(mydir, "run"))
     parser.add_argument("--out", help="Output directory", default="out")
@@ -64,6 +64,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.custom_rate is None:
       args.custom_rate = ""
+    else:
+      args.custom_rate = " --eventsFrequency %s "%(args.custom_rate)
 
     if not os.path.isdir(args.out):
         os.makedirs(args.out)
@@ -76,10 +78,10 @@ if __name__ == "__main__":
     # Get the model prefix
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
-    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate {out} {movie_id} {read_type} {seq_mode} {fasta} {model_prefix} {num_bases} {sample_per} {seed} {min_frag} {max_frag} {min_pass} {max_pass} {custom_rate}".format(
+    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate --outDir {out} --identifier {movie_id} --readType {read_type} --sequencingMode {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases} --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} {custom_rate}".format(
         hdf5=args.hdf5,
         jvm_opt=args.jvm_opt,
-        jar=args.lrsim,
+        jar=args.jar,
         out=args.out,
         movie_id=args.movie_id,
         read_type=args.read_type,

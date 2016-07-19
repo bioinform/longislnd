@@ -1,11 +1,16 @@
 package com.bina.lrsim;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.bina.lrsim.util.ProgramOptions;
+import htsjdk.samtools.BamFileIoUtils;;
 import htsjdk.samtools.util.IOUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.kohsuke.args4j.Option;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.pb.h5.cmp.CmpH5Reader;
@@ -19,45 +24,88 @@ import com.bina.lrsim.simulator.samples.SamplesCollector;
  */
 public class H5Sampler {
   private final static Logger log = Logger.getLogger(H5Sampler.class.getName());
-  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs"));
-  private final static String usage = "parameters: out_prefix in_file read_type left_flank right_flank min_length flank_mask";
+
+  public static class ModuleOptions extends ProgramOptions {
+    private final static Logger log = Logger.getLogger(ModuleOptions.class.getName());
+    private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq"));
+
+    @Option(name = "--outPrefix", required = true, usage = "prefix of output model files")
+    private String outPrefix;
+
+    @Option(name = "--inFile", required = true, usage = "input file name")
+    private String inFile;
+
+    @Option(name = "--readType", required = true, usage = "type of input data")
+    private String readType;
+
+    @Option(name = "--leftFlank", required = true, usage = "number of bp on the left flank")
+    private int leftFlank;
+
+    @Option(name = "--rightFlank", required = true, usage = "number of bp on the right flank")
+    private int rightFlank;
+
+    @Option(name = "--minLength", required = true, usage = "minimum read length")
+    private int minLength;
+
+    @Option(name = "--flankMask", required = true, usage = "discard this many bp from the beginning and end of the read")
+    private int flankMask;
+
+    @Option(name = "--reference", required = false, usage = "path to reference file")
+    private File reference = null;
+
+    @Option(name = "hpAnchor", required = false, hidden = true, usage = "homopolymer anchor")
+    private int hpAnchor = 2;
+
+    @Option(name = "--noWrite", required = false, hidden = true, usage = "do not write model")
+    private boolean noWrite;
+
+    private EventGroupFactory getGroupFactory() {
+      if (readType.equals("fastq")) {
+        if (this.inFile.endsWith(IOUtil.SAM_FILE_EXTENSION) || this.inFile.endsWith(BamFileIoUtils.BAM_FILE_EXTENSION)) {
+          if(this.reference == null) {
+            log.error("please specify reference file with --reference");
+          }
+          else if(this.reference.exists()) {
+            return new SamReader(new File(this.inFile), this.reference);
+          }
+          else {
+            log.error("missing reference file: --reference "+ this.reference.toString());
+          }
+        } else {
+          log.error("fastq spec is supported only with SAM/BAM input, please contact developer if more is needed");
+        }
+        return null;
+      } else if (readType.equals("bax")) {
+        if (this.inFile.endsWith("cmp.h5")) {
+          return new CmpH5Reader(this.inFile, Spec.BaxSampleSpec);
+        } else {
+          log.error("bax spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
+        }
+      } else if (readType.equals("ccs")) {
+        if (this.inFile.endsWith("cmp.h5")) {
+          return new CmpH5Reader(this.inFile, Spec.CcsSpec);
+        } else {
+          log.error("ccs spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
+        }
+      } else {
+        log.error("valid --readType: " + StringUtils.join(VALID_READ_TYPES, ", "));
+      }
+      return null;
+    }
+  }
 
   /**
    * collect context-specific samples of reference->read edits from an alignment file
-   * 
-   * @param args see log.info
    */
   public static void main(String[] args) throws IOException {
-    if (args.length < 7) {
-      log.info(usage);
-      System.exit(1);
-    }
-    final String outPrefix = args[0];
-    final String inFile = args[1];
-    final String readType = args[2];
-    final int leftFlank = Integer.parseInt(args[3]);
-    final int rightFlank = Integer.parseInt(args[4]);
-    final int minLength = Integer.parseInt(args[5]);
-    final int flankMask = Integer.parseInt(args[6]);
-    final int hpAnchor = 2;
-
-    if (!VALID_READ_TYPES.contains(readType)) {
-      log.error("read_type must be bax or ccs");
-      log.info(usage);
+    final ModuleOptions po = ProgramOptions.parse(args, ModuleOptions.class);
+    if (po == null) {
       System.exit(1);
     }
 
-    final Spec spec = readType.equals("bax") ? Spec.BaxSampleSpec : Spec.CcsSpec;
-
-    EventGroupFactory groupFactory = null;
-    final boolean writeEvents;
-    if (inFile.endsWith(IOUtil.SAM_FILE_EXTENSION) && args.length > 7) {
-      log.info("sam mode");
-      groupFactory = new SamReader(inFile, args[7]);
-      writeEvents = false;
-    } else {
-      groupFactory = new CmpH5Reader(inFile, spec);
-      writeEvents = true;
+    final EventGroupFactory groupFactory = po.getGroupFactory();
+    if (groupFactory == null) {
+      System.exit(1);
     }
 
 /*
@@ -67,9 +115,8 @@ public class H5Sampler {
     }
     */
 
-    try (SamplesCollector collector = new SamplesCollector(outPrefix, leftFlank, rightFlank, hpAnchor, writeEvents)) {
-      collector.process(groupFactory, minLength, flankMask);
-//      log.info("\n" + collector.toString() + "\n");
+    try (SamplesCollector collector = new SamplesCollector(po.outPrefix, po.leftFlank, po.rightFlank, po.hpAnchor, !po.noWrite)) {
+      collector.process(groupFactory, po.minLength, po.flankMask);
     }
     log.info("finished");
   }
