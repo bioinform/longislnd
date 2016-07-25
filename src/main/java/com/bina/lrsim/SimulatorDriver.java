@@ -96,7 +96,7 @@ public class SimulatorDriver {
     private int seed;
 
     @Option(name = "--minFragmentLength", required = false, usage = "minimum fragment length")
-    private int minFragmentLength = 0;
+    private int minFragmentLength = 50;
 
     @Option(name = "--maxFragmentLength", required = false, usage = "maximum fragment length")
     private int maxFragmentLength = Integer.MAX_VALUE;

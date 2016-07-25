@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser.add_argument("--coverage", help="Coverage", type=float, default=50)
     parser.add_argument("--sample_per", help="Sample per", type=int, default=100)
     parser.add_argument("--seed", help="Random seed", type=int, default=1351)
-    parser.add_argument("--min_frag", help="Minimum length of fragment", type=int, default=1)
+    parser.add_argument("--min_frag", help="Minimum length of fragment", type=int, default=50)
     parser.add_argument("--max_frag", help="Maximum length of fragment", type=int, default=1000000000)
     parser.add_argument("--min_pass", help="Minimum passes", type=int, default=1)
     parser.add_argument("--max_pass", help="Maximum passes", type=int, default=1000000000)
