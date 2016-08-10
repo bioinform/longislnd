@@ -43,7 +43,10 @@ def process(files, pattern, k):
     assert end >= k
     if k == None or len(kmer) == k:
       num_tot = 1.0 * (num_ins + num_del + num_sub + num_mat)
-      print pattern, kmer, num_ins/num_tot, num_del/num_tot, num_sub/num_tot, num_mat/num_tot, num_ins, num_del, num_sub, num_mat
+      if num_ins + num_del + num_sub + num_mat < 1:
+        print pattern, kmer, "NaN", "NaN", "NaN", "NaN", num_ins, num_del, num_sub, num_mat
+      else:
+        print pattern, kmer, num_ins/num_tot, num_del/num_tot, num_sub/num_tot, num_mat/num_tot, num_ins, num_del, num_sub, num_mat
     else:
       while True:
         if end - begin == k:
@@ -54,6 +57,7 @@ def process(files, pattern, k):
           break;
         else:
           end -= 1
+      assert begin == len(kmer) - end
       kmer = kmer[begin:end]
       if kmer not in data:
         data[kmer] = [0, 0, 0, 0]
