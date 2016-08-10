@@ -106,7 +106,7 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
    The following must be installed:
    <ul>
       <li>Java 1.7</li>
-      <li>Maven. if in doubt, check <a href="https://github.com/bayolau/build_env/blob/master/maven3.3.9" onclick="trackOutboundLink('https://github.com/bayolau/build_env/blob/master/maven3.3.9'); return false;">https://github.com/bayolau/build_env/blob/master/maven3.3.9</a> for build and load examples</li>
+      <li>Maven</li>
       <li>Python 2.7 (for usage examples)</li>
    </ul>
 </p>
@@ -134,19 +134,33 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
 </ul>
 
 <h2>Examples</h2>
-<p>This is a toy demonstration of LongISLND, from downloading data, to alignment, to learning, and to simulation.</p>
-<h3>Preparation</h3>
-<p>This sets up PacBio's SMRTAnalysis2.3, if it's not already available to you. All the <code>download_and_align.sh</code> scripts assume an installation location of <code>sampling_example/smrtanalysis</code>, please change those scripts if you want to use your own version ofr SMARTAnalysis.</p>
+<p>These are demonstrations of LongISLND, from downloading data, to alignment, to learning, and to simulation.</p>
+<font color="#FF0000">These are tested only on Linux platform due to various depedencies.</font>
+<h3>Installing Dependencies</h3>
 <ol>
-  <li>Change working directory to <code>sampling_example</code>.</li>
-  <li>execute <code>setup_smrt23.sh</code></li>
-  <ul>
-    <li>download and build PacBio's SMRTAnalysis2.3</li>
-    <li>(to avoid complications) select NONE in answering the question "What job management system will you be using?"
-  </ul>
+  <h4><li>PacBio</li></h4>
+  <p>This sets up PacBio's SMRTAnalysis2.3, if it's not already available to you. All <code>download_and_align.sh</code> scripts in PacBio examples assume an installation location of <code>sampling_example/smrtanalysis</code>, please change those scripts if you want to use your own version of SMARTAnalysis.</p>
+  <ol>
+    <li>Change working directory to <code>sampling_example</code>.</li>
+    <li>execute <code>setup_smrt23.sh</code></li>
+    <ul>
+      <li>download and build PacBio's SMRTAnalysis2.3</li>
+      <li>(to avoid complications) select NONE in answering the question "What job management system will you be using?"
+    </ul>
+  </ol>
+  <h4><li>ONT</li></h4>
+  <p>This sets up GraphMap and Samtools, if it's not already available to you. <code>sampling_example/ont_ecoli/download_and_align.sh</code> assumes an installation location of <code>sampling_example/graphmap</code> and <code>sampling_example/samtools-1.2</code>, please change the script if you want to use your own version of aligners.</p>
+  <ol>
+    <li>Change working directory to <code>sampling_example</code>.</li>
+    <li>execute <code>setup_ont.sh</code></li>
+    <ul>
+      <li>download and build GraphMap (Sovic, I. et al (2016). Fast and sensitive mapping of nanopore sequencing reads with graphmap. Nat Commun, 7.)</li>
+      <li>download and build Samtools (H. Li, et al (2009). The Sequence Alignment/Map format and SAMtools. Bioinformatics. 25(16) )</li>
+    </ul>
+  </ol>
 </ol>
 
-<h3>P6 E. coli</h3>
+<h3>PacBio P6 E. coli</h3>
 <ol>
 <li>Change working directory to <code>sampling_example/ecoli</code>.</li>
 <li>execute <code>download_and_align.sh</code></li>
@@ -161,7 +175,24 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
     <li>invoke <code>simulate.py</code> to simulate reads and output in PacBio's BAM format, stored in the default <code>out</code> directory.</li>
   </ul>
 </ol>
-<h3>P6 CHM1</h3>
+
+<h3>ONT R7.3 E. coli</h3>
+<ol>
+<li>Change working directory to <code>sampling_example/ont_ecoli</code>.</li>
+<li>execute <code>download_and_align.sh</code></li>
+<ul>
+  <li>download ecoli data (Loman, N.J. et al (2015). A complete bacterial genome assembled de novo using only nanopore sequencing data. Nat Meth, 12(8), 733–735) </li>
+  <li>extract sequences</li>
+  <li>align to reference</li>
+</ul>
+  <li>execute <code>learn_and_simulate.sh</code></li>
+  <ul>
+    <li>invoke <code>sample.py</code> to learn model from aligned data</li>
+    <li>invoke <code>simulate.py</code> to simulate reads and output in PacBio's BAM format, stored in the default <code>out</code> directory.</li>
+  </ul>
+</ol>
+
+<h3>PacBio P6 CHM1</h3>
 <p>This is storage/io/compute-intensive due to the scale of the human-scale sequencing data.</p>
 <ol>
 <li>Change working directory to <code>sampling_example/p6_chm1</code>.</li>
