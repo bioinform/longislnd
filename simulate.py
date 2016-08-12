@@ -62,6 +62,7 @@ if __name__ == "__main__":
     parser.add_argument("--custom_rate", help="i:d:s:m, where i/d/s/m are integer-frequency of insertion/deletion/substitution/match. For example, 0:0:0:1 means perfect sequencing.", type=str, default=None)
     parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
     args = parser.parse_args()
+
     if args.custom_rate is None:
       args.custom_rate = ""
     else:
@@ -76,6 +77,8 @@ if __name__ == "__main__":
     base_count = int(sum(map(lambda contig: contig.getLength(), ReferenceContigs(args.fasta).get_contigs())) * args.coverage)
 
     # Get the model prefix
+    assert os.path.isdir(args.model_dir), "{d} is not a directory".format(d=args.model_dir)
+    assert len(glob.glob(os.path.join(args.model_dir, "*stats"))) > 0, "failed to find models in directory {d}".format(d=args.model_dir)
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
     command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate --outDir {out} --identifier {movie_id} --readType {read_type} --sequencingMode {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases} --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} {custom_rate}".format(
