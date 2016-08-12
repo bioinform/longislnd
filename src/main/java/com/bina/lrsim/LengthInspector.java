@@ -27,7 +27,7 @@ public class LengthInspector {
     }
     final String modelPrefixes = args[0];
 
-    final SamplesDrawer.LengthLimits lenLimits = new SamplesDrawer.LengthLimits(0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
+    final SamplesDrawer.LengthLimits lenLimits = new SamplesDrawer.LengthLimits(0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE, -1);
     final SamplesDrawer samples = new SamplesDrawer(modelPrefixes.split(","), Spec.ClrBamSpec, 0, null, false, lenLimits);
     for(int ii = 0; ii < samples.getLengthSize(); ++ii) {
       log.info("[lengths] score: " + Arrays.toString(samples.getLength(ii)) + " " + samples.getScore(ii));

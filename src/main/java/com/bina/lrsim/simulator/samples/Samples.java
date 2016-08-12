@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.bina.lrsim.pb.RunInfo;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.*;
@@ -323,12 +324,32 @@ public abstract class Samples {
     List<int[]> newLengths = new ArrayList<>(lengths.size());
     List<Integer> newScores = new ArrayList<>(scores.size());
 
+    DescriptiveStatistics stats = new DescriptiveStatistics();
+    for (int[] entry: lengths) {
+      stats.addValue(new MultiPassSpec(entry).fragmentLength);
+    }
+    final double sample_median = stats.getPercentile(50);
+    base_log.info("sample median length: " + sample_median);
+    base_log.info("target median length: " + limits.scaledMedianFragmentLength);
+    final double scale;
+    if (limits.scaledMedianFragmentLength > 0) {
+      scale = limits.scaledMedianFragmentLength / sample_median;
+    }
+    else {
+      scale = 1;
+    }
+    base_log.info("scaling lengths by: " + scale);
+
     for (int idx = 0; idx < lengths.size(); ++idx) {
-      final MultiPassSpec spec = new MultiPassSpec(lengths.get(idx));
+      final int[] entry = lengths.get(idx);
+      for (int jj = 0; jj < entry.length; ++jj) {
+        entry[jj] = (int)(scale * entry[jj] + 0.5);
+      }
+      final MultiPassSpec spec = new MultiPassSpec(entry);
       if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
-      newLengths.add(lengths.get(idx));
+      newLengths.add(entry);
       newScores.add(scores.get(idx));
     }
     base_log.info("length distribution filtering decreased samples from " + lengths.size() + " to " + newLengths.size());
@@ -354,12 +375,14 @@ public abstract class Samples {
     public final int maxFragmentLength;
     public final int minNumPasses;
     public final int maxNumPasses;
+    public final int scaledMedianFragmentLength;
 
-    public LengthLimits(int minFragmentLength, int maxFragmentLength, int minNumPasses, int maxNumPasses) {
+    public LengthLimits(int minFragmentLength, int maxFragmentLength, int minNumPasses, int maxNumPasses, int scaledMedianFragmentLength) {
       this.minFragmentLength = minFragmentLength;
       this.maxFragmentLength = maxFragmentLength;
       this.minNumPasses = minNumPasses;
       this.maxNumPasses = maxNumPasses;
+      this.scaledMedianFragmentLength = scaledMedianFragmentLength;
     }
   }
 }
