@@ -329,8 +329,8 @@ public abstract class Samples {
       stats.addValue(new MultiPassSpec(entry).fragmentLength);
     }
     final double sample_median = stats.getPercentile(50);
-    base_log.info("sample median length: " + sample_median);
-    base_log.info("target median length: " + limits.scaledMedianFragmentLength);
+    base_log.info("sample median fragment length: " + sample_median);
+    base_log.info("target median fragment length: " + limits.scaledMedianFragmentLength);
     final double scale;
     if (limits.scaledMedianFragmentLength > 0) {
       scale = limits.scaledMedianFragmentLength / sample_median;
@@ -340,6 +340,7 @@ public abstract class Samples {
     }
     base_log.info("scaling lengths by: " + scale);
 
+    stats.clear();
     for (int idx = 0; idx < lengths.size(); ++idx) {
       final int[] entry = lengths.get(idx);
       for (int jj = 0; jj < entry.length; ++jj) {
@@ -349,9 +350,11 @@ public abstract class Samples {
       if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
+      stats.addValue(spec.fragmentLength);
       newLengths.add(entry);
       newScores.add(scores.get(idx));
     }
+    base_log.info("model median fragment length: " + stats.getPercentile(50));
     base_log.info("length distribution filtering decreased samples from " + lengths.size() + " to " + newLengths.size());
     lengths = newLengths;
     scores = newScores;
