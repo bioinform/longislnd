@@ -45,8 +45,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate reads from reference FASTA", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--fasta", help="FASTA to simulate reads from", required=True)
-    parser.add_argument("--jar", help="Path to LongISLND JAR", default=os.path.join(mydir, "LongISLND.jar"))
-    parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
+    parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "HDFView-2.11.0-Linux", "HDF_Group", "HDFView", "2.11.0", "lib"))
+    parser.add_argument("--class_path", help="class path of all jars", default=":".join([os.path.join(mydir, "target/*"), os.path.join(mydir, "build/HDFView-2.11.0-Linux/HDF_Group/HDFView/2.11.0/lib/*" )]))
+    parser.add_argument("--class_name", help="LongISLND class name", default="com.bina.lrsim.LongISLND")
     parser.add_argument("--model_dir", help="Directory with the model", default=os.path.join(mydir, "run"))
     parser.add_argument("--out", help="Output directory", default="out")
     parser.add_argument("--movie_id", help="Movie id", default="clrbam_p6")
@@ -81,10 +82,11 @@ if __name__ == "__main__":
     assert len(glob.glob(os.path.join(args.model_dir, "*stats"))) > 0, "failed to find models in directory {d}".format(d=args.model_dir)
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
-    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate --outDir {out} --identifier {movie_id} --readType {read_type} --sequencingMode {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases} --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} {custom_rate}".format(
+    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -cp {class_path} {class_name} simulate --outDir {out} --identifier {movie_id} --readType {read_type} --sequencingMode {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases} --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} {custom_rate}".format(
         hdf5=args.hdf5,
         jvm_opt=args.jvm_opt,
-        jar=args.jar,
+        class_path=args.class_path,
+        class_name=args.class_name,
         out=args.out,
         movie_id=args.movie_id,
         read_type=args.read_type,

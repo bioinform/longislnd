@@ -30,8 +30,9 @@ if __name__ == "__main__":
     parser.add_argument("--min_length", type=int, help="minimum read length to consider", default=1000)
     parser.add_argument("--flank_mask", type=int, help="mask out this many bases from alignment", default=100)
     parser.add_argument("--qual", help="minimum qual to sample", default=0.7)
-    parser.add_argument("--jar", help="Path to LongISLND JAR", default=os.path.join(mydir, "LongISLND.jar"))
-    parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
+    parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "HDFView-2.11.0-Linux", "HDF_Group", "HDFView", "2.11.0", "lib"))
+    parser.add_argument("--class_path", help="class path of all jars", default=":".join([os.path.join(mydir, "target/*"), os.path.join(mydir, "build/HDFView-2.11.0-Linux/HDF_Group/HDFView/2.11.0/lib/*" )]))
+    parser.add_argument("--class_name", help="LongISLND class name", default="com.bina.lrsim.LongISLND")
     parser.add_argument("--num_threads", type=int, help="maximum number of concurrent process", default=1)
     parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
 
@@ -54,10 +55,11 @@ if __name__ == "__main__":
       read_file = alignment_file[:-n_strip]
       assert os.path.exists(read_file), "%s must exists"%(read_file)
       prefix = os.path.join(args.model_dir, ".".join(map(str,(alignment_file, args.read_type, args.flank, args.min_length, args.flank_mask))))
-      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} sample --outPrefix {prefix} --inFile {alignment_file} --readType {read_type} --leftFlank {flank} --rightFlank {flank} --minLength {min_length} --flankMask {flank_mask} {reference}".format(
+      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -cp {class_path} {class_name} sample --outPrefix {prefix} --inFile {alignment_file} --readType {read_type} --leftFlank {flank} --rightFlank {flank} --minLength {min_length} --flankMask {flank_mask} {reference}".format(
           hdf5=args.hdf5,
           jvm_opt=args.jvm_opt,
-          jar=args.jar,
+          class_path=args.class_path,
+          class_name=args.class_name,
           prefix=prefix,
           alignment_file=alignment_file,
           read_type=args.read_type,
@@ -66,10 +68,11 @@ if __name__ == "__main__":
           flank_mask=args.flank_mask,
           reference=args.reference)
       works.append((command_line, prefix+".log", prefix+".err"))
-      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} region --outPrefix {prefix} --inFile {read_file} --readType {read_type} --minReadScore {qual} ".format(
+      command_line = "java -Djava.library.path={hdf5} {jvm_opt} -cp {class_path} {class_name} region --outPrefix {prefix} --inFile {read_file} --readType {read_type} --minReadScore {qual} ".format(
           hdf5=args.hdf5,
           jvm_opt=args.jvm_opt,
-          jar=args.jar,
+          class_path=args.class_path,
+          class_name=args.class_name,
           prefix=prefix,
           read_file=read_file,
           read_type=args.read_type,
