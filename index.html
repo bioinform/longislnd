@@ -106,13 +106,25 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
    The following must be installed:
    <ul>
       <li>Java 1.7</li>
-      <li>Maven</li>
+      <li>Maven (to build from source)</li>
       <li>Python 2.7 (for convinient scripts and usage examples)</li>
    </ul>
 </p>
 
 <h2>Installing LongISLND</h2>
-<p>LongISLND can be built by running <code>linux_build.sh</code>, assuming <code>wget</code>, Java 1.7 (<code>java</code>) and Maven (<code>mvn</code>) are available. Please accept <a href="https://www.hdfgroup.org/products/java/" onclick="trackOutboundLink('https://www.hdfgroup.org/products/java/'); return false;")>HDF Java Products</a>' license and accept default installation location to proceed.</p>
+<h4>From Source</h4>
+<ul>
+  <li>change current working directory into the source code directory</li>
+  <li>execute <code>linux_build.sh</code>, which assumes <code>wget</code>, Java 1.7 (<code>java</code>) and Maven (<code>mvn</code>) are available.</li>
+  <li>accept <a href="https://www.hdfgroup.org/products/java/">HDF Java Products</a>' license and accept default installation location to proceed.</li>
+</ul>
+<h4>From Binary Download</h4>
+<ul>
+  <li>execute <code>tar xzf ${TAR_GZ}</code> to unpack the tar.gz package
+  <li>change current working directory into the binary directory</li>
+  <li>execute <code>linux_build.sh</code>, which assumes <code>wget</code> and <code>curl</code> are available.</li>
+  <li>accept <a href="https://www.hdfgroup.org/products/java/">HDF Java Products</a>' license and accept default installation location to proceed.</li>
+</ul>
 
 <h2>Running LongISLND</h2>
 <p>Usage of the Java JAR can be carried out/demonstrated by the following convinient Python scripts.</p>
