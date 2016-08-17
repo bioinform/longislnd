@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.bina.lrsim</groupId>
-    <artifactId>lrsim</artifactId>
-    <version>0.1</version>
+    <artifactId>LongISLND</artifactId>
+    <version>0.9</version>
     <packaging>jar</packaging>
 
-    <name>lrsim</name>
-    <url>http://maven.apache.org</url>
+    <name>LongISLND</name>
+    <url>http://bioinform.github.io/longislnd/</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
