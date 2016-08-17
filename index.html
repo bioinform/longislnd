@@ -145,6 +145,12 @@ w.addEventListener ? w.addEventListener("load",function(){document.body.addEvent
   </ul>
 </ul>
 
+<h2>Troubleshooting</h2>
+<ul>
+  <li>Consider setting maximum memory for java to match that of your computer. For example, <code>java -Xmx20g</code> would allocate 20gb.</li>
+  <li>Such setting can be passed to <code>sample.py</code> and <code>simulate.py</code> using the switch <code> --jvm_opt "-Xmx20g" </code>
+</ul>
+
 <h2>Usage Examples</h2>
 <p>These are demonstrations of LongISLND, from downloading data, to alignment, to learning, and to simulation.</p>
 <font color="#FF0000">These are tested only on Linux platform due to various depedencies.</font>
