@@ -15,14 +15,13 @@ import ncsa.hdf.object.h5.H5File;
 
 import org.apache.log4j.Logger;
 
-import com.bina.lrsim.LRSim;
 import com.bina.lrsim.bioinfo.EnumBP;
 import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 
 public class CmpH5Reader implements EventGroupFactory {
-  private final static Logger log = Logger.getLogger(LRSim.class.getName());
+  private final static Logger log = Logger.getLogger(CmpH5Reader.class.getName());
   private H5File h5 = null;
   private AlnIndex alnIndex = null;
   private AlnGroup alnGroup = null;

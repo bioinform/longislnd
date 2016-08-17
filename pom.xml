@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.bina.lrsim</groupId>
-    <artifactId>lrsim</artifactId>
-    <version>0.1</version>
+    <artifactId>LongISLND</artifactId>
+    <version>0.9</version>
     <packaging>jar</packaging>
 
-    <name>lrsim</name>
-    <url>http://maven.apache.org</url>
+    <name>LongISLND</name>
+    <url>http://bioinform.github.io/longislnd/</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,33 +45,31 @@
                 </configuration>
             </plugin>
 
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.7.1</version>
                 <executions>
                     <execution>
-                        <id>VarSim</id>
+                        <id>LongISLND</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputFile>LRSim.jar</outputFile>
+                            <outputFile>LongISLND.jar</outputFile>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.bina.lrsim.LRSim
+                                    <mainClass>com.bina.lrsim.LongISLND
                                     </mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
                     </execution>
-
-
                 </executions>
             </plugin>
+
             <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -110,7 +108,7 @@
         <dependency>
             <groupId>args4j</groupId>
             <artifactId>args4j</artifactId>
-            <version>2.0.26</version>
+            <version>2.33</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

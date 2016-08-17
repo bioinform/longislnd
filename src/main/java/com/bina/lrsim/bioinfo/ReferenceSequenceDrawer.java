@@ -84,7 +84,7 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
         if (value >= 0 && value < 4) {
           nonNCount++;
         }
-        if (value == EnumBP.Invalid.value) { throw new RuntimeException("reference contains " + bb); }
+        if (value == EnumBP.Invalid.value) { throw new RuntimeException("reference contains character with ASCII code " + bb); }
       }
     }
 

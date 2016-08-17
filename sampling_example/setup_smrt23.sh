@@ -4,8 +4,8 @@ set -ex
 #follow http://www.pacb.com/wp-content/uploads/SMRT-Analysis-Software-Installation-v2-3-0.pdf
 
 # this is linux user name, or use smrtanalysis
-export SMRT_USER=bayo
-export SMRT_GROUP=bayo
+export SMRT_USER=${USER}
+export SMRT_GROUP=${USER}
 
 #installation directory
 export SMRT_ROOT=${PWD}/smrtanalysis/
