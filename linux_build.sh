@@ -11,7 +11,7 @@ JAR_LOC=${BUILD_DIR}/HDFView-2.11.0-Linux/HDF_Group/HDFView/2.11.0/lib/
 mkdir ${BUILD_DIR}
 cd ${BUILD_DIR}
 
-wget http://www.hdfgroup.org/ftp/HDF5/releases/HDF-JAVA/hdf-java-2.11/bin/${TAR_GZ}
+wget http://www.hdfgroup.org/ftp/HDF5/prev-releases/HDF-JAVA/hdf-java-2.11/bin/${TAR_GZ}
 tar xzf ${TAR_GZ}
 
 cd ${HDF_VIEW}
