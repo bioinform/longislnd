@@ -71,6 +71,14 @@ public class Simulator {
         nameCounter.putIfAbsent(locus.getChrom(), new AtomicLong((long) 0));
         nameCounter.get(locus.getChrom()).incrementAndGet();
         final byte[] sequence = fragment.getSeq();
+        // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
+        if(multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sequence.length) {
+          for (int ii = 1; ii + 1 < insertLengths.length; ++ii) {
+            if (insertLengths[ii] < sequence.length) {
+              insertLengths[ii] = sequence.length;
+            }
+          }
+        }
         // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
         for (int ii = 0; ii < insertLengths.length; ++ii) {
           if(insertLengths[ii] > sequence.length) {
