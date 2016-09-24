@@ -51,7 +51,13 @@ public class SimulatorDriver {
 
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    final int targetChunk = (int) Math.min(wr.getNonNCount(), 200000000);
+    final int targetChunk;
+    if (po.sequencingMode.equals("fragment") ) {
+      targetChunk = (int) Math.min(wr.getNonNCount() * 40 * 100 * wr.getNames().size(), 200000000);
+    }
+    else {
+      targetChunk = (int) Math.min(wr.getNonNCount(), 200000000);
+    }
     log.info("each file will have ~" + targetChunk + " bases");
 
     final String moviePrefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());

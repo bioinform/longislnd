@@ -106,7 +106,7 @@ public class BAMWriter extends ReadsWriter {
         alignment.setAttribute("RG", moviename);
         AddScore("dq", EnumDat.DeletionQV, begin, end);
         AddScore("dt", EnumDat.DeletionTag, begin, end);
-        if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute("ip", enumData.get(EnumDat.IDPV1));
+        if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute("ip", Arrays.copyOfRange(enumData.get(EnumDat.IDPV1), begin, end));
         AddScore("iq", EnumDat.InsertionQV, begin, end);
         AddScore("mq", EnumDat.MergeQV, begin, end);
         alignment.setAttribute("np", Integer.valueOf(1));
