@@ -48,7 +48,7 @@ public enum EnumDat {
       short[] input = (short[]) obj;
       byte[] ret = new byte[input.length];
       for (int ii = 0; ii < input.length; ++ii) {
-        ret[ii] = (byte) IDPCodecV1.framesToCode(input[ii] & 0xFFFF);
+        ret[ii] = (byte) IDPCodecV1.frameToCode(input[ii] & 0xFFFF);
       }
       return ret;
     }
