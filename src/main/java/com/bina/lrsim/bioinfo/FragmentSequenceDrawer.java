@@ -25,11 +25,13 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
 
     // if fragment is shorter than indicated length, return the whole fragment
     int begin = 0, end = refSeq.length;
+    /*
     if (refSeq.length > length) {
       // assume that long fragment is sheared into such length
       begin = gen.nextInt(refSeq.length - length + 1);
       end = begin + length;
     }
+    */
 
     final byte[] sequence;
     if (rc) {
