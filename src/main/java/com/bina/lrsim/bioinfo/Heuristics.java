@@ -52,6 +52,8 @@ public class Heuristics {
   // fraction of maximum insert, for an insert to be consider not a full insert in SMRT belt context
   public static final double SMRT_INSERT_FRACTION = 0.5;
 
+  public static final double READLENGTH_RESCUE_FRACTION = 0.75;
+
   // approximation of SMRT belt adapter read out
   public static final byte[] SMRT_ADAPTOR_STRING;
   public static final byte[] SMRT_ADAPTOR_SCORE;
