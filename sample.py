@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 import glob
+import sys
 from multiprocessing import Pool
 
 mydir = os.path.dirname(os.path.realpath(__file__))
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     pool = Pool(args.num_threads)
     error = False
     for (returncode, trio) in pool.imap_unordered(Worker, works):
-        spec = " > ".join(trio)
+        spec = trio[0] + ' > ' + trio[1] + ' 2> ' + trio[2]
         if returncode == 0:
             logger.info("done with " + spec)
         else:
@@ -87,6 +88,7 @@ if __name__ == "__main__":
             error = True
 
     if error:
-      logger.error("Error detected")
+      logger.error("Error detected. Please check error logs listed above.")
+      sys.exit(1)
     else:
       logger.info("Done.")
