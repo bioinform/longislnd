@@ -23,18 +23,19 @@ public class BaxH5Reader implements RegionGroup {
   private final Spec spec;
   private String movieName = null;
 
-  public BaxH5Reader(String filename, Spec spec) {
+  public BaxH5Reader(String filename, Spec spec) throws IOException {
     this.load(filename);
     this.spec = spec;
   }
 
-  public void load(String filename) {
+  public void load(String filename) throws IOException {
     h5 = new H5File(filename, FileFormat.READ);
     movieName = null;
     try {
       movieName = ((String[]) Attributes.extract(h5.get(EnumGroups.RunInfo.path), "MovieName"))[0];
     } catch (Exception e) {
-      log.warn("failed to retrieve movie name from " + filename);
+      log.error("failed to retrieve movie name from " + filename);
+      throw new IOException("failed to retrieve movie name from " + filename);
     }
     if (null == movieName) {
       movieName = "";
