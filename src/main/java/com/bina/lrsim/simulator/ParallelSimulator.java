@@ -25,7 +25,7 @@ public class ParallelSimulator {
     int batchNumber = 0;
     for (long scheduledBases = 0; scheduledBases < targetNumBases; scheduledBases += targetChunk, ++batchNumber) {
       final String movieName = moviePrefix + String.format("%05d", batchNumber) + movieSuffix;
-      threadPool.execute(new Worker(sim, outDir, movieName, samples, targetChunk, spec, gen.nextInt()));
+      threadPool.execute(new Worker(sim, outDir, movieName, samples, (int) Math.min((long)targetChunk, targetNumBases), spec, gen.nextInt()));
     }
     threadPool.shutdown();
     try {
