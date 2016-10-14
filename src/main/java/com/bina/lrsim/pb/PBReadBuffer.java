@@ -48,6 +48,10 @@ public class PBReadBuffer {
     for (EnumDat e : spec.getDataSet()) {
       data.get(e).reset();
     }
+    if (this.size() != 0) {
+      log.error("couldn't clear buffer");
+      throw new RuntimeException("different lengths!");
+    }
   }
 
   public void addASCIIBases(byte[] asciiSeq, byte[] defaultSeq, byte[] defaultScores) {
