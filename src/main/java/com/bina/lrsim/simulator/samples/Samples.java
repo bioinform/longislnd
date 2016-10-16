@@ -17,12 +17,14 @@ import com.bina.lrsim.util.ArrayUtils;
  * Created by bayo on 5/10/15.
  * 
  * Base class which unifies I/O of sampling mechanism, see SampleCollector (write) and SampleDrawer (read)
+ * Samples here mean the error moedel learned from data.
  */
 public abstract class Samples {
   private final static Logger base_log = Logger.getLogger(Samples.class.getName());
 
   private final long[] eventBaseCount = new long[EnumEvent.values().length];
   private final long[] eventCount = new long[EnumEvent.values().length];
+  //a 2-dimensional array is stored as a 1-dimensional array
   private long[] kmerEventCount;
   private List<int[]> lengths;
   private List<Integer> scores;
@@ -148,7 +150,7 @@ public abstract class Samples {
     this.leftFlank = leftFlank;
     this.rightFlank = rightFlank;
     k = this.leftFlank + 1 + this.rightFlank;
-    numKmer = 1 << (2 * k);
+    numKmer = 1 << (2 * k); //number of possible Kmers == 4^K == 2^(2K)
     hpAnchor = hp_anchor;
     kmerEventCount = new long[numKmer * EnumEvent.values().length];
     lengths = new ArrayList<>(1000);
@@ -197,9 +199,11 @@ public abstract class Samples {
     k = dis.readInt();
     numKmer = dis.readInt();
     hpAnchor = dis.readInt();
+    //eventBaseCount.length == 4, corresponding to insertion, deletion, substitution, match
     for (int ii = 0; ii < eventBaseCount.length; ++ii) {
       eventBaseCount[ii] = dis.readLong();
     }
+    //eventCount.length == 4, corresponding to insertion, deletion, substitution, match
     for (int ii = 0; ii < eventCount.length; ++ii) {
       eventCount[ii] = dis.readLong();
     }
@@ -325,7 +329,10 @@ public abstract class Samples {
 
     for (int idx = 0; idx < lengths.size(); ++idx) {
       final MultiPassSpec spec = new MultiPassSpec(lengths.get(idx));
-      if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
+      if ( spec.numPasses < limits.minNumPasses ||
+              spec.numPasses > limits.maxNumPasses ||
+              spec.fragmentLength > limits.maxFragmentLength ||
+              spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
       newLengths.add(lengths.get(idx));

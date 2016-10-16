@@ -33,7 +33,7 @@ public class HPBCPool extends BaseCallsPool {
   }
 
   @Override
-  public boolean add(Event ev, AddBehavior ab) {
+  public boolean add(Event ev, AddedBehavior ab) {
     final int kmer = ev.getKmer();
     final int hpLen = ev.getHpLen();
 

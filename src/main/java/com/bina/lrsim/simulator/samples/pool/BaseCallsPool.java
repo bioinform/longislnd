@@ -47,5 +47,5 @@ public abstract class BaseCallsPool {
    * @param ev a sequencing event
    * @return event has been added to the pool or not
    */
-  public abstract boolean add(Event ev, AddBehavior ab);
+  public abstract boolean add(Event ev, AddedBehavior ab);
 }

@@ -5,8 +5,8 @@ import org.apache.log4j.Logger;
 /**
  * Created by bayolau on 9/9/15.
  */
-public class AddBehavior {
-  private final static Logger log = Logger.getLogger(AddBehavior.class.getName());
+public class AddedBehavior {
+  private final static Logger log = Logger.getLogger(AddedBehavior.class.getName());
   private final int deltaQ;
   private final int minQ;
   private final int maxQ;
@@ -18,7 +18,7 @@ public class AddBehavior {
    * @param minQ minimum of changed q value, ignored if < 0 or larger than original qv
    * @param maxQ maximum of changed q value, ignored if < minQ or smaller than original qv
    */
-  public AddBehavior(int deltaQ, int minQ, int maxQ) {
+  public AddedBehavior(int deltaQ, int minQ, int maxQ) {
     this.deltaQ = deltaQ;
     if (maxQ >= minQ && minQ >= 0) {
       this.minQ = minQ;

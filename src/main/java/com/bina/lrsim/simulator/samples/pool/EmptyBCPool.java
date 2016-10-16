@@ -22,7 +22,7 @@ public class EmptyBCPool extends BaseCallsPool {
   }
 
   @Override
-  public boolean add(Event ev, AddBehavior ab) {
+  public boolean add(Event ev, AddedBehavior ab) {
     return false;
   }
 

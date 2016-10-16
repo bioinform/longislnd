@@ -47,26 +47,29 @@ public class Simulator {
    * @param firsthole first hole producing sequence
    * @param drawer an instance from which samples can be drawn
    * @param totalBases minimum number of bp to generate
-   * @param gen random number generator
+   * @param randomGenerator random number generator
    */
-  public int simulate(final String path, final String movieName, final int firsthole, SamplesDrawer drawer, int totalBases, final Spec spec, RandomGenerator gen) throws IOException {
-    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, firsthole, drawer.getNumRunInfo() > 0 ? drawer.getRunInfo(0) : new RunInfo())) {
+  public int simulate(final String path, final String movieName, final int firsthole, SamplesDrawer drawer, int totalBases, final Spec spec, RandomGenerator randomGenerator) throws IOException {
+    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(
+            spec, new File(path, movieName + spec.getSuffix()).getPath(),
+            movieName, firsthole,
+            //it seems only the first set of run infos is used
+            drawer.getNumRunInfo() > 0 ? drawer.getRunInfo(0) : new RunInfo())) {
       long[] localBaseCounter = new long[baseCounter.length()];
       PBReadBuffer read = new PBReadBuffer(spec);
 
+      /*
+      each iteration generates one simulated read
+       */
       for (int numBases = 0; numBases < totalBases;) {
         read.clear();
-        if (read.size() != 0) {
-          log.error("couldn't clear buffer");
-          throw new RuntimeException("different lengths!");
-        }
 
         // draw a list of smrt belts
-        Pair<int[], Integer> lenScore = drawer.getRandomLengthScore(gen);
+        Pair<int[], Integer> lenScore = drawer.getRandomLengthScore(randomGenerator);
         final int[] insertLengths = lenScore.getFirst();
         MultiPassSpec multiPassSpec = new MultiPassSpec(insertLengths);
 
-        final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, gen);
+        final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, randomGenerator);
         final Locus locus = fragment.getLocus();
         nameCounter.putIfAbsent(locus.getChrom(), new AtomicLong((long) 0));
         nameCounter.get(locus.getChrom()).incrementAndGet();
@@ -87,15 +90,16 @@ public class Simulator {
         }
 
         // draw a sequence according to max insert length, make RC if belt is long enough
-        final List<byte[]> fwRc = new ArrayList<>(2);
-        fwRc.add(sequence);
+        final List<byte[]> forwardAndReverseComplementSequences = new ArrayList<>(2);
+        forwardAndReverseComplementSequences.add(sequence);
         if (insertLengths.length > 1) {
-          final byte[] fw = fwRc.get(0);
-          final byte[] rc = new byte[fw.length];
-          for (int pos = 0, tgt = fw.length - 1; pos < fw.length; ++pos, --tgt) {
-            rc[tgt] = EnumBP.ascii_rc(fw[pos]);
+          final byte[] forwardSequence = forwardAndReverseComplementSequences.get(0);
+          final byte[] reverseComplementSequence = new byte[forwardSequence.length];
+          //TODO: wrap reverse complement generation into a method
+          for (int pos = 0, tgt = forwardSequence.length - 1; pos < forwardSequence.length; ++pos, --tgt) {
+            reverseComplementSequence[tgt] = EnumBP.ascii_rc(forwardSequence[pos]);
           }
-          fwRc.add(rc);
+          forwardAndReverseComplementSequences.add(reverseComplementSequence);
         }
 
         final List<Locus> clrLoci = new ArrayList<>();
@@ -116,10 +120,10 @@ public class Simulator {
               sectionEnds.add(read.size());
             }
             AppendState deletion = null;
-            for (Iterator<Context> itr = new HPIterator(fwRc.get(insIdx % 2), begin, end, drawer.getLeftFlank(), drawer.getRightFlank(), drawer.getHpAnchor()); itr.hasNext();) {
+            for (Iterator<Context> itr = new HPIterator(forwardAndReverseComplementSequences.get(insIdx % 2), begin, end, drawer.getLeftFlank(), drawer.getRightFlank(), drawer.getHpAnchor()); itr.hasNext();) {
               final Context con = itr.next();
               if (null != con) {
-                deletion = drawer.appendTo(read, con, deletion, gen, localBaseCounter);
+                deletion = drawer.appendTo(read, con, deletion, randomGenerator, localBaseCounter);
               }
             }
 

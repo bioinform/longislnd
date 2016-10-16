@@ -33,7 +33,7 @@ public class SingleBCPool extends BaseCallsPool {
   }
 
   @Override
-  public boolean add(Event ev, AddBehavior ab) {
+  public boolean add(Event ev, AddedBehavior ab) {
     if (end[ev.getKmer()] - begin(ev.getKmer()) < entryPerKmer * BYTE_PER_BC) {
       int shift = end[ev.getKmer()];
       if (ev.size() != 1) { throw new RuntimeException("event is too large"); }

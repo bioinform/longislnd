@@ -25,6 +25,12 @@ public class BaseCalls {
     data.clear();
   }
 
+  /**
+   * get size of the base call
+   * each base called may be associated with multiple bytes of companion data
+   *
+   * @return
+   */
   public final int size() {
     return data.size() / bytePerBase;
   }
@@ -86,6 +92,11 @@ public class BaseCalls {
     }
   }
 
+  /**
+   * read from DataInputStream the next set of base calls
+   * @param dis
+   * @throws IOException
+   */
   public void read(DataInputStream dis) throws IOException {
     this.clear();
     int newSize = dis.readInt();
