@@ -60,7 +60,8 @@ public class SimulatorDriver {
     }
     log.info("each file will have ~" + targetChunk + " bases");
 
-    final String moviePrefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
+    final String moviePrefix = options.forceMovieName.length() > 0?
+            options.forceMovieName : new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
     final String movieSuffix = "_c" + options.identifier + "_s1_p0";
 
     final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(options.minFragmentLength, options.maxFragmentLength, options.minNumPasses, options.maxNumPasses);
@@ -115,6 +116,9 @@ public class SimulatorDriver {
 
     @Option(name = "--eventsFrequency", required = false, usage = "custom event frequency")
     private String eventsFrequency = "";
+
+    @Option(name = "--forceMovieName", required = false, usage = "replace time-sensitive movie name with a fixed name")
+    private String forceMovieName = "";
     long [] getEventsFrequency() {
       long[] ret = null;
       if (eventsFrequency.length() < 1) {
