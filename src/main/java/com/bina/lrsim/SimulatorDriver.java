@@ -29,22 +29,22 @@ public class SimulatorDriver {
    * create a file of simulated reads based on the given FASTA and model
    */
   public static void main(String[] args) throws IOException {
-    final ModuleOptions po = ProgramOptions.parse(args, ModuleOptions.class);
-    if (po == null) {
+    final ModuleOptions options = ProgramOptions.parse(args, ModuleOptions.class);
+    if (options == null) {
       System.exit(1);
     }
 
-    final long[] eventsFrequency = po.getEventsFrequency();
+    final long[] eventsFrequency = options.getEventsFrequency();
 
-    if (!VALID_READ_TYPES.contains(po.readType)) {
+    if (!VALID_READ_TYPES.contains(options.readType)) {
       log.error("valid read types: " + StringUtils.join(VALID_READ_TYPES, ", "));
       System.exit(1);
     }
 
-    final Spec spec = Spec.fromReadType(po.readType);
+    final Spec spec = Spec.fromReadType(options.readType);
 
-    final ReferenceSequenceDrawer wr = ReferenceSequenceDrawer.Factory(po.sequencingMode, po.fasta);
-    if (wr == null) {
+    final ReferenceSequenceDrawer referenceDrawer = ReferenceSequenceDrawer.Factory(options.sequencingMode, options.fasta);
+    if (referenceDrawer == null) {
       log.error("failed to set up reference drawer");
       System.exit(1);
     }
@@ -52,23 +52,23 @@ public class SimulatorDriver {
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
     final int targetChunk;
-    if (po.sequencingMode.equals("fragment") ) {
-      targetChunk = (int) Math.min(wr.getNonNCount() * 40 * 100 * wr.getNames().size(), 200000000);
+    if (options.sequencingMode.equals("fragment") ) {
+      targetChunk = (int) Math.min(referenceDrawer.getNonNCount() * 40 * 100 * referenceDrawer.getNames().size(), 200000000);
     }
     else {
-      targetChunk = (int) Math.min(wr.getNonNCount(), 200000000);
+      targetChunk = (int) Math.min(referenceDrawer.getNonNCount(), 200000000);
     }
     log.info("each file will have ~" + targetChunk + " bases");
 
     final String moviePrefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
-    final String movieSuffix = "_c" + po.identifier + "_s1_p0";
+    final String movieSuffix = "_c" + options.identifier + "_s1_p0";
 
-    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(po.minFragmentLength, po.maxFragmentLength, po.minNumPasses, po.maxNumPasses);
-    final SamplesDrawer samples = new SamplesDrawer(po.modelPrefixes.split(","), spec, po.samplePer, eventsFrequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
+    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(options.minFragmentLength, options.maxFragmentLength, options.minNumPasses, options.maxNumPasses);
+    final SamplesDrawer samples = new SamplesDrawer(options.modelPrefixes.split(","), spec, options.samplePer, eventsFrequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
     log.info(samples.toString());
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    ParallelSimulator.process(wr, po.outDir, moviePrefix, movieSuffix, samples, targetChunk, po.totalBases, spec, new MersenneTwister(po.seed));
+    ParallelSimulator.process(referenceDrawer, options.outDir, moviePrefix, movieSuffix, samples, targetChunk, options.totalBases, spec, new MersenneTwister(options.seed));
 
     log.info("finished.");
   }
