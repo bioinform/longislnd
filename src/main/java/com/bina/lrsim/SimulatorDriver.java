@@ -119,6 +119,13 @@ public class SimulatorDriver {
 
     @Option(name = "--forceMovieName", required = false, usage = "replace time-sensitive movie name with a fixed name")
     private String forceMovieName = "";
+
+    @Option(name = "--outputPolymeraseRead", required = false, usage = "simulate polymerase reads rather than subreads?")
+    private String outputPolymeraseRead = "";
+
+    @Option(name = "--adapterSequence", required = false, usage = "adapter sequence for polymerase read")
+    private String adapterSequence = "";
+
     long [] getEventsFrequency() {
       long[] ret = null;
       if (eventsFrequency.length() < 1) {
