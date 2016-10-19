@@ -25,16 +25,16 @@ public class ShotgunFragmentSequenceDrawer extends ReferenceSequenceDrawer {
   @Override
   protected Fragment drawRandomSequence(int length, RandomGenerator randomNumberGenerator) {
     final boolean needReverseComplement = randomNumberGenerator.nextBoolean();
-    List<Long> cdf = new ArrayList<Long>();
+    List<Long> cumulativeChromosomeLengths = new ArrayList<Long>();
     long numFrag = 0;
     for (Long entry : refBases) {
       numFrag += (length > entry) ? 1 : (entry / length);
-      cdf.add(numFrag);
+      cumulativeChromosomeLengths.add(numFrag);
     }
     final long pos = (numFrag <= Integer.MAX_VALUE) ? randomNumberGenerator.nextInt((int) numFrag) : (randomNumberGenerator.nextLong() % numFrag + numFrag) % numFrag;
 
     int ref_idx = 0;
-    for (; ref_idx < cdf.size() && pos >= cdf.get(ref_idx); ++ref_idx) {}
+    for (; ref_idx < cumulativeChromosomeLengths.size() && pos >= cumulativeChromosomeLengths.get(ref_idx); ++ref_idx) {}
 
     final Fragment ref_frag = get(ref_idx);
     final byte[] ref_seq = ref_frag.getSeq();
