@@ -2,6 +2,8 @@ package com.bina.lrsim.pb;
 
 /**
  * Created by bayo on 5/2/15.
+ *
+ * full data obtained for each base call of PacBio data
  */
 
 public enum EnumDat {

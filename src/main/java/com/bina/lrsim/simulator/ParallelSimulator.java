@@ -19,13 +19,13 @@ import java.util.concurrent.TimeUnit;
 public class ParallelSimulator {
   private final static Logger log = Logger.getLogger(ParallelSimulator.class.getName());
 
-  public static long process(RandomFragmentGenerator rfg, String outDir, String moviePrefix, String movieSuffix, SamplesDrawer samples, int targetChunk, long targetNumBases, Spec spec, RandomGenerator gen) {
-    Simulator sim = new Simulator(rfg);
+  public static long process(RandomFragmentGenerator randomFragmentGenerator, String outDir, String moviePrefix, String movieSuffix, SamplesDrawer samples, int targetChunk, long targetNumBases, Spec spec, RandomGenerator gen) {
+    Simulator simulator = new Simulator(randomFragmentGenerator);
     final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     int batchNumber = 0;
     for (long scheduledBases = 0; scheduledBases < targetNumBases; scheduledBases += targetChunk, ++batchNumber) {
       final String movieName = moviePrefix + String.format("%05d", batchNumber) + movieSuffix;
-      threadPool.execute(new Worker(sim, outDir, movieName, samples, (int) Math.min((long)targetChunk, targetNumBases), spec, gen.nextInt()));
+      threadPool.execute(new Worker(simulator, outDir, movieName, samples, (int) Math.min((long)targetChunk, targetNumBases), spec, gen.nextInt()));
     }
     threadPool.shutdown();
     try {

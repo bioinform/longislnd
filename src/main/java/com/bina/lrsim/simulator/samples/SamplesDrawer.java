@@ -21,7 +21,7 @@ import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
-import com.bina.lrsim.simulator.samples.pool.AppendState;
+import com.bina.lrsim.simulator.samples.pool.AppendedState;
 import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
 import com.bina.lrsim.simulator.samples.pool.HPBCPool;
 
@@ -139,53 +139,55 @@ public class SamplesDrawer extends Samples {
    *
    * @param buffer visitor to take the randomly generated sequence
    * @param context sequencing context
-   * @param gen random number generator
+   * @param randomNumberGenerator random number generator
    * @param baseCounter base counter for ins/del/sub/mat
    * @return about current state
    */
-  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState deletion, RandomGenerator gen, long[] baseCounter) {
+  public AppendedState appendTo(PBReadBuffer buffer, Context context, AppendedState deletion, RandomGenerator randomNumberGenerator, long[] baseCounter) {
     final int oldLength = buffer.size();
-    if (context.getHpLen() == 1) {
-      EnumEvent ev = randomEvent(context, gen);
+    if (context.getHpLen() == 1) { //regular K-mer
+      EnumEvent event = randomEvent(context, randomNumberGenerator);
       // ignore the previous event if it's already a deletion
       final int orgLength = buffer.size();
-      AppendState result = kmerEventDrawer.get(ev).appendTo(buffer, context, ev.equals(EnumEvent.DELETION) ? null : deletion, gen);
-
-      final boolean badLength;
-      switch(ev) {
+      AppendedState result = kmerEventDrawer.get(event).appendTo(buffer, context,
+                                                                 event.equals(EnumEvent.DELETION) ? null : deletion,
+                                                                 randomNumberGenerator);
+      final boolean isNewLengthIllegal;
+      switch(event) {
         case DELETION:
-          badLength = buffer.size() != orgLength;
+          isNewLengthIllegal = buffer.size() != orgLength;
           break;
         case INSERTION:
-          badLength = buffer.size() <= orgLength + 1;
+          isNewLengthIllegal = buffer.size() <= orgLength + 1;
           break;
         case MATCH:
         case SUBSTITUTION:
-          badLength = buffer.size() != orgLength + 1;
+          isNewLengthIllegal = buffer.size() != orgLength + 1;
+            //TODO: remove redundancy
           if (buffer.size() != orgLength + 1) {
-            throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + ev.name());
+            throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + event.name());
           }
           break;
         default:
-          badLength = false;
+          isNewLengthIllegal = false;
       }
-      if (badLength) {
-        throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + ev.name());
+      if (isNewLengthIllegal) {
+        throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + event.name());
       }
 
-      ++baseCounter[ev.ordinal()];
-      if (ev == EnumEvent.INSERTION) {
-        baseCounter[ev.ordinal()] += buffer.size() - oldLength - 2;
+      ++baseCounter[event.ordinal()];
+      if (event == EnumEvent.INSERTION) {
+        baseCounter[event.ordinal()] += buffer.size() - oldLength - 2;
       }
-      if (!result.success) { throw new RuntimeException("kmer draw"); }
+      if (!result.success) { throw new RuntimeException("kmer draw failed"); }
       // return a signal for deletion event
-      return (ev == EnumEvent.DELETION && result.lastEvent != null && result.lastEvent.length > 0) ? result : null;
+      return (event == EnumEvent.DELETION && result.lastEvent != null && result.lastEvent.length > 0) ? result : null;
     } else {
       // do not do full hp if custom frequency is provided
       // custom hp drawing is possible improvement
       final boolean hpSampling;
       if (customFrequency == null) {
-        final AppendState result = hpEventDrawer.appendTo(buffer, context, deletion, gen);
+        final AppendedState result = hpEventDrawer.appendTo(buffer, context, deletion, randomNumberGenerator);
         hpSampling = result.success;
       } else {
         // might want to do something with remodeling homopolymer indels -- uniform error does not work
@@ -210,7 +212,7 @@ public class SamplesDrawer extends Samples {
         int count = 0;
         // decompose extended kmer to kmer
         for (Iterator<Context> itr = context.decompose(getLeftFlank(), getRightFlank()); itr.hasNext();) {
-          deletion = this.appendTo(buffer, itr.next(), deletion, gen, baseCounter);
+          deletion = this.appendTo(buffer, itr.next(), deletion, randomNumberGenerator, baseCounter);
           ++count;
         }
         if (count != context.getHpLen()) {

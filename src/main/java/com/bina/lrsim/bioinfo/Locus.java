@@ -7,20 +7,20 @@ public class Locus {
   private String chrom;
   private int begin0;
   private int end0;
-  private boolean rc;
+  private boolean isReverseComplement;
 
-  public Locus(String chrom, int begin0, int end0, boolean rc) {
+  public Locus(String chrom, int begin0, int end0, boolean isReverseComplement) {
     this.chrom = chrom;
     this.begin0 = begin0;
     this.end0 = end0;
-    this.rc = rc;
+    this.isReverseComplement = isReverseComplement;
   }
 
   public Locus(Locus other) {
     this.chrom = other.chrom;
     this.begin0 = other.begin0;
     this.end0 = other.end0;
-    this.rc = other.rc;
+    this.isReverseComplement = other.isReverseComplement;
   }
 
   public String getChrom() {
@@ -47,11 +47,11 @@ public class Locus {
     this.end0 = end0;
   }
 
-  public boolean isRc() {
-    return rc;
+  public boolean isReverseComplement() {
+    return isReverseComplement;
   }
 
-  public void setRc(boolean rc) {
-    this.rc = rc;
+  public void setReverseComplement(boolean reverseComplement) {
+    this.isReverseComplement = reverseComplement;
   }
 }

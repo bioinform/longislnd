@@ -32,10 +32,10 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
 
   public ReferenceSequenceDrawer(final String filename) {
     FastaSequenceFile reference = new FastaSequenceFile(new File(filename), true);
-    for (ReferenceSequence rr = reference.nextSequence(); null != rr; rr = reference.nextSequence()) {
-      name.add(rr.getName());
-      nameChromosomeMap.put(rr.getName(), new Chromosome(rr));
-      log.info("read " + rr.getName());
+    for (ReferenceSequence referenceSequence = reference.nextSequence(); null != referenceSequence; referenceSequence = reference.nextSequence()) {
+      name.add(referenceSequence.getName());
+      nameChromosomeMap.put(referenceSequence.getName(), new Chromosome(referenceSequence));
+      log.info("read " + referenceSequence.getName());
     }
   }
 
@@ -48,21 +48,39 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
   }
 
   @Override
-  public Fragment getFragment(int length, RandomGenerator gen) {
+  public Fragment getFragment(int length, RandomGenerator randomNumberGenerator) {
     Fragment out = null;
+    //keep trying until we got something
     while (null == out) {
-      out = getSequenceImpl(length, gen);
+      out = drawRandomSequence(length, randomNumberGenerator);
     }
     return out;
   }
 
-  protected abstract Fragment getSequenceImpl(int length, RandomGenerator gen);
+  /**
+   * actual implementation of random sequence sampling
+   * there are 3 modes for drawing: shotgun, fragment (entire sequence), shotgunfragment(??)
+   * @param length
+   * @param randomNumberGenerator
+   * @return
+   */
+  protected abstract Fragment drawRandomSequence(int length, RandomGenerator randomNumberGenerator);
 
+  /**
+   * get chromosome sequence by name
+   * @param name
+   * @return
+   */
   protected Fragment get(String name) {
     final byte[] seq = nameChromosomeMap.get(name).getSeq().getBases();
     return (seq != null) ? new Fragment(seq, new Locus(name, 0, seq.length, false)) : null;
   }
 
+  /**
+   * get name of ith reference chromosome
+   * @param id
+   * @return
+   */
   protected Fragment get(int id) {
     return get(name.get(id));
   }
