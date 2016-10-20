@@ -69,7 +69,11 @@ public class SimulatorDriver {
     log.info(samples.toString());
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    ParallelSimulator.process(referenceDrawer, options.outDir, moviePrefix, movieSuffix, samples, targetChunk, options.totalBases, spec, new MersenneTwister(options.seed));
+    //TODO: consider combine invididual command line arguments into one parameter
+    ParallelSimulator.process(referenceDrawer, options.outDir, moviePrefix,
+                              movieSuffix, samples, targetChunk, options.totalBases,
+                              options,
+                              spec, new MersenneTwister(options.seed));
 
     log.info("finished.");
   }
@@ -120,7 +124,7 @@ public class SimulatorDriver {
     @Option(name = "--forceMovieName", required = false, usage = "replace time-sensitive movie name with a fixed name")
     private String forceMovieName = "";
 
-    @Option(name = "--outputPolymeraseRead", required = false, usage = "simulate polymerase reads rather than subreads?")
+    @Option(name = "--outputPolymeraseRead", required = true, usage = "simulate polymerase reads rather than subreads?")
     private String outputPolymeraseRead = "";
 
     @Option(name = "--adapterSequence", required = false, usage = "adapter sequence for polymerase read")
@@ -143,6 +147,14 @@ public class SimulatorDriver {
         log.info("custom event frequencies: " + Arrays.toString(ret));
       }
       return ret;
+    }
+
+    public String getOutputPolymeraseRead() {
+      return outputPolymeraseRead;
+    }
+
+    public String getAdapterSequence() {
+      return adapterSequence;
     }
   }
 }

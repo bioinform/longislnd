@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -40,10 +41,14 @@ public class SimulatorTest {
     public void firstSimulatorTest() throws IOException {
         File workingDirectory = tmpFolder.newFolder("tmp");
         String fasta = "src/test/resources/firstSimulatorTest/reference.fasta";
+        String modelDirectory = "src/test/resources/firstSimulatorTest/ecoli_model";
         String modelPrefix = "src/test/resources/firstSimulatorTest/ecoli_model/p6_ecoli.fofn.cmp.h5.bax.3.1000.100";
         String expectedBAM = "src/test/resources/firstSimulatorTest/expected.bam";
         Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
 
+        if (!Files.exists(new Path(modelDirectory))) {
+            return; //model directory is large, and so is not included in the git repo
+        }
         SimulatorDriver.main(new String[]{"--outDir", workingDirectory.toString(),
                 "--identifier", "test", "--readType", "clrbam",
                 "--sequencingMode", "fragment",
@@ -57,5 +62,42 @@ public class SimulatorTest {
         });
         //the reads will be 3bp shorter on 5' end, 3bp shorter on 3' end
         assertTrue(FileUtils.contentEquals(outputBAM.toFile(), new File(expectedBAM)));
+    }
+
+    /**
+     * testing addition of error-free adapater in fragment mode
+     * @throws IOException
+     */
+    @Test
+    public void addAdapterSimulatorTest() throws IOException {
+        File workingDirectory = tmpFolder.newFolder("tmp");
+        String fasta = "src/test/resources/addAdapterSimulatorTest/reference.fasta";
+        String modelPrefix = "src/test/resources/addAdapterSimulatorTest/ecoli_model/p6_ecoli.fofn.cmp.h5.bax.3.1000.100";
+        String modelDirectory = "src/test/resources/addAdapterSimulatorTest/ecoli_model";
+        String expectedBAM = "src/test/resources/addAdapterSimulatorTest/expected.bam";
+        String expectedBED = "src/test/resources/addAdapterSimulatorTest/expected.bam.bed";
+        Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
+        Path outputBED = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam.bed");
+
+        if (!Files.exists(new Path(modelDirectory))) {
+            return; //model directory is large, and so is not included in the git repo
+        }
+
+        SimulatorDriver.main(new String[]{"--outDir", workingDirectory.toString(),
+                "--identifier", "test", "--readType", "clrbam",
+                "--sequencingMode", "fragment",
+                "--fasta", fasta,
+                "--modelPrefixes", modelPrefix,
+                "--totalBases", "50", "--samplePer", "100", "--seed", Integer.toString(seed),
+                "--minFragmentLength", "50", "--maxFragmentLength", "1000",
+                "--minNumPasses", "1", "--maxNumPasses", "10",
+                "--eventsFrequency", "0:0:0:1", //make sure error rates are zero for events
+                "--forceMovieName", "movie",
+                "--outputPolymeraseRead", "True",
+                "--adapterSequence", "ATCGTCGAACGGTCGACTA",
+        });
+        //the reads will be 3bp shorter on 5' end, 3bp shorter on 3' end
+        assertTrue(FileUtils.contentEquals(outputBAM.toFile(), new File(expectedBAM)));
+        assertTrue(FileUtils.contentEquals(outputBED.toFile(), new File(expectedBED)));
     }
 }

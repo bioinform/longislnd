@@ -1,5 +1,6 @@
 package com.bina.lrsim.simulator;
 
+import com.bina.lrsim.SimulatorDriver;
 import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
@@ -19,13 +20,15 @@ import java.util.concurrent.TimeUnit;
 public class ParallelSimulator {
   private final static Logger log = Logger.getLogger(ParallelSimulator.class.getName());
 
-  public static long process(RandomFragmentGenerator randomFragmentGenerator, String outDir, String moviePrefix, String movieSuffix, SamplesDrawer samples, int targetChunk, long targetNumBases, Spec spec, RandomGenerator gen) {
+  public static long process(RandomFragmentGenerator randomFragmentGenerator, String outDir, String moviePrefix,
+                             String movieSuffix, SamplesDrawer samples, int targetChunk, long targetNumBases,
+                             SimulatorDriver.ModuleOptions options, Spec spec, RandomGenerator gen) {
     Simulator simulator = new Simulator(randomFragmentGenerator);
     final ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     int batchNumber = 0;
     for (long scheduledBases = 0; scheduledBases < targetNumBases; scheduledBases += targetChunk, ++batchNumber) {
       final String movieName = moviePrefix + String.format("%05d", batchNumber) + movieSuffix;
-      threadPool.execute(new Worker(simulator, outDir, movieName, samples, (int) Math.min((long)targetChunk, targetNumBases), spec, gen.nextInt()));
+      threadPool.execute(new Worker(simulator, outDir, movieName, samples, (int) Math.min((long)targetChunk, targetNumBases), options, spec, gen.nextInt()));
     }
     threadPool.shutdown();
     try {
@@ -45,15 +48,17 @@ public class ParallelSimulator {
     final String movieName;
     final SamplesDrawer samples;
     final int targetNumBases;
+    final SimulatorDriver.ModuleOptions options;
     final Spec spec;
     final int seed;
 
-    private Worker(Simulator sim, String outDir, String movieName, SamplesDrawer samples, int targetNumBases, Spec spec, int seed) {
+    private Worker(Simulator sim, String outDir, String movieName, SamplesDrawer samples, int targetNumBases, SimulatorDriver.ModuleOptions options, Spec spec, int seed) {
       this.sim = sim;
       this.outDir = outDir;
       this.movieName = movieName;
       this.samples = samples;
       this.targetNumBases = targetNumBases;
+      this.options = options;
       this.spec = spec;
       this.seed = seed;
     }
@@ -62,7 +67,14 @@ public class ParallelSimulator {
     public void run() {
       try {
         ThreadLocalResources.random().setSeed(seed);
-        sim.simulate(outDir, movieName, 0, samples, targetNumBases, spec, new MersenneTwister(seed));
+          /*for now, keep two parallele implementations of simulate() to make sure
+          we have a working version of LongISLND.
+           */
+        if (options.getOutputPolymeraseRead().equals("True")) {
+          sim.simulate(outDir, movieName, 0, samples, targetNumBases, options, spec, new MersenneTwister(seed));
+        } else {
+          sim.simulate(outDir, movieName, 0, samples, targetNumBases, spec, new MersenneTwister(seed));
+        }
       } catch (IOException e) {
         log.error("Failed to generate " + movieName + " with seed " + seed);
         e.printStackTrace();
