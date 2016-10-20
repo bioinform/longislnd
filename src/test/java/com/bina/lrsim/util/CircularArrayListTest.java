@@ -14,11 +14,10 @@ import static junit.framework.TestCase.assertTrue;
 public class CircularArrayListTest {
   @Test
   public void basicTest() {
-    List<Integer> twoIntegers = new ArrayList<>();
-    twoIntegers.add(0);
-    twoIntegers.add(1);
-    CircularArrayList<Integer> test = new CircularArrayList<Integer>(twoIntegers);
-    int n = 1000;
+    CircularArrayList<Integer> test = new CircularArrayList<Integer>();
+    test.add(0);
+    test.add(1);
+    int n = 10;
     for (Integer i : test) {
       if (n == 0)
         break;
