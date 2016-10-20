@@ -46,7 +46,7 @@ public class SimulatorTest {
         String expectedBAM = "src/test/resources/firstSimulatorTest/expected.bam";
         Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
 
-        if (!Files.exists(new Path(modelDirectory))) {
+        if (!Files.exists(Paths.get(modelDirectory))) {
             return; //model directory is large, and so is not included in the git repo
         }
         SimulatorDriver.main(new String[]{"--outDir", workingDirectory.toString(),
@@ -57,6 +57,7 @@ public class SimulatorTest {
                 "--totalBases", "200", "--samplePer", "100", "--seed", Integer.toString(seed),
                 "--minFragmentLength", "50", "--maxFragmentLength", "1000",
                 "--minNumPasses", "1", "--maxNumPasses", "10",
+                "--outputPolymeraseRead", "False",
                 "--eventsFrequency", "0:0:0:1", //make sure error rates are zero for events
                 "--forceMovieName", "movie"
         });
@@ -79,7 +80,7 @@ public class SimulatorTest {
         Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
         Path outputBED = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam.bed");
 
-        if (!Files.exists(new Path(modelDirectory))) {
+        if (!Files.exists(Paths.get(modelDirectory))) {
             return; //model directory is large, and so is not included in the git repo
         }
 
