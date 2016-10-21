@@ -84,30 +84,25 @@ public class SamplesDrawer extends Samples {
     super.filterScoreLength(lenLimits);
   }
 
-  private AddBehavior calculateAddBehavior(long[] customFrequencies) {
-    if (null == customFrequencies) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
-    double totalCustomFrequency = 0;
-    //TODO: create a method (perhaps static method for summing up arrays) as there are multiple such use cases in the repo
-    for (long entry : customFrequencies)
-      totalCustomFrequency += entry;
-      //all custom frequencies allocated to MATCH
-    if (customFrequencies[EnumEvent.MATCH.ordinal()] == totalCustomFrequency) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
-    double customMatchProbability = 1.0 - customFrequencies[EnumEvent.MATCH.ordinal()] / totalCustomFrequency;
-    //why add 0.5?
-    final int customQualityScore = (int) (-10 * Math.log10(customMatchProbability) + 0.5);
+  private AddBehavior calculateAddBehavior(long[] customFrequency) {
+    if (null == customFrequency) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
+    double custom = 0;
+    for (long entry : customFrequency)
+      custom += entry;
+    if (customFrequency[EnumEvent.MATCH.ordinal()] == custom) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
+    custom = 1.0 - customFrequency[EnumEvent.MATCH.ordinal()] / custom;
+    final int customQ = (int) (-10 * Math.log10(custom) + 0.5);
 
-    double totalEventBaseCount = 0;
-    //TODO: create a method (perhaps static method for summing up arrays) as there are multiple such use cases in the repo
+    double intrinsic = 0;
     for (long entry : super.getEventBaseCountRef())
-      totalEventBaseCount += entry;
-      //all bases are MATCHes
-    if (super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] == totalEventBaseCount) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
-    double instrinsicMatchProbability = 1.0 - super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] / totalEventBaseCount;
-    final int intrinsicQualityScore = (int) (-10 * Math.log10(instrinsicMatchProbability) + 0.5);
+      intrinsic += entry;
+    if (super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] == intrinsic) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
+    intrinsic = 1.0 - super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] / intrinsic;
+    final int intrinsicQ = (int) (-10 * Math.log10(intrinsic) + 0.5);
 
-    final int deltaQ = (int) (10 * Math.log10( instrinsicMatchProbability / customMatchProbability) + 0.5);
+    final int deltaQ = (int) (10 * Math.log10(intrinsic / custom) + 0.5);
 
-    return new AddBehavior(deltaQ, 0, Math.max(customQualityScore, intrinsicQualityScore));
+    return new AddBehavior(deltaQ, 0, Math.max(customQ, intrinsicQ));
   }
 
   private void allocateEventDrawer(Spec spec, int maxSample) {
@@ -238,19 +233,19 @@ public class SamplesDrawer extends Samples {
   /**
    * Load the sampled events
    *
-   * @param prefixes prefixes of the event files, each prefix corresponds to one sampled model
+   * @param prefixes prefixes of the event files
    * @throws IOException
    */
   private void loadEvents(String[] prefixes, int maxSample, boolean artificialCleanIns) throws IOException {
-    final int numberModels = prefixes.length;
-    for (Suffixes suffixes : EnumSet.of(Suffixes.EVENTS, Suffixes.HP)) {
-      DataInputStream[] dataInputStreams = new DataInputStream[numberModels];
-      for (int ii = 0; ii < numberModels; ++ii) {
-        dataInputStreams[ii] = new DataInputStream(new BufferedInputStream(new FileInputStream(suffixes.filename(prefixes[ii])), 1000000));
+    final int numSrc = prefixes.length;
+    for (Suffixes suf : EnumSet.of(Suffixes.EVENTS, Suffixes.HP)) {
+      DataInputStream[] dis = new DataInputStream[numSrc];
+      for (int ii = 0; ii < numSrc; ++ii) {
+        dis[ii] = new DataInputStream(new BufferedInputStream(new FileInputStream(suf.filename(prefixes[ii])), 1000000));
       }
-      loadEvents(dataInputStreams, maxSample, artificialCleanIns);
-      for (int ii = 0; ii < numberModels; ++ii) {
-        dataInputStreams[ii].close();
+      loadEvents(dis, maxSample, artificialCleanIns);
+      for (int ii = 0; ii < numSrc; ++ii) {
+        dis[ii].close();
       }
     }
   }
@@ -258,19 +253,18 @@ public class SamplesDrawer extends Samples {
   /**
    * Load the sampled events
    *
-   * @param dataInputStreams a list of datastream
+   * @param dis a list of datastream
    * @throws IOException
    */
-  private void loadEvents(DataInputStream[] dataInputStreams, int maxSample, boolean artificialCleanIns) throws IOException {
+  private void loadEvents(DataInputStream[] dis, int maxSample, boolean artificialCleanIns) throws IOException {
     // Bottleneck code
     AddBehavior addBehavior = calculateAddBehavior(this.customFrequency);
     if (maxSample < 1) return;
     log.info("loading events");
-    final int numberOfDataInputStreams = dataInputStreams.length;
+    final int numSrc = dis.length;
     Event buffer = new Event(spec);
     long count = 0;
 
-    //difference between eventCount and loggedEventCount?
     long[] eventCount = new long[EnumEvent.values.length];
     long[] loggedEventCount = new long[EnumEvent.values.length];
     // long num_logged_event = 0;
@@ -278,10 +272,6 @@ public class SamplesDrawer extends Samples {
     KmerIntIntCounter numLoggedEvents = new KmerIntIntCounter(getK(), EnumEvent.values.length, 1);
     final int minEventIndex = EnumEvent.SUBSTITUTION.ordinal(); // assumes substitution is the rarest events
     final long[] minEventThreshold = new long[getNumKmer()]; // -1 for done, 0 or 1 for not done
-    /*Here minEventIndex points to a specific type of event (e.g. substitution)
-    the following loop iterates over all kmer count for the type of event pointed to by minEventIndex
-    if such a kmer count is 0, then corresponding minEventTreshold[i] is set to 0, otherwise set to 1.
-     */
     for (int kk = 0; kk < getNumKmer(); ++kk) {
       minEventThreshold[kk] = getKmerEventCountRef()[kk * EnumEvent.values.length + minEventIndex] == 0 ? 0 : 1;
     }
@@ -289,25 +279,18 @@ public class SamplesDrawer extends Samples {
 
     long numHpEvents = 0;
 
-    long rawInsertions = 0;
-    long modifiedInsertions = 0;
+    long rawIns = 0;
+    long modIns = 0;
 
-    final boolean[] isInputStreamDone = new boolean[numberOfDataInputStreams];
+    final boolean[] srcDone = new boolean[numSrc];
 
-    /*
-    when loading events, we alternate among all input streams until all of them are depleted.
-     */
-    for (int inputStreamIndex = 0, numberOfInputStreamDone = 0;
-         numberOfInputStreamDone < numberOfDataInputStreams && nKmerDone < getNumKmer() /* && num_logged_event < max_logged_event */;
-         inputStreamIndex = (inputStreamIndex + 1) % numberOfDataInputStreams) {
-      if (dataInputStreams[inputStreamIndex].available() > 0) {
-        buffer.read(dataInputStreams[inputStreamIndex]);
+    for (int src = 0, nSrcDone = 0; nSrcDone < numSrc && nKmerDone < getNumKmer() /* && num_logged_event < max_logged_event */; src = (src + 1) % numSrc) {
+      if (dis[src].available() > 0) {
+        buffer.read(dis[src]);
         final int bufferKmer = buffer.getKmer();
 
-        //length of homopolymer is 1
         if (buffer.getHpLen() == 1) {
           final EnumEvent bufferEvent = buffer.getEvent();
-          //only insertion can have two or more bases called each time
           if (buffer.size() > 1 && bufferEvent != EnumEvent.INSERTION) {
             throw new RuntimeException(bufferEvent.name() + " with length " + buffer.size());
           }
@@ -340,24 +323,22 @@ public class SamplesDrawer extends Samples {
                     changed = true;
                   }
                 }
-                ++rawInsertions;
+                ++rawIns;
                 if (buffer.size() % 2 == 0 && midPointDifferent) {
                   buffer.set(midPoint, EnumDat.BaseCall, ThreadLocalRandom.current().nextBoolean() ? centerBase : nextBase);
                   changed = true;
                 }
                 if (changed) {
-                  ++modifiedInsertions;
+                  ++modIns;
                   // log.info("bayo changed: " + new String(kmer_sequence) + " " + buffer.toString());
                 }
               }
               if (buffer.size() - 1 > Heuristics.MAX_INS_LENGTH) {
                 int hpLength = 1;
                 final byte[] kmerSequence = Kmerizer.toByteArray(bufferKmer, getLeftFlank() + 1 + getRightFlank());
-                for (int pos = getLeftFlank() + 1; pos < kmerSequence.length && kmerSequence[pos] == centerBase; ++pos) {
-                    ++hpLength;
+                for (int pos = getLeftFlank() + 1; pos < kmerSequence.length && kmerSequence[pos] == centerBase; ++pos, ++hpLength) {
                 }
-                for (int pos = getLeftFlank() - 1; pos >= 0 && kmerSequence[pos] == centerBase; --pos) {
-                    ++hpLength;
+                for (int pos = getLeftFlank() - 1; pos >= 0 && kmerSequence[pos] == centerBase; --pos, ++hpLength) {
                 }
                 if (hpLength <= Math.min(getLeftFlank(), getRightFlank())) {
                   buffer.resize(Heuristics.MAX_INS_LENGTH + 1);
@@ -391,7 +372,6 @@ public class SamplesDrawer extends Samples {
             // ++num_logged_event;
           }
         } else {
-          //length of homopolymer is over 1
           if (Heuristics.DISCARD_DIRTY_HOMOPOLYMER_SAMPLES) {
             final byte centerBase = Kmerizer.getKmerByte(buffer.getKmer(), 2 * getHpAnchor() + 1, getHpAnchor());
             int match = 0;
@@ -413,11 +393,11 @@ public class SamplesDrawer extends Samples {
         if (count % 10000000 == 1) {
           log.info("loaded " + count + " events" + Arrays.toString(loggedEventCount) + "/" + Arrays.toString(eventCount));
           log.info("loaded " + numHpEvents + " hp events");
-          log.info("pruning criteria " + nKmerDone + "/" + getNumKmer());
+          log.info("pruning criterions " + nKmerDone + "/" + getNumKmer());
         }
-      } else if (!isInputStreamDone[inputStreamIndex]) {
-        isInputStreamDone[inputStreamIndex] = true;
-        ++numberOfInputStreamDone;
+      } else if (!srcDone[src]) {
+        srcDone[src] = true;
+        ++nSrcDone;
       }
     }
     if(nKmerDone >= getNumKmer()) {
@@ -425,7 +405,7 @@ public class SamplesDrawer extends Samples {
     }
     log.info("loaded " + count + " events");
     log.info("loaded " + numHpEvents + " hp events");
-    log.info("modified ins: " + modifiedInsertions + "/" + rawInsertions);
+    log.info("modified ins: " + modIns + "/" + rawIns);
   }
 
   /**
