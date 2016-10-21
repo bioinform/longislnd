@@ -65,7 +65,7 @@ public abstract class ReadsWriter implements Closeable {
     fw.write('\t');
     fw.write(recordName);
     fw.write("\t500\t");
-    fw.write(locus.isReverseComplement() ? '-' : '+');
+    fw.write(locus.isRc() ? '-' : '+');
     fw.write(System.lineSeparator());
   }
 

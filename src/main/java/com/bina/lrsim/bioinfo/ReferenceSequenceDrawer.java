@@ -52,7 +52,7 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
     Fragment out = null;
     //keep trying until we got something
     while (null == out) {
-      out = drawRandomSequence(length, randomNumberGenerator);
+      out = getSequenceImpl(length, randomNumberGenerator);
     }
     return out;
   }
@@ -64,7 +64,7 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
    * @param randomNumberGenerator
    * @return
    */
-  protected abstract Fragment drawRandomSequence(int length, RandomGenerator randomNumberGenerator);
+  protected abstract Fragment getSequenceImpl(int length, RandomGenerator randomNumberGenerator);
 
   /**
    * get chromosome sequence by name

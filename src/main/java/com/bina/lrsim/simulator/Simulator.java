@@ -2,16 +2,16 @@ package com.bina.lrsim.simulator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
-import com.bina.lrsim.SimulatorDriver;
 import com.bina.lrsim.bioinfo.*;
 import com.bina.lrsim.pb.*;
-import com.bina.lrsim.simulator.samples.pool.AppendedState;
-import com.bina.lrsim.util.CircularArrayList;
+import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -28,15 +28,25 @@ public class Simulator {
   private final AtomicLongArray baseCounter = new AtomicLongArray(EnumEvent.values.length);
   private final AtomicLongArray eventCounter = new AtomicLongArray(EnumEvent.values.length);
   private final ConcurrentHashMap<String, AtomicLong> nameCounter = new ConcurrentHashMap<>();
-  private final RandomFragmentGenerator randomFragmentGenerator;
+  private final RandomFragmentGenerator seqGen;
 
   /**
    * Constructor
    * 
-   * @param randomFragmentGenerator a random sequence generator
+   * @param seqGen a random sequence generator
    */
-  public Simulator(RandomFragmentGenerator randomFragmentGenerator) {
-    this.randomFragmentGenerator = randomFragmentGenerator;
+  public Simulator(RandomFragmentGenerator seqGen) {
+    this.seqGen = seqGen;
+  }
+
+  /**
+   * wrapper for two implementations of simulate()
+   */
+  public int simulate(final String path, final String movieName, final int firsthole,
+                      SamplesDrawer drawer, int totalBases, final Spec spec,
+                      RandomGenerator gen) throws IOException {
+    return simulateWithPerfectAdapter(path, movieName, firsthole, drawer, totalBases,
+                                      Spec spec, gen);
   }
 
   /**
@@ -45,117 +55,101 @@ public class Simulator {
    * @param path output path
    * @param movieName movie name
    * @param firsthole first hole producing sequence
-   * @param samplesDrawer an instance from which samples can be drawn
+   * @param drawer an instance from which samples can be drawn
    * @param totalBases minimum number of bp to generate
-   * @param randomNumberGenerator random number generator
+   * @param gen random number generator
    */
-  public int simulate(final String path, final String movieName, final int firsthole,
-                      SamplesDrawer samplesDrawer, int totalBases,
-                      final Spec spec, RandomGenerator randomNumberGenerator) throws IOException {
-    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(
-            spec, new File(path, movieName + spec.getSuffix()).getPath(),
-            movieName, firsthole,
-            //it seems only the first set of run infos is used
-            samplesDrawer.getNumRunInfo() > 0 ? samplesDrawer.getRunInfo(0) : new RunInfo())) {
+  private int simulateWithPerfectAdapter(final String path, final String movieName, final int firsthole, SamplesDrawer drawer, int totalBases, final Spec spec, RandomGenerator gen) throws IOException {
+    try (ReadsWriter writer = ReadsWriterFactory.makeWriter(spec, new File(path, movieName + spec.getSuffix()).getPath(), movieName, firsthole, drawer.getNumRunInfo() > 0 ? drawer.getRunInfo(0) : new RunInfo())) {
       long[] localBaseCounter = new long[baseCounter.length()];
       PBReadBuffer read = new PBReadBuffer(spec);
 
-      /*
-      each iteration generates one simulated read
-       */
-          for (int numBases = 0; numBases < totalBases;) {
-            read.clear();
+      for (int numBases = 0; numBases < totalBases;) {
+        read.clear();
+        if (read.size() != 0) {
+          log.error("couldn't clear buffer");
+          throw new RuntimeException("different lengths!");
+        }
 
         // draw a list of smrt belts
-        Pair<int[], Integer> lenScore = samplesDrawer.getRandomLengthScore(randomNumberGenerator);
+        Pair<int[], Integer> lenScore = drawer.getRandomLengthScore(gen);
         final int[] insertLengths = lenScore.getFirst();
         MultiPassSpec multiPassSpec = new MultiPassSpec(insertLengths);
 
-        final Fragment fragment = randomFragmentGenerator.getFragment(multiPassSpec.fragmentLength, randomNumberGenerator);
+        final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, gen);
         final Locus locus = fragment.getLocus();
         nameCounter.putIfAbsent(locus.getChrom(), new AtomicLong((long) 0));
         nameCounter.get(locus.getChrom()).incrementAndGet();
-        final byte[] sampledReferenceSequence = fragment.getSeq();
+        final byte[] sequence = fragment.getSeq();
         // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
-        if(multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sampledReferenceSequence.length) {
-            //why starts from 1 instead of 0?
+        if(multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sequence.length) {
           for (int ii = 1; ii + 1 < insertLengths.length; ++ii) {
-            if (insertLengths[ii] < sampledReferenceSequence.length) {
-              insertLengths[ii] = sampledReferenceSequence.length;
+            if (insertLengths[ii] < sequence.length) {
+              insertLengths[ii] = sequence.length;
             }
           }
         }
-        /* correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
-            * make sure no insert length is longer than sampled reference sequence
-            */
+        // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
         for (int ii = 0; ii < insertLengths.length; ++ii) {
-          if(insertLengths[ii] > sampledReferenceSequence.length) {
-            insertLengths[ii] = sampledReferenceSequence.length;
+          if(insertLengths[ii] > sequence.length) {
+            insertLengths[ii] = sequence.length;
           }
         }
 
         // draw a sequence according to max insert length, make RC if belt is long enough
-        final List<byte[]> forwardAndReverseComplementSequences = new ArrayList<>(2);
-        forwardAndReverseComplementSequences.add(sampledReferenceSequence);
+        final List<byte[]> fwRc = new ArrayList<>(2);
+        fwRc.add(sequence);
         if (insertLengths.length > 1) {
-          /*the forward sequence might be reverse complement of a reference sequence
-          one has to check reverse complement boolean flag of locus for that fragment
-           */
-          final byte[] forwardSequence = forwardAndReverseComplementSequences.get(0);
-          final byte[] reverseComplementSequence = new byte[forwardSequence.length];
-          //TODO: wrap reverse complement generation into a method
-          for (int pos = 0, tgt = forwardSequence.length - 1; pos < forwardSequence.length; ++pos, --tgt) {
-            reverseComplementSequence[tgt] = EnumBP.ascii_rc(forwardSequence[pos]);
+          final byte[] fw = fwRc.get(0);
+          final byte[] rc = new byte[fw.length];
+          for (int pos = 0, tgt = fw.length - 1; pos < fw.length; ++pos, --tgt) {
+            rc[tgt] = EnumBP.ascii_rc(fw[pos]);
           }
-          forwardAndReverseComplementSequences.add(reverseComplementSequence);
+          fwRc.add(rc);
         }
 
-        //clr stands for continuous long read
         final List<Locus> clrLoci = new ArrayList<>();
 
         final List<Integer> sectionEnds = new ArrayList<>(2 * insertLengths.length - 1);
         boolean skipIfShort = false;
         for (int insIdx = 0; insIdx < insertLengths.length; ++insIdx) {
-          final int currentInsertLength = insertLengths[insIdx];
-          final boolean isFirstClr = insIdx == 0;
-          final boolean isLastClr = insIdx + 1 == insertLengths.length;
-            //why set begin and end like this?
-          final int begin = isFirstClr ? sampledReferenceSequence.length - currentInsertLength : 0;
-          final int end = isLastClr ? currentInsertLength : sampledReferenceSequence.length;
-          final boolean isShort = currentInsertLength < Heuristics.SMRT_INSERT_FRACTION * sampledReferenceSequence.length && !isFirstClr && !isLastClr;
+          final int insertLength = insertLengths[insIdx];
+          final boolean firstClr = insIdx == 0;
+          final boolean lastClr = insIdx + 1 == insertLengths.length;
+          final int begin = firstClr ? sequence.length - insertLength : 0;
+          final int end = lastClr ? insertLength : sequence.length;
+          final boolean isShort = insertLength < Heuristics.SMRT_INSERT_FRACTION * sequence.length && !firstClr && !lastClr;
           if (!isShort || !skipIfShort) {
-            if (!isFirstClr) {
+            if (!firstClr) {
               // prepend with a "perfect" adaptor sequence
               read.addASCIIBases(Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_SCORE);
               sectionEnds.add(read.size());
             }
-            AppendedState previousState = null;
-            for (Iterator<Context> itr = new HPIterator(forwardAndReverseComplementSequences.get(insIdx % 2), begin, end, samplesDrawer.getLeftFlank(), samplesDrawer.getRightFlank(), samplesDrawer.getHpAnchor()); itr.hasNext();) {
-              final Context currentContext = itr.next();
-              if (null != currentContext) {
-                //this is where the magic of error simulation happens~~~
-                previousState = samplesDrawer.appendTo(read, currentContext, previousState, randomNumberGenerator, localBaseCounter);
+            AppendState deletion = null;
+            for (Iterator<Context> itr = new HPIterator(fwRc.get(insIdx % 2), begin, end, drawer.getLeftFlank(), drawer.getRightFlank(), drawer.getHpAnchor()); itr.hasNext();) {
+              final Context con = itr.next();
+              if (null != con) {
+                deletion = drawer.appendTo(read, con, deletion, gen, localBaseCounter);
               }
             }
 
             //per clr coordinates
             int clrBegin = locus.getBegin0();
             int clrEnd = locus.getEnd0();
-            //determine if current sequence is truly reverse complement of original reference
-            final boolean isReverseComplement = (insIdx % 2 == 1) ^ locus.isReverseComplement();
-            if (isFirstClr) {
-              if(isReverseComplement)
-                clrEnd = locus.getBegin0() + currentInsertLength;
+            final boolean readIsRc = (insIdx % 2 == 1) ^ locus.isRc();
+            if (firstClr) {
+              if(readIsRc)
+                clrEnd = locus.getBegin0() + insertLength;
               else
-                clrBegin = locus.getEnd0() - currentInsertLength;
+                clrBegin = locus.getEnd0() - insertLength;
             }
-            if (isLastClr) {
-              if(isReverseComplement)
-                clrBegin = locus.getEnd0() - currentInsertLength;
+            if (lastClr) {
+              if(readIsRc)
+                clrBegin = locus.getEnd0() - insertLength;
               else
-                clrEnd = locus.getBegin0() + currentInsertLength;
+                clrEnd = locus.getBegin0() + insertLength;
             }
-            clrLoci.add(new Locus(locus.getChrom(), clrBegin, clrEnd, isReverseComplement));
+            clrLoci.add(new Locus(locus.getChrom(), clrBegin, clrEnd, readIsRc));
             sectionEnds.add(read.size());
             if (isShort) {
               skipIfShort = true;
@@ -180,6 +174,7 @@ public class Simulator {
       return writer.size();
     }
   }
+
   /**
    * Generate a pacbio h5 file containing reads simulated according to the sampler and reference
    *
@@ -190,7 +185,7 @@ public class Simulator {
    * @param totalBases minimum number of bp to generate
    * @param randomNumberGenerator random number generator
    */
-  public int simulate(final String path, final String movieName, final int firsthole,
+  public int simulateWithNoisyAdapter(final String path, final String movieName, final int firsthole,
                       SamplesDrawer samplesDrawer, int totalBases, SimulatorDriver.ModuleOptions options,
                       final Spec spec, RandomGenerator randomNumberGenerator) throws IOException {
     boolean outputPolymeraseRead = options.getOutputPolymeraseRead().equals("True");
@@ -342,7 +337,7 @@ public class Simulator {
           //for polymerase read, we record full region of sampled fragment as its origin
           //unless number of passes is smaller than 1
           if (insertLengths.length == 1) {
-            isReverseComplement = locus.isReverseComplement();
+            isReverseComplement = locus.isRc();
             //we need 0-based start and 1-based end for BED
             if (isReverseComplement) {
               //update start
@@ -395,7 +390,7 @@ public class Simulator {
             int clrBegin = locus.getBegin0();
             int clrEnd = locus.getEnd0();
             //determine if current sequence is truly reverse complement of original reference
-            final boolean isReverseComplement = (insIdx % 2 == 1) ^ locus.isReverseComplement();
+            final boolean isReverseComplement = (insIdx % 2 == 1) ^ locus.isRc();
             if (isFirstClr) {
               if(isReverseComplement)
                 clrBegin = locus.getEnd0() - currentInsertLength;

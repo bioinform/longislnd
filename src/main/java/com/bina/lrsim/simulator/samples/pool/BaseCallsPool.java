@@ -39,7 +39,7 @@ public abstract class BaseCallsPool {
    * @param gen random number generator
    * @return success or not
    */
-  public abstract AppendedState appendTo(PBReadBuffer pb, Context context, AppendedState previousAppendedState, RandomGenerator gen);
+  public abstract AppendState appendTo(PBReadBuffer pb, Context context, AppendState previousAppendState, RandomGenerator gen);
 
   /**
    * add an event to be drawn from later
@@ -47,5 +47,5 @@ public abstract class BaseCallsPool {
    * @param ev a sequencing event
    * @return event has been added to the pool or not
    */
-  public abstract boolean add(Event ev, AddedBehavior ab);
+  public abstract boolean add(Event ev, AddBehavior ab);
 }

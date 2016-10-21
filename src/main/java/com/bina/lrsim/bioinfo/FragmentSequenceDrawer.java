@@ -16,7 +16,7 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
   }
 
   @Override
-  protected Fragment drawRandomSequence(int length, RandomGenerator randomNumberGenerator) {
+  protected Fragment getSequenceImpl(int length, RandomGenerator randomNumberGenerator) {
     final boolean needReverseComplement = randomNumberGenerator.nextBoolean();
 
     // select a fragment with equal probability

@@ -28,7 +28,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
   }
 
   @Override
-  protected Fragment drawRandomSequence(int length, RandomGenerator randomNumberGenerator) {
+  protected Fragment getSequenceImpl(int length, RandomGenerator randomNumberGenerator) {
     final boolean needReverseComplement = randomNumberGenerator.nextBoolean();
     final long totalReferenceSize = cumulativeReferenceChromosomeSizes.get(cumulativeReferenceChromosomeSizes.size() - 1);
     //(randomNumberGenerator.nextLong() % totalReferenceSize + totalReferenceSize) % totalReferenceSize == randomNumberGenerator.nextLong() % totalReferenceSize?

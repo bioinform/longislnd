@@ -17,13 +17,13 @@ public class EmptyBCPool extends BaseCallsPool {
   }
 
   @Override
-  public AppendedState appendTo(PBReadBuffer buffer, Context context, AppendedState previousAppendedState, RandomGenerator gen) {
+  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState previousAppendState, RandomGenerator gen) {
     if (context.getHpLen() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
-    return new AppendedState(null, true);
+    return new AppendState(null, true);
   }
 
   @Override
-  public boolean add(Event ev, AddedBehavior ab) {
+  public boolean add(Event ev, AddBehavior ab) {
     return false;
   }
 

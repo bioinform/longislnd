@@ -23,7 +23,7 @@ public class ShotgunFragmentSequenceDrawer extends ReferenceSequenceDrawer {
   }
 
   @Override
-  protected Fragment drawRandomSequence(int length, RandomGenerator randomNumberGenerator) {
+  protected Fragment getSequenceImpl(int length, RandomGenerator randomNumberGenerator) {
     final boolean needReverseComplement = randomNumberGenerator.nextBoolean();
     List<Long> cumulativeChromosomeLengths = new ArrayList<Long>();
     long numFrag = 0;

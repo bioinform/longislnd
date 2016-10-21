@@ -55,11 +55,11 @@ public class Locus {
     this.end0 = end0;
   }
 
-  public boolean isReverseComplement() {
+  public boolean isRc() {
     return isReverseComplement;
   }
 
-  public void setReverseComplement(boolean reverseComplement) {
+  public void setRc(boolean reverseComplement) {
     this.isReverseComplement = reverseComplement;
   }
 }

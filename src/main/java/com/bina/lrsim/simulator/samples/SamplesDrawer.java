@@ -9,7 +9,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.bina.lrsim.bioinfo.KmerIntIntCounter;
 import com.bina.lrsim.pb.Spec;
-import com.bina.lrsim.simulator.samples.pool.AddedBehavior;
+import com.bina.lrsim.simulator.samples.pool.AddBehavior;
+import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -21,7 +22,6 @@ import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
-import com.bina.lrsim.simulator.samples.pool.AppendedState;
 import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
 import com.bina.lrsim.simulator.samples.pool.HPBCPool;
 
@@ -84,14 +84,14 @@ public class SamplesDrawer extends Samples {
     super.filterScoreLength(lenLimits);
   }
 
-  private AddedBehavior calculateAddBehavior(long[] customFrequencies) {
-    if (null == customFrequencies) { return new AddedBehavior(0, 0, Integer.MAX_VALUE); }
+  private AddBehavior calculateAddBehavior(long[] customFrequencies) {
+    if (null == customFrequencies) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
     double totalCustomFrequency = 0;
     //TODO: create a method (perhaps static method for summing up arrays) as there are multiple such use cases in the repo
     for (long entry : customFrequencies)
       totalCustomFrequency += entry;
       //all custom frequencies allocated to MATCH
-    if (customFrequencies[EnumEvent.MATCH.ordinal()] == totalCustomFrequency) { return new AddedBehavior(0, 0, Integer.MAX_VALUE); }
+    if (customFrequencies[EnumEvent.MATCH.ordinal()] == totalCustomFrequency) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
     double customMatchProbability = 1.0 - customFrequencies[EnumEvent.MATCH.ordinal()] / totalCustomFrequency;
     //why add 0.5?
     final int customQualityScore = (int) (-10 * Math.log10(customMatchProbability) + 0.5);
@@ -101,13 +101,13 @@ public class SamplesDrawer extends Samples {
     for (long entry : super.getEventBaseCountRef())
       totalEventBaseCount += entry;
       //all bases are MATCHes
-    if (super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] == totalEventBaseCount) { return new AddedBehavior(0, 0, Integer.MAX_VALUE); }
+    if (super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] == totalEventBaseCount) { return new AddBehavior(0, 0, Integer.MAX_VALUE); }
     double instrinsicMatchProbability = 1.0 - super.getEventBaseCountRef()[EnumEvent.MATCH.ordinal()] / totalEventBaseCount;
     final int intrinsicQualityScore = (int) (-10 * Math.log10(instrinsicMatchProbability) + 0.5);
 
     final int deltaQ = (int) (10 * Math.log10( instrinsicMatchProbability / customMatchProbability) + 0.5);
 
-    return new AddedBehavior(deltaQ, 0, Math.max(customQualityScore, intrinsicQualityScore));
+    return new AddBehavior(deltaQ, 0, Math.max(customQualityScore, intrinsicQualityScore));
   }
 
   private void allocateEventDrawer(Spec spec, int maxSample) {
@@ -143,13 +143,13 @@ public class SamplesDrawer extends Samples {
    * @param baseCounter base counter for ins/del/sub/mat
    * @return about current state
    */
-  public AppendedState appendTo(PBReadBuffer buffer, Context context, AppendedState deletion, RandomGenerator randomNumberGenerator, long[] baseCounter) {
+  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState deletion, RandomGenerator randomNumberGenerator, long[] baseCounter) {
     final int oldLength = buffer.size();
     if (context.getHpLen() == 1) { //regular K-mer
       EnumEvent event = randomEvent(context, randomNumberGenerator);
       // ignore the previous event if it's already a deletion
       final int orgLength = buffer.size();
-      AppendedState result = kmerEventDrawer.get(event).appendTo(buffer, context,
+      AppendState result = kmerEventDrawer.get(event).appendTo(buffer, context,
                                                                  event.equals(EnumEvent.DELETION) ? null : deletion,
                                                                  randomNumberGenerator);
       final boolean isNewLengthIllegal;
@@ -187,7 +187,7 @@ public class SamplesDrawer extends Samples {
       // custom hp drawing is possible improvement
       final boolean hpSampling;
       if (customFrequency == null) {
-        final AppendedState result = hpEventDrawer.appendTo(buffer, context, deletion, randomNumberGenerator);
+        final AppendState result = hpEventDrawer.appendTo(buffer, context, deletion, randomNumberGenerator);
         hpSampling = result.success;
       } else {
         // might want to do something with remodeling homopolymer indels -- uniform error does not work
@@ -263,7 +263,7 @@ public class SamplesDrawer extends Samples {
    */
   private void loadEvents(DataInputStream[] dataInputStreams, int maxSample, boolean artificialCleanIns) throws IOException {
     // Bottleneck code
-    AddedBehavior addedBehavior = calculateAddBehavior(this.customFrequency);
+    AddBehavior addBehavior = calculateAddBehavior(this.customFrequency);
     if (maxSample < 1) return;
     log.info("loading events");
     final int numberOfDataInputStreams = dataInputStreams.length;
@@ -366,7 +366,7 @@ public class SamplesDrawer extends Samples {
           }
 
           ++eventCount[bufferEvent.ordinal()];
-          if (kmerEventDrawer.get(bufferEvent).add(buffer, addedBehavior)) {
+          if (kmerEventDrawer.get(bufferEvent).add(buffer, addBehavior)) {
             final int eventIndex = bufferEvent.ordinal();
             ++loggedEventCount[eventIndex];
             numLoggedEvents.increment(bufferKmer, eventIndex, 0);
@@ -401,11 +401,11 @@ public class SamplesDrawer extends Samples {
               }
             }
             if (2 * match >= buffer.size()) {
-              hpEventDrawer.add(buffer, addedBehavior);
+              hpEventDrawer.add(buffer, addBehavior);
               ++numHpEvents;
             }
           } else {
-            hpEventDrawer.add(buffer, addedBehavior);
+            hpEventDrawer.add(buffer, addBehavior);
             ++numHpEvents;
           }
         }
