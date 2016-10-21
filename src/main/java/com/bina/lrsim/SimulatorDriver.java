@@ -42,6 +42,8 @@ public class SimulatorDriver {
     }
 
     final Spec spec = Spec.fromReadType(options.readType);
+    spec.setPolymeraseReadFlag(options.outputPolymeraseRead);
+    spec.setAdapterSequence(options.adapterSequence);
 
     final ReferenceSequenceDrawer referenceDrawer = ReferenceSequenceDrawer.Factory(options.sequencingMode, options.fasta);
     if (referenceDrawer == null) {
@@ -72,7 +74,6 @@ public class SimulatorDriver {
     //TODO: consider combine invididual command line arguments into one parameter
     ParallelSimulator.process(referenceDrawer, options.outDir, moviePrefix,
                               movieSuffix, samples, targetChunk, options.totalBases,
-                              options,
                               spec, new MersenneTwister(options.seed));
 
     log.info("finished.");

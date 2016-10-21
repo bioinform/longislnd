@@ -21,7 +21,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
-            BamFileIoUtils.BAM_FILE_EXTENSION
+            BamFileIoUtils.BAM_FILE_EXTENSION,
+            false,
+            ""
     ),
     BaxSpec(
             "bax",
@@ -32,7 +34,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IDPV1)),
-            ".bax.h5"
+            ".bax.h5",
+            false,
+            ""
     ),
     BaxSampleSpec(
             "baxsample",
@@ -43,7 +47,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
-            ".bax.h5"
+            ".bax.h5",
+            false,
+            ""
     ),
     CcsSpec(
             "ccs",
@@ -54,7 +60,9 @@ public enum Spec {
             EnumGroups.CZMW,
             EnumGroups.CZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1)),
-            ".ccs.h5"
+            ".ccs.h5",
+            false,
+            ""
     ),
     FastqSpec(
             "fastq",
@@ -65,7 +73,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.of(EnumDat.BaseCall, EnumDat.QualityValue),
-            ".fq"
+            ".fq",
+            false,
+            ""
     ),
     UnknownSpec(
             null,
@@ -76,7 +86,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.noneOf(EnumDat.class),
-            null
+            null,
+            false,
+            ""
     );
 
     public final String readType;
@@ -89,6 +101,8 @@ public enum Spec {
     public final Set<EnumDat> dataSet;
     public final Set<EnumDat> nonBaseDataSet;
     public final String suffix;
+    public boolean polymeraseReadFlag;
+    public String adapterSequence;
 
     Spec(final String readType,
          final String[] dataDescription,
@@ -98,7 +112,9 @@ public enum Spec {
          final EnumGroups zmw,
          final EnumGroups zmwMetrics,
          final Set<EnumDat> dataSet,
-         final String suffix) {
+         final String suffix,
+         final boolean polymeraseReadFlag,
+         final String adapterSequence) {
         this.readType = readType;
         this.dataDescription = dataDescription;
         this.groupSet = groupSet;
@@ -109,6 +125,8 @@ public enum Spec {
         this.dataSet = dataSet;
         nonBaseDataSet = EnumSet.copyOf(dataSet);
         this.suffix = suffix;
+        this.polymeraseReadFlag = polymeraseReadFlag;
+        this.adapterSequence = adapterSequence;
 
         nonBaseDataSet.remove(EnumDat.BaseCall);
     }
@@ -120,6 +138,16 @@ public enum Spec {
             }
         }
         return UnknownSpec;
+    }
+
+    public void setPolymeraseReadFlag(final String outputPolymeraseRead) {
+        if (outputPolymeraseRead.equals("True")) {
+            this.polymeraseReadFlag = true;
+        }
+    }
+
+    public void setAdapterSequence(final String adapterSequence) {
+        this.adapterSequence = adapterSequence;
     }
 
     public Set<EnumDat> getDataSet() {

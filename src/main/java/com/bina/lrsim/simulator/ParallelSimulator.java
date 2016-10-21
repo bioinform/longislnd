@@ -46,7 +46,6 @@ public class ParallelSimulator {
     final String movieName;
     final SamplesDrawer samples;
     final int targetNumBases;
-    final SimulatorDriver.ModuleOptions options;
     final Spec spec;
     final int seed;
 

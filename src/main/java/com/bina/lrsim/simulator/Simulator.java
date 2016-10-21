@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import com.bina.lrsim.bioinfo.*;
 import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
+import com.bina.lrsim.util.CircularArrayList;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -45,8 +46,13 @@ public class Simulator {
   public int simulate(final String path, final String movieName, final int firsthole,
                       SamplesDrawer drawer, int totalBases, final Spec spec,
                       RandomGenerator gen) throws IOException {
-    return simulateWithPerfectAdapter(path, movieName, firsthole, drawer, totalBases,
-                                      Spec spec, gen);
+    if (spec.polymeraseReadFlag) {
+      return simulateWithNoisyAdapter(path, movieName, firsthole, drawer, totalBases,
+              spec, gen);
+    } else {
+      return simulateWithPerfectAdapter(path, movieName, firsthole, drawer, totalBases,
+              spec, gen);
+    }
   }
 
   /**
@@ -185,10 +191,11 @@ public class Simulator {
    * @param totalBases minimum number of bp to generate
    * @param randomNumberGenerator random number generator
    */
+
   public int simulateWithNoisyAdapter(final String path, final String movieName, final int firsthole,
-                      SamplesDrawer samplesDrawer, int totalBases, SimulatorDriver.ModuleOptions options,
+                      SamplesDrawer samplesDrawer, int totalBases,
                       final Spec spec, RandomGenerator randomNumberGenerator) throws IOException {
-    boolean outputPolymeraseRead = options.getOutputPolymeraseRead().equals("True");
+    boolean outputPolymeraseRead = spec.polymeraseReadFlag;
     try (ReadsWriter writer = ReadsWriterFactory.makeWriter(
             spec, new File(path, movieName + spec.getSuffix()).getPath(),
             movieName, firsthole,
@@ -210,7 +217,7 @@ public class Simulator {
         final int[] insertLengths = lenScore.getFirst();
         MultiPassSpec multiPassSpec = new MultiPassSpec(insertLengths);
 
-        final Fragment fragment = randomFragmentGenerator.getFragment(multiPassSpec.fragmentLength, randomNumberGenerator);
+        final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, randomNumberGenerator);
         final Locus locus = fragment.getLocus();
         nameCounter.putIfAbsent(locus.getChrom(), new AtomicLong((long) 0));
         nameCounter.get(locus.getChrom()).incrementAndGet();
@@ -288,8 +295,8 @@ public class Simulator {
           and assume it starts anywhere completely randomly (if sequencing starts
           in an adapter).
           */
-          int randomStartPositionInAdapter = randomNumberGenerator.nextInt(options.getAdapterSequence().length());
-          byte[] adapterNucleotideArray = options.getAdapterSequence().getBytes();
+          int randomStartPositionInAdapter = randomNumberGenerator.nextInt(spec.adapterSequence.length());
+          byte[] adapterNucleotideArray = spec.adapterSequence.getBytes();
           /*
           if our model is built from H5 input, then we can sum up insert lengths to get the total
           length of a polymerase read minus adapter length.
@@ -314,7 +321,7 @@ public class Simulator {
           final int polymeraseReadLength = noErrorPolymeraseRead.length;
           final int begin = 0;
           final int end = polymeraseReadLength; //exclusive end that will be used in HPIterator
-          AppendedState previousState = null;
+          AppendState previousState = null;
           /*
            * the first few bp equal to length of flank will be skipped
            * if first context we have contains homopolymer, more bp will be skipped.
@@ -377,7 +384,7 @@ public class Simulator {
               read.addASCIIBases(Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_STRING, Heuristics.SMRT_ADAPTOR_SCORE);
               sectionEnds.add(read.size());
             }
-            AppendedState previousState = null;
+            AppendState previousState = null;
             for (Iterator<Context> itr = new HPIterator(forwardAndReverseComplementSequences.get(insIdx % 2), begin, end, samplesDrawer.getLeftFlank(), samplesDrawer.getRightFlank(), samplesDrawer.getHpAnchor()); itr.hasNext();) {
               final Context currentContext = itr.next();
               if (null != currentContext) {
