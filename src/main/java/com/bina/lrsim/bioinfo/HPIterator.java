@@ -46,7 +46,6 @@ public final class HPIterator implements Iterator<Context> {
 
     curr = begin + leftFlank;
     this.end = end - rightFlank;
-    //TODO: replace for with while
     for (; curr > 0 && curr < seq.length && seq[curr] == seq[curr - 1]; ++curr) {}
     for (; 0 <= this.end - 2 && seq[this.end - 1] == seq[this.end - 2]; --this.end) {}
   }
@@ -60,7 +59,6 @@ public final class HPIterator implements Iterator<Context> {
   public Context next() {
     // find the next base which is different
     int firstDifferenceIndex = curr + 1;
-    //TODO: replace for with while
     for (; firstDifferenceIndex < seq.length && seq[firstDifferenceIndex] == seq[curr]; ++firstDifferenceIndex) {}
 
     if (firstDifferenceIndex + rightFlank > seq.length) {
