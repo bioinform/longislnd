@@ -37,9 +37,7 @@ public class ShotgunSequenceDrawer extends ReferenceSequenceDrawer {
 
     int referenceChromosomeIndex = 0;
     //locate the first chromosome where cumulative lengths with all previous chromosomes is larger than randomPosition
-    while (referenceChromosomeIndex < cumulativeReferenceChromosomeSizes.size() && randomPosition >= cumulativeReferenceChromosomeSizes.get(referenceChromosomeIndex)) {
-      ++referenceChromosomeIndex;
-    }
+    for (; referenceChromosomeIndex < cumulativeReferenceChromosomeSizes.size() && randomPosition >= cumulativeReferenceChromosomeSizes.get(referenceChromosomeIndex); referenceChromosomeIndex++) {}
 
     final Fragment referenceFragment = get(referenceChromosomeIndex);
     final byte[] referenceSequence = referenceFragment.getSeq();
