@@ -46,7 +46,7 @@ public class Simulator {
   public int simulate(final String path, final String movieName, final int firsthole,
                       SamplesDrawer drawer, int totalBases, final Spec spec,
                       RandomGenerator gen) throws IOException {
-    if (spec.polymeraseReadFlag) {
+    if (spec.isPolymeraseReadFlag()) {
       return simulateWithNoisyAdapter(path, movieName, firsthole, drawer, totalBases,
               spec, gen);
     } else {
@@ -195,7 +195,7 @@ public class Simulator {
   public int simulateWithNoisyAdapter(final String path, final String movieName, final int firsthole,
                       SamplesDrawer samplesDrawer, int totalBases,
                       final Spec spec, RandomGenerator randomNumberGenerator) throws IOException {
-    boolean outputPolymeraseRead = spec.polymeraseReadFlag;
+    boolean outputPolymeraseRead = spec.isPolymeraseReadFlag();
     try (ReadsWriter writer = ReadsWriterFactory.makeWriter(
             spec, new File(path, movieName + spec.getSuffix()).getPath(),
             movieName, firsthole,
@@ -295,8 +295,8 @@ public class Simulator {
           and assume it starts anywhere completely randomly (if sequencing starts
           in an adapter).
           */
-          int randomStartPositionInAdapter = randomNumberGenerator.nextInt(spec.adapterSequence.length());
-          byte[] adapterNucleotideArray = spec.adapterSequence.getBytes();
+          int randomStartPositionInAdapter = randomNumberGenerator.nextInt(spec.getAdapterSequence().length);
+          byte[] adapterNucleotideArray = spec.getAdapterSequence();
           /*
           if our model is built from H5 input, then we can sum up insert lengths to get the total
           length of a polymerase read minus adapter length.

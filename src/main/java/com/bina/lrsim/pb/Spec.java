@@ -1,5 +1,6 @@
 package com.bina.lrsim.pb;
 
+import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
 import htsjdk.samtools.BamFileIoUtils;
 
@@ -23,7 +24,7 @@ public enum Spec {
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
             BamFileIoUtils.BAM_FILE_EXTENSION,
             false,
-            ""
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     BaxSpec(
             "bax",
@@ -36,7 +37,7 @@ public enum Spec {
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IDPV1)),
             ".bax.h5",
             false,
-            ""
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     BaxSampleSpec(
             "baxsample",
@@ -49,7 +50,7 @@ public enum Spec {
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
             ".bax.h5",
             false,
-            ""
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     CcsSpec(
             "ccs",
@@ -62,7 +63,7 @@ public enum Spec {
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1)),
             ".ccs.h5",
             false,
-            ""
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     FastqSpec(
             "fastq",
@@ -75,7 +76,7 @@ public enum Spec {
             EnumSet.of(EnumDat.BaseCall, EnumDat.QualityValue),
             ".fq",
             false,
-            ""
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     UnknownSpec(
             null,
@@ -88,7 +89,7 @@ public enum Spec {
             EnumSet.noneOf(EnumDat.class),
             null,
             false,
-            ""
+            Heuristics.SMRT_ADAPTOR_STRING
     );
 
     public final String readType;
@@ -101,8 +102,8 @@ public enum Spec {
     public final Set<EnumDat> dataSet;
     public final Set<EnumDat> nonBaseDataSet;
     public final String suffix;
-    public boolean polymeraseReadFlag;
-    public String adapterSequence;
+    private boolean polymeraseReadFlag;
+    private byte[] adapterSequence;
 
     Spec(final String readType,
          final String[] dataDescription,
@@ -114,7 +115,7 @@ public enum Spec {
          final Set<EnumDat> dataSet,
          final String suffix,
          final boolean polymeraseReadFlag,
-         final String adapterSequence) {
+         final byte[] adapterSequence) {
         this.readType = readType;
         this.dataDescription = dataDescription;
         this.groupSet = groupSet;
@@ -140,6 +141,14 @@ public enum Spec {
         return UnknownSpec;
     }
 
+    public boolean isPolymeraseReadFlag() {
+        return polymeraseReadFlag;
+    }
+
+    public byte[] getAdapterSequence() {
+        return adapterSequence;
+    }
+
     public void setPolymeraseReadFlag(final String outputPolymeraseRead) {
         if (outputPolymeraseRead.equals("True")) {
             this.polymeraseReadFlag = true;
@@ -147,7 +156,9 @@ public enum Spec {
     }
 
     public void setAdapterSequence(final String adapterSequence) {
-        this.adapterSequence = adapterSequence;
+        if (adapterSequence != null && adapterSequence.length() > 0) {
+            this.adapterSequence = adapterSequence.getBytes();
+        }
     }
 
     public Set<EnumDat> getDataSet() {
