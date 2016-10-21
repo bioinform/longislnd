@@ -21,6 +21,6 @@ public class DeletedSingleBCPool extends SingleBCPool {
     final int base = begin(context.getKmer());
     if (base == end[context.getKmer()]) throw new RuntimeException("no sample");
     final int shift = base + gen.nextInt((end[context.getKmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
-    return new AppendState(Arrays.copyOfRange(baseCallFieldsForAllKmers, shift, shift + BYTE_PER_BC), true);
+    return new AppendState(Arrays.copyOfRange(data, shift, shift + BYTE_PER_BC), true);
   }
 }

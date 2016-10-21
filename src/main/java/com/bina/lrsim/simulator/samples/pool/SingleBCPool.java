@@ -16,12 +16,12 @@ import com.bina.lrsim.simulator.Event;
  */
 public class SingleBCPool extends BaseCallsPool {
   private final static Logger log = Logger.getLogger(SingleBCPool.class.getName());
-  protected byte[] baseCallFieldsForAllKmers;
+  protected byte[] data;
   protected int[] end;
 
   public SingleBCPool(Spec spec, int numKmers, int entryPerKmer) {
     super(spec, numKmers, entryPerKmer);
-    baseCallFieldsForAllKmers = new byte[begin(numKmers)];
+    data = new byte[begin(numKmers)];
     end = new int[this.numKmers];
     for (int kk = 0; kk < this.numKmers; ++kk) {
       end[kk] = begin(kk);
@@ -38,9 +38,9 @@ public class SingleBCPool extends BaseCallsPool {
       int shift = end[ev.getKmer()];
       if (ev.size() != 1) { throw new RuntimeException("event is too large"); }
       for (EnumDat e : spec.getDataSet()) {
-        baseCallFieldsForAllKmers[shift + e.value] = ev.get(0, e);
+        data[shift + e.value] = ev.get(0, e);
       }
-      baseCallFieldsForAllKmers[shift + EnumDat.QualityValue.value] = (byte) ab.newQV(baseCallFieldsForAllKmers[shift + EnumDat.QualityValue.value]);
+      data[shift + EnumDat.QualityValue.value] = (byte) ab.newQV(data[shift + EnumDat.QualityValue.value]);
       end[ev.getKmer()] += BYTE_PER_BC;
       return true;
     }
@@ -54,9 +54,9 @@ public class SingleBCPool extends BaseCallsPool {
     if (base == end[context.getKmer()]) throw new RuntimeException("no sample for " + context.toString());
     final int randomShift = base + gen.nextInt((end[context.getKmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
     if (previousAppendState == null) {
-      buffer.addLast(baseCallFieldsForAllKmers, randomShift, randomShift + BYTE_PER_BC);
+      buffer.addLast(data, randomShift, randomShift + BYTE_PER_BC);
     } else { // last base deletion
-      final byte[] tmp = Arrays.copyOfRange(baseCallFieldsForAllKmers, randomShift, randomShift + BYTE_PER_BC);
+      final byte[] tmp = Arrays.copyOfRange(data, randomShift, randomShift + BYTE_PER_BC);
       if (tmp[EnumDat.QualityValue.value] > previousAppendState.lastEvent[EnumDat.QualityValue.value] || tmp[EnumDat.DeletionQV.value] > previousAppendState.lastEvent[EnumDat.DeletionQV.value]) {
         tmp[EnumDat.QualityValue.value] = previousAppendState.lastEvent[EnumDat.QualityValue.value];
         tmp[EnumDat.DeletionQV.value] = previousAppendState.lastEvent[EnumDat.DeletionQV.value];
