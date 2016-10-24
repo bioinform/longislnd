@@ -70,6 +70,9 @@ if __name__ == "__main__":
     else:
       args.custom_rate = " --eventsFrequency %s "%(args.custom_rate)
 
+    if len(args.adapter_sequence) > 0:
+        args.adapter_sequence = " --adapterSequence {}".format(args.adapter_sequence)
+
     if not os.path.isdir(args.out):
         os.makedirs(args.out)
     else:
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases}\
      --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} \
      --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} \
-     --outputPolymeraseRead {output_polymerase_read} --adapterSequence {adapter_sequence} \
+     --outputPolymeraseRead {output_polymerase_read} {adapter_sequence} \
             {custom_rate}".format(
         hdf5=args.hdf5,
         jvm_opt=args.jvm_opt,
