@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 
 import static htsjdk.samtools.SAMFileHeader.GroupOrder.reference;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Created by guoy28 on 10/12/16.
@@ -46,9 +47,9 @@ public class SimulatorTest {
         String expectedBAM = "src/test/resources/firstSimulatorTest/expected.bam";
         Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
 
-        if (!Files.exists(Paths.get(modelDirectory))) {
-            return; //model directory is large, and so is not included in the git repo
-        }
+        //model directory is large, and so is not included in the git repo
+        assumeTrue(Files.exists(Paths.get(modelDirectory)));
+
         SimulatorDriver.main(new String[]{"--outDir", workingDirectory.toString(),
                 "--identifier", "test", "--readType", "clrbam",
                 "--sequencingMode", "fragment",
@@ -80,9 +81,8 @@ public class SimulatorTest {
         Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
         Path outputBED = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam.bed");
 
-        if (!Files.exists(Paths.get(modelDirectory))) {
-            return; //model directory is large, and so is not included in the git repo
-        }
+        //model directory is large, and so is not included in the git repo
+        assumeTrue(Files.exists(Paths.get(modelDirectory)));
 
         SimulatorDriver.main(new String[]{"--outDir", workingDirectory.toString(),
                 "--identifier", "test", "--readType", "clrbam",
