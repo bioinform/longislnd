@@ -2,6 +2,7 @@ package com.bina.lrsim.simulator;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -317,7 +318,7 @@ public class Simulator {
           we do not have to explicitly simulate strand of first insert in a polymerase read
            */
           final byte[] noErrorPolymeraseRead = populateNoErrorPolymeraseRead(insertLengths, adapterNucleotideArray,
-                  forwardAndReverseComplementSequences, randomStartPositionInAdapter);
+                  forwardAndReverseComplementSequences, randomStartPositionInAdapter, movieName + "/" + writer.size());
           final int polymeraseReadLength = noErrorPolymeraseRead.length;
           final int begin = 0;
           final int end = polymeraseReadLength; //exclusive end that will be used in HPIterator
@@ -518,35 +519,6 @@ public class Simulator {
 
   /**
    * construct a byte array of polymerase read nucleotides for error simulation
-   * @param n length of the polymerase read
-   * @param adapterNucleotideArray adapter sequence
-   * @param forwardReverseComplement forward and reverse complement of insert
-   * @param startInAdapter start position in first adapter sequence of the polymerase read
-   * @return
-   */
-  private byte[] populateNoErrorPolymeraseRead(int n, byte[] adapterNucleotideArray,
-                                               List<byte[]> forwardReverseComplement, int startInAdapter) {
-    byte[] polymeraseRead = new byte[n];
-    int polymeraseNucleotideIndex = 0;
-    for (int i = startInAdapter; polymeraseNucleotideIndex < n && i < adapterNucleotideArray.length; i++) {
-      polymeraseRead[polymeraseNucleotideIndex++] = adapterNucleotideArray[i];
-    }
-    CircularArrayList<byte[]> circularList = new CircularArrayList<byte[]>();
-    circularList.add(forwardReverseComplement.get(0));
-    circularList.add(adapterNucleotideArray);
-    circularList.add(forwardReverseComplement.get(1));
-    circularList.add(adapterNucleotideArray);
-    for (byte[] currentSequence : circularList) {
-      for (int i = 0; polymeraseNucleotideIndex < n && i < currentSequence.length; i++) {
-        polymeraseRead[polymeraseNucleotideIndex++] = currentSequence[i];
-      }
-      if (polymeraseNucleotideIndex >= n)
-        break;
-    }
-    return polymeraseRead;
-  }
-  /**
-   * construct a byte array of polymerase read nucleotides for error simulation
    *
    * note that sequencing may start in an adapter or an insert
    *
@@ -557,7 +529,8 @@ public class Simulator {
    * @return
    */
   private byte[] populateNoErrorPolymeraseRead(int[] insertLengths, byte[] adapterNucleotideArray,
-                                               List<byte[]> forwardReverseComplement, int startInAdapter) {
+                                               List<byte[]> forwardReverseComplement, int startInAdapter,
+                                               String readName) {
 
     int originalInsertLength = forwardReverseComplement.get(0).length;
     int polymeraseReadLength = calculatePolymeraseReadLength(insertLengths, adapterNucleotideArray.length, startInAdapter, originalInsertLength);
@@ -567,6 +540,13 @@ public class Simulator {
       return null;
     }
     CircularArrayList<byte[]> circularList = new CircularArrayList<byte[]>();
+    /*
+    at the end of each adapter, output a position (exclusive). The position is
+    normalized by length of polymerase read to 0~1.
+     */
+    DecimalFormat formatter = new DecimalFormat("#.####");
+    StringBuilder normalizedAdapaterLociString = new StringBuilder();
+    normalizedAdapaterLociString.append(readName + " length(" + polymeraseReadLength + ") normalized adapter loci:");
     //first subread is incomplete, so sequencing or at least high quality region starts in insert
     if (insertLengths[0] < originalInsertLength) {
       for (int i = originalInsertLength - insertLengths[0]; i < originalInsertLength && polymeraseNucleotideIndex < polymeraseReadLength; i++) {
@@ -577,21 +557,32 @@ public class Simulator {
       for (int i = startInAdapter; polymeraseNucleotideIndex < polymeraseReadLength && i < adapterNucleotideArray.length; i++) {
         noErrorPolymeraseRead[polymeraseNucleotideIndex++] = adapterNucleotideArray[i];
       }
+      normalizedAdapaterLociString.append(" " + formatter.format((double) polymeraseNucleotideIndex / polymeraseReadLength));
       for (int i = 0; i < originalInsertLength && polymeraseNucleotideIndex < polymeraseReadLength; i++) {
         noErrorPolymeraseRead[polymeraseNucleotideIndex++] = forwardReverseComplement.get(0)[i];
       }
     }
-    circularList.add(adapterNucleotideArray);
-    circularList.add(forwardReverseComplement.get(1));
-    circularList.add(adapterNucleotideArray);
-    circularList.add(forwardReverseComplement.get(0));
-    for (byte[] currentSequence : circularList) {
-      for (int i = 0; polymeraseNucleotideIndex < polymeraseReadLength && i < currentSequence.length; i++) {
-        noErrorPolymeraseRead[polymeraseNucleotideIndex++] = currentSequence[i];
+    if (polymeraseNucleotideIndex < polymeraseReadLength) {
+      circularList.add(adapterNucleotideArray);
+      circularList.add(forwardReverseComplement.get(1));
+      circularList.add(adapterNucleotideArray);
+      circularList.add(forwardReverseComplement.get(0));
+      for (byte[] currentSequence : circularList) {
+        for (int i = 0; polymeraseNucleotideIndex < polymeraseReadLength && i < currentSequence.length; i++) {
+          noErrorPolymeraseRead[polymeraseNucleotideIndex++] = currentSequence[i];
+        }
+        if (polymeraseNucleotideIndex >= polymeraseReadLength)
+          break;
+      /*
+      if the next sequence has equal length as adapter, then we think
+      it is adapter. The assumption here is that the insert sequences
+      will have different (larger) lengths.
+       */
+        if (currentSequence.length == adapterNucleotideArray.length)
+          normalizedAdapaterLociString.append(" " + formatter.format((double) polymeraseNucleotideIndex / polymeraseReadLength));
       }
-      if (polymeraseNucleotideIndex >= polymeraseReadLength)
-        break;
     }
+    log.info(normalizedAdapaterLociString.toString());
     return noErrorPolymeraseRead;
   }
 }
