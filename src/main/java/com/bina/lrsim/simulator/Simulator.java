@@ -205,7 +205,7 @@ public class Simulator {
             //it seems only the first set of run infos is used
             samplesDrawer.getNumRunInfo() > 0 ? samplesDrawer.getRunInfo(0) : new RunInfo());
          FileOutputStream adapaterEndWriter = new FileOutputStream(
-                 new File(path, movieName + spec.getSuffix() + ".adapterEnd.txt"))
+                 new File(path, movieName + spec.getSuffix() + ".adapter"))
     ) {
       long[] localBaseCounter = new long[baseCounter.length()];
       PBReadBuffer read = new PBReadBuffer(spec);
