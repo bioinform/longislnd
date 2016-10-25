@@ -1,6 +1,7 @@
 package com.bina.lrsim.simulator;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import com.bina.lrsim.bioinfo.*;
 import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
+import com.bina.lrsim.util.ArrayUtils;
 import com.bina.lrsim.util.CircularArrayList;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
@@ -201,7 +203,10 @@ public class Simulator {
             spec, new File(path, movieName + spec.getSuffix()).getPath(),
             movieName, firsthole,
             //it seems only the first set of run infos is used
-            samplesDrawer.getNumRunInfo() > 0 ? samplesDrawer.getRunInfo(0) : new RunInfo())) {
+            samplesDrawer.getNumRunInfo() > 0 ? samplesDrawer.getRunInfo(0) : new RunInfo());
+         FileOutputStream adapaterEndWriter = new FileOutputStream(
+                 new File(path, movieName + spec.getSuffix() + ".adapterEnd.txt"))
+    ) {
       long[] localBaseCounter = new long[baseCounter.length()];
       PBReadBuffer read = new PBReadBuffer(spec);
 
@@ -317,8 +322,10 @@ public class Simulator {
           a good news is, because the sampled reference could be forward or reverse complement (we need to check locus to determine)
           we do not have to explicitly simulate strand of first insert in a polymerase read
            */
-          final byte[] noErrorPolymeraseRead = populateNoErrorPolymeraseRead(insertLengths, adapterNucleotideArray,
+          final Pair<byte[], String[]> noErrorPolymeraseReadPair = populateNoErrorPolymeraseRead(insertLengths, adapterNucleotideArray,
                   forwardAndReverseComplementSequences, randomStartPositionInAdapter, movieName + "/" + writer.size());
+          adapaterEndWriter.write(ArrayUtils.join(noErrorPolymeraseReadPair.getSecond(), "\t").getBytes());
+          final byte[] noErrorPolymeraseRead = noErrorPolymeraseReadPair.getFirst();
           final int polymeraseReadLength = noErrorPolymeraseRead.length;
           final int begin = 0;
           final int end = polymeraseReadLength; //exclusive end that will be used in HPIterator
@@ -528,7 +535,7 @@ public class Simulator {
    * @param startInAdapter start position in first adapter sequence of the polymerase read
    * @return
    */
-  private byte[] populateNoErrorPolymeraseRead(int[] insertLengths, byte[] adapterNucleotideArray,
+  private Pair<byte[], String[]> populateNoErrorPolymeraseRead(int[] insertLengths, byte[] adapterNucleotideArray,
                                                List<byte[]> forwardReverseComplement, int startInAdapter,
                                                String readName) {
 
@@ -545,8 +552,9 @@ public class Simulator {
     normalized by length of polymerase read to 0~1.
      */
     DecimalFormat formatter = new DecimalFormat("#.####");
-    StringBuilder normalizedAdapaterLociString = new StringBuilder();
-    normalizedAdapaterLociString.append(readName + " length(" + polymeraseReadLength + ") normalized adapter loci:");
+    List<String> normalizedAdapterLociStrings = new ArrayList<String>();
+    normalizedAdapterLociStrings.add(readName);
+    normalizedAdapterLociStrings.add(Integer.toString(polymeraseReadLength));
     //first subread is incomplete, so sequencing or at least high quality region starts in insert
     if (insertLengths[0] < originalInsertLength) {
       for (int i = originalInsertLength - insertLengths[0]; i < originalInsertLength && polymeraseNucleotideIndex < polymeraseReadLength; i++) {
@@ -557,7 +565,7 @@ public class Simulator {
       for (int i = startInAdapter; polymeraseNucleotideIndex < polymeraseReadLength && i < adapterNucleotideArray.length; i++) {
         noErrorPolymeraseRead[polymeraseNucleotideIndex++] = adapterNucleotideArray[i];
       }
-      normalizedAdapaterLociString.append(" " + formatter.format((double) polymeraseNucleotideIndex / polymeraseReadLength));
+      normalizedAdapterLociStrings.add(Integer.toString(polymeraseNucleotideIndex));
       for (int i = 0; i < originalInsertLength && polymeraseNucleotideIndex < polymeraseReadLength; i++) {
         noErrorPolymeraseRead[polymeraseNucleotideIndex++] = forwardReverseComplement.get(0)[i];
       }
@@ -571,18 +579,21 @@ public class Simulator {
         for (int i = 0; polymeraseNucleotideIndex < polymeraseReadLength && i < currentSequence.length; i++) {
           noErrorPolymeraseRead[polymeraseNucleotideIndex++] = currentSequence[i];
         }
-        if (polymeraseNucleotideIndex >= polymeraseReadLength)
-          break;
       /*
       if the next sequence has equal length as adapter, then we think
       it is adapter. The assumption here is that the insert sequences
       will have different (larger) lengths.
        */
-        if (currentSequence.length == adapterNucleotideArray.length)
-          normalizedAdapaterLociString.append(" " + formatter.format((double) polymeraseNucleotideIndex / polymeraseReadLength));
+        if (currentSequence.length == adapterNucleotideArray.length) {
+          normalizedAdapterLociStrings.add(Integer.toString(polymeraseNucleotideIndex));
+        }
+        if (polymeraseNucleotideIndex >= polymeraseReadLength) {
+          break;
+        }
       }
     }
-    log.info(normalizedAdapaterLociString.toString());
-    return noErrorPolymeraseRead;
+    normalizedAdapterLociStrings.set(normalizedAdapterLociStrings.size() - 1,
+            normalizedAdapterLociStrings.get(normalizedAdapterLociStrings.size() - 1) + "\n");
+    return new Pair<byte[], String[]>(noErrorPolymeraseRead, normalizedAdapterLociStrings.toArray(new String[0]));
   }
 }
