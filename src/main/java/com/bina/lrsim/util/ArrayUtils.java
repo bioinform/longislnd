@@ -12,4 +12,22 @@ public class ArrayUtils {
       y[ii] += a * x[ii];
     }
   }
+
+  /**
+   * join an array of strings with a delimiter
+   * @param a
+   */
+  public static String join(String[] a, String delimiter) {
+    if (a == null) {
+      return null;
+    }
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < a.length - 1; i++) {
+      sb.append(a[i] + delimiter);
+    }
+    if (a.length >= 1) {
+      sb.append(a[a.length - 1]);
+    }
+    return sb.toString();
+  }
 }
