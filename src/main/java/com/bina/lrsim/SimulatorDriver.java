@@ -66,7 +66,7 @@ public class SimulatorDriver {
             po.forceMovieName : new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
     final String movieSuffix = "_c" + po.identifier + "_s1_p0";
 
-    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(po.minFragmentLength, po.maxFragmentLength, po.minNumPasses, po.maxNumPasses);
+    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(po.minFragmentLength, po.maxFragmentLength, po.minNumPasses, po.maxNumPasses, po.scaledMedianFragmentLength);
     final SamplesDrawer samples = new SamplesDrawer(po.modelPrefixes.split(","), spec, po.samplePer, eventsFrequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
     log.info(samples.toString());
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
@@ -118,6 +118,9 @@ public class SimulatorDriver {
 
     @Option(name = "--maxNumPasses", required = false, usage = "maxnimum number of passes")
     private int maxNumPasses = Integer.MAX_VALUE;
+
+    @Option(name = "--scaledMedianFragmentLength", required = false, usage = "scale the fragment length distribution to match this value")
+    private int scaledMedianFragmentLength = -1;
 
     @Option(name = "--eventsFrequency", required = false, usage = "custom event frequency")
     private String eventsFrequency = "";
