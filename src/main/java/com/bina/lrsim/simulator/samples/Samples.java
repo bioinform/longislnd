@@ -329,10 +329,7 @@ public abstract class Samples {
 
     for (int idx = 0; idx < lengths.size(); ++idx) {
       final MultiPassSpec spec = new MultiPassSpec(lengths.get(idx));
-      if ( spec.numPasses < limits.minNumPasses ||
-              spec.numPasses > limits.maxNumPasses ||
-              spec.fragmentLength > limits.maxFragmentLength ||
-              spec.fragmentLength < limits.minFragmentLength) {
+      if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
       newLengths.add(lengths.get(idx));
