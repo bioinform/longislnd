@@ -1,5 +1,6 @@
 package com.bina.lrsim.pb;
 
+import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
 import htsjdk.samtools.BamFileIoUtils;
 
@@ -21,7 +22,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
-            BamFileIoUtils.BAM_FILE_EXTENSION
+            BamFileIoUtils.BAM_FILE_EXTENSION,
+            false,
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     BaxSpec(
             "bax",
@@ -32,7 +35,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IDPV1)),
-            ".bax.h5"
+            ".bax.h5",
+            false,
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     BaxSampleSpec(
             "baxsample",
@@ -43,7 +48,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray)),
-            ".bax.h5"
+            ".bax.h5",
+            false,
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     CcsSpec(
             "ccs",
@@ -54,7 +61,9 @@ public enum Spec {
             EnumGroups.CZMW,
             EnumGroups.CZMWMetrics,
             EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1)),
-            ".ccs.h5"
+            ".ccs.h5",
+            false,
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     FastqSpec(
             "fastq",
@@ -65,7 +74,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.of(EnumDat.BaseCall, EnumDat.QualityValue),
-            ".fq"
+            ".fq",
+            false,
+            Heuristics.SMRT_ADAPTOR_STRING
     ),
     UnknownSpec(
             null,
@@ -76,7 +87,9 @@ public enum Spec {
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
             EnumSet.noneOf(EnumDat.class),
-            null
+            null,
+            false,
+            Heuristics.SMRT_ADAPTOR_STRING
     );
 
     public final String readType;
@@ -89,6 +102,8 @@ public enum Spec {
     public final Set<EnumDat> dataSet;
     public final Set<EnumDat> nonBaseDataSet;
     public final String suffix;
+    private boolean polymeraseReadFlag;
+    private byte[] adapterSequence;
 
     Spec(final String readType,
          final String[] dataDescription,
@@ -98,7 +113,9 @@ public enum Spec {
          final EnumGroups zmw,
          final EnumGroups zmwMetrics,
          final Set<EnumDat> dataSet,
-         final String suffix) {
+         final String suffix,
+         final boolean polymeraseReadFlag,
+         final byte[] adapterSequence) {
         this.readType = readType;
         this.dataDescription = dataDescription;
         this.groupSet = groupSet;
@@ -109,6 +126,8 @@ public enum Spec {
         this.dataSet = dataSet;
         nonBaseDataSet = EnumSet.copyOf(dataSet);
         this.suffix = suffix;
+        this.polymeraseReadFlag = polymeraseReadFlag;
+        this.adapterSequence = adapterSequence;
 
         nonBaseDataSet.remove(EnumDat.BaseCall);
     }
@@ -120,6 +139,24 @@ public enum Spec {
             }
         }
         return UnknownSpec;
+    }
+
+    public boolean isPolymeraseReadFlag() {
+        return polymeraseReadFlag;
+    }
+
+    public byte[] getAdapterSequence() {
+        return adapterSequence;
+    }
+
+    public void setPolymeraseReadFlag(final boolean outputPolymeraseRead) {
+        this.polymeraseReadFlag = outputPolymeraseRead;
+    }
+
+    public void setAdapterSequence(final String adapterSequence) {
+        if (adapterSequence != null && adapterSequence.length() > 0) {
+            this.adapterSequence = adapterSequence.getBytes();
+        }
     }
 
     public Set<EnumDat> getDataSet() {

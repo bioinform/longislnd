@@ -56,18 +56,18 @@ public class HPBCPool extends BaseCallsPool {
   }
 
   @Override
-  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
+  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState previousAppendState, RandomGenerator gen) {
     final int kmer = context.getKmer();
     final int hpLen = context.getHpLen();
     if (hpLen < data.get(kmer).size()) {
       List<byte[]> pool = data.get(kmer).get(hpLen);
       if (null != pool && pool.size() >= Heuristics.MIN_HP_SAMPLES) {
         final byte[] b = pool.get(gen.nextInt(pool.size()));
-        if (as != null && b.length > 0 && (b[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value])) {
+        if (previousAppendState != null && b.length > 0 && (b[EnumDat.QualityValue.value] > previousAppendState.lastEvent[EnumDat.QualityValue.value] || b[EnumDat.DeletionQV.value] > previousAppendState.lastEvent[EnumDat.DeletionQV.value])) {
           final byte[] tmp = Arrays.copyOf(b, b.length);
-          tmp[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
-          tmp[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
-          tmp[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
+          tmp[EnumDat.QualityValue.value] = previousAppendState.lastEvent[EnumDat.QualityValue.value];
+          tmp[EnumDat.DeletionQV.value] = previousAppendState.lastEvent[EnumDat.DeletionQV.value];
+          tmp[EnumDat.DeletionTag.value] = previousAppendState.lastEvent[EnumDat.DeletionTag.value];
           buffer.addLast(tmp, 0, tmp.length);
         }
         else {

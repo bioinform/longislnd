@@ -9,25 +9,26 @@ import java.util.Iterator;
 public final class HPContext extends Context {
   private final byte[] ascii;
 
-  private static int constructor_kmerizer(byte[] ascii, int leftFlank, int rightFlank, int hp_anchor) {
-    if (ascii.length == 1 + leftFlank + rightFlank) {
-      return Kmerizer.fromASCII(ascii);
+  private static int constructor_kmerizer(byte[] asciiArray, int leftFlank, int rightFlank, int hp_anchor) {
+    //when array length is equal to left flank + right flank + 1, no homopolymer
+    if (asciiArray.length == 1 + leftFlank + rightFlank) {
+      return Kmerizer.fromASCII(asciiArray);
     } else {
       byte[] tmp = new byte[2 * hp_anchor + 1];
       int k = 0;
       for (int pos = leftFlank - hp_anchor; pos <= leftFlank; ++pos, ++k) {
-        tmp[k] = ascii[pos];
+        tmp[k] = asciiArray[pos];
       }
-      for (int pos = ascii.length - rightFlank; pos < ascii.length - rightFlank + hp_anchor; ++pos, ++k) {
-        tmp[k] = ascii[pos];
+      for (int pos = asciiArray.length - rightFlank; pos < asciiArray.length - rightFlank + hp_anchor; ++pos, ++k) {
+        tmp[k] = asciiArray[pos];
       }
       return Kmerizer.fromASCII(tmp);
     }
   }
 
-  HPContext(byte[] ascii, int leftFlank, int rightFlank, int hp_anchor) {
-    super(constructor_kmerizer(ascii, leftFlank, rightFlank, hp_anchor), ascii.length - leftFlank - rightFlank);
-    this.ascii = ascii;
+  HPContext(byte[] asciiArray, int leftFlank, int rightFlank, int hp_anchor) {
+    super(constructor_kmerizer(asciiArray, leftFlank, rightFlank, hp_anchor), asciiArray.length - leftFlank - rightFlank);
+    this.ascii = asciiArray;
   }
 
   @Override

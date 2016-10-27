@@ -42,9 +42,11 @@ public class SimulatorDriver {
     }
 
     final Spec spec = Spec.fromReadType(po.readType);
+    spec.setPolymeraseReadFlag(po.outputPolymeraseRead);
+    spec.setAdapterSequence(po.adapterSequence);
 
-    final ReferenceSequenceDrawer wr = ReferenceSequenceDrawer.Factory(po.sequencingMode, po.fasta);
-    if (wr == null) {
+    final ReferenceSequenceDrawer referenceDrawer = ReferenceSequenceDrawer.Factory(po.sequencingMode, po.fasta);
+    if (referenceDrawer == null) {
       log.error("failed to set up reference drawer");
       System.exit(1);
     }
@@ -53,22 +55,26 @@ public class SimulatorDriver {
 
     final int targetChunk;
     if (po.sequencingMode.equals("fragment") ) {
-      targetChunk = (int) Math.min(wr.getNonNCount() * 40 * 100 * wr.getNames().size(), 200000000);
+      targetChunk = (int) Math.min(referenceDrawer.getNonNCount() * 40 * 100 * referenceDrawer.getNames().size(), 200000000);
     }
     else {
-      targetChunk = (int) Math.min(wr.getNonNCount(), 200000000);
+      targetChunk = (int) Math.min(referenceDrawer.getNonNCount(), 200000000);
     }
     log.info("each file will have ~" + targetChunk + " bases");
 
-    final String moviePrefix = new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
+    final String moviePrefix = po.forceMovieName.length() > 0?
+            po.forceMovieName : new SimpleDateFormat("'m'yyMMdd'_'HHmmss'_'").format(Calendar.getInstance().getTime());
     final String movieSuffix = "_c" + po.identifier + "_s1_p0";
 
-    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(po.minFragmentLength, po.maxFragmentLength, po.minNumPasses, po.maxNumPasses);
+    final SamplesDrawer.LengthLimits len_limits = new SamplesDrawer.LengthLimits(po.minFragmentLength, po.maxFragmentLength, po.minNumPasses, po.maxNumPasses, po.scaledMedianFragmentLength);
     final SamplesDrawer samples = new SamplesDrawer(po.modelPrefixes.split(","), spec, po.samplePer, eventsFrequency, Heuristics.ARTIFICIAL_CLEAN_INS, len_limits);
     log.info(samples.toString());
     log.info("Memory usage: " + Monitor.PeakMemoryUsage());
 
-    ParallelSimulator.process(wr, po.outDir, moviePrefix, movieSuffix, samples, targetChunk, po.totalBases, spec, new MersenneTwister(po.seed));
+    //TODO: consider combine invididual command line arguments into one parameter
+    ParallelSimulator.process(referenceDrawer, po.outDir, moviePrefix,
+                              movieSuffix, samples, targetChunk, po.totalBases,
+                              spec, new MersenneTwister(po.seed));
 
     log.info("finished.");
   }
@@ -113,8 +119,21 @@ public class SimulatorDriver {
     @Option(name = "--maxNumPasses", required = false, usage = "maxnimum number of passes")
     private int maxNumPasses = Integer.MAX_VALUE;
 
+    @Option(name = "--scaledMedianFragmentLength", required = false, usage = "scale the fragment length distribution to match this value")
+    private int scaledMedianFragmentLength = -1;
+
     @Option(name = "--eventsFrequency", required = false, usage = "custom event frequency")
     private String eventsFrequency = "";
+
+    @Option(name = "--forceMovieName", required = false, usage = "replace time-sensitive movie name with a fixed name")
+    private String forceMovieName = "";
+
+    @Option(name = "--outputPolymeraseRead", required = false, usage = "simulate polymerase reads rather than subreads?")
+    private boolean outputPolymeraseRead = false;
+
+    @Option(name = "--adapterSequence", required = false, usage = "adapter sequence for polymerase read")
+    private String adapterSequence = "";
+
     long [] getEventsFrequency() {
       long[] ret = null;
       if (eventsFrequency.length() < 1) {
@@ -133,5 +152,6 @@ public class SimulatorDriver {
       }
       return ret;
     }
+
   }
 }

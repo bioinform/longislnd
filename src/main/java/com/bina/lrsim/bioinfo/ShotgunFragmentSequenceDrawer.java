@@ -23,18 +23,18 @@ public class ShotgunFragmentSequenceDrawer extends ReferenceSequenceDrawer {
   }
 
   @Override
-  protected Fragment getSequenceImpl(int length, RandomGenerator gen) {
-    final boolean rc = gen.nextBoolean();
-    List<Long> cdf = new ArrayList<Long>();
+  protected Fragment getSequenceImpl(int length, RandomGenerator randomNumberGenerator) {
+    final boolean needReverseComplement = randomNumberGenerator.nextBoolean();
+    List<Long> cumulativeChromosomeLengths = new ArrayList<Long>();
     long numFrag = 0;
     for (Long entry : refBases) {
       numFrag += (length > entry) ? 1 : (entry / length);
-      cdf.add(numFrag);
+      cumulativeChromosomeLengths.add(numFrag);
     }
-    final long pos = (numFrag <= Integer.MAX_VALUE) ? gen.nextInt((int) numFrag) : (gen.nextLong() % numFrag + numFrag) % numFrag;
+    final long pos = (numFrag <= Integer.MAX_VALUE) ? randomNumberGenerator.nextInt((int) numFrag) : (randomNumberGenerator.nextLong() % numFrag + numFrag) % numFrag;
 
     int ref_idx = 0;
-    for (; ref_idx < cdf.size() && pos >= cdf.get(ref_idx); ++ref_idx) {}
+    for (; ref_idx < cumulativeChromosomeLengths.size() && pos >= cumulativeChromosomeLengths.get(ref_idx); ++ref_idx) {}
 
     final Fragment ref_frag = get(ref_idx);
     final byte[] ref_seq = ref_frag.getSeq();
@@ -43,12 +43,12 @@ public class ShotgunFragmentSequenceDrawer extends ReferenceSequenceDrawer {
     if (length > ref_seq.length) {
       length = ref_seq.length;
     } else {
-      begin = gen.nextInt(ref_seq.length - length + 1);
+      begin = randomNumberGenerator.nextInt(ref_seq.length - length + 1);
     }
 
     int number_of_n = 0;
     final byte[] sequence = new byte[length];
-    if (rc) {
+    if (needReverseComplement) {
       for (int ss = 0, cc = ref_seq.length - 1 - begin; ss < length; ++ss, --cc) {
         sequence[ss] = EnumBP.ascii_rc(ref_seq[cc]);
         if (EnumBP.ascii2value(sequence[ss]) == EnumBP.N.value) {
@@ -68,7 +68,7 @@ public class ShotgunFragmentSequenceDrawer extends ReferenceSequenceDrawer {
     if (length * Heuristics.MAX_N_FRACTION_ON_READ < number_of_n) { return null; }
     // return new KmerIterator(get(ref_idx),ref_pos,ref_pos+length,leftFlank,rightFlank, rc);
     // return new HPIterator(get(ref_idx), ref_pos, ref_pos + length, leftFlank, rightFlank, hp_anchor, rc);
-    return new Fragment(sequence, new Locus(ref_frag.getLocus().getChrom(), begin, begin + length, rc));
+    return new Fragment(sequence, new Locus(ref_frag.getLocus().getChrom(), begin, begin + length, needReverseComplement));
   }
 
 }

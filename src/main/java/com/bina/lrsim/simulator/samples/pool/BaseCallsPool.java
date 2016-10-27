@@ -39,7 +39,7 @@ public abstract class BaseCallsPool {
    * @param gen random number generator
    * @return success or not
    */
-  public abstract AppendState appendTo(PBReadBuffer pb, Context context, AppendState as, RandomGenerator gen);
+  public abstract AppendState appendTo(PBReadBuffer pb, Context context, AppendState previousAppendState, RandomGenerator gen);
 
   /**
    * add an event to be drawn from later

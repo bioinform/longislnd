@@ -16,15 +16,16 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
   }
 
   @Override
-  protected Fragment getSequenceImpl(int length, RandomGenerator gen) {
-    final boolean rc = gen.nextBoolean();
+  protected Fragment getSequenceImpl(int length, RandomGenerator randomNumberGenerator) {
+    final boolean needReverseComplement = randomNumberGenerator.nextBoolean();
 
     // select a fragment with equal probability
-    final Fragment fragment = get(gen.nextInt(getNames().size()));
+    final Fragment fragment = get(randomNumberGenerator.nextInt(getNames().size()));
     final byte[] refSeq = fragment.getSeq(); // this is a reference don't modify it
 
     // if fragment is shorter than indicated length, return the whole fragment
     int begin = 0, end = refSeq.length;
+    //TODO: remove unused code
     /*
     if (refSeq.length > length) {
       // assume that long fragment is sheared into such length
@@ -34,7 +35,7 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
     */
 
     final byte[] sequence;
-    if (rc) {
+    if (needReverseComplement) {
       sequence = new byte[end - begin];
       for (int ss = 0, cc = refSeq.length - 1 - begin; ss < sequence.length; ++ss, --cc) {
         sequence[ss] = EnumBP.ascii_rc(refSeq[cc]);
@@ -45,6 +46,6 @@ public class FragmentSequenceDrawer extends ReferenceSequenceDrawer {
     } else {
       sequence = Arrays.copyOfRange(refSeq, begin, end);
     }
-    return new Fragment(sequence, new Locus(fragment.getLocus().getChrom(), begin, end, rc));
+    return new Fragment(sequence, new Locus(fragment.getLocus().getChrom(), begin, end, needReverseComplement));
   }
 }

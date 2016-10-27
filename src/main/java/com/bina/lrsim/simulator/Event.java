@@ -75,16 +75,24 @@ public final class Event {
   // this can be done down the line if we have time
   public void write(DataOutputStream dos) throws IOException {
     dos.writeInt(context.getKmer());
+    //hp-len is stored in most-significant 16 bits, event index is stored in least-significant 16 bits
     dos.writeInt(EnumEvent.values.length * context.getHpLen() + event.ordinal());
     bc.write(dos);
   }
 
+  /**
+   * load next kmer and homopolymer length into current object
+   * creates corresponding context and event objects
+   * @param dis
+   * @throws IOException
+   */
   public void read(DataInputStream dis) throws IOException {
     final int kmer = dis.readInt();
     int tmp = dis.readInt();
     context = new Context(kmer, tmp / EnumEvent.values.length);
     event = EnumEvent.values[tmp % EnumEvent.values.length];
     bc.read(dis);
+    //check if base calls are one of ATCG.
     for (int ii = 0; ii < size(); ++ii) {
       byte base = get(ii, EnumDat.BaseCall);
       if (base != 'A' && base != 'C' && base != 'T' && base != 'G') {

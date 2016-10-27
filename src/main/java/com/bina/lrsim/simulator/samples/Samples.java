@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.bina.lrsim.pb.RunInfo;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import com.bina.lrsim.bioinfo.*;
@@ -17,12 +18,14 @@ import com.bina.lrsim.util.ArrayUtils;
  * Created by bayo on 5/10/15.
  * 
  * Base class which unifies I/O of sampling mechanism, see SampleCollector (write) and SampleDrawer (read)
+ * Samples here mean the error moedel learned from data.
  */
 public abstract class Samples {
   private final static Logger base_log = Logger.getLogger(Samples.class.getName());
 
   private final long[] eventBaseCount = new long[EnumEvent.values().length];
   private final long[] eventCount = new long[EnumEvent.values().length];
+  //a 2-dimensional array is stored as a 1-dimensional array
   private long[] kmerEventCount;
   private List<int[]> lengths;
   private List<Integer> scores;
@@ -148,7 +151,7 @@ public abstract class Samples {
     this.leftFlank = leftFlank;
     this.rightFlank = rightFlank;
     k = this.leftFlank + 1 + this.rightFlank;
-    numKmer = 1 << (2 * k);
+    numKmer = 1 << (2 * k); //number of possible Kmers == 4^K == 2^(2K)
     hpAnchor = hp_anchor;
     kmerEventCount = new long[numKmer * EnumEvent.values().length];
     lengths = new ArrayList<>(1000);
@@ -197,9 +200,11 @@ public abstract class Samples {
     k = dis.readInt();
     numKmer = dis.readInt();
     hpAnchor = dis.readInt();
+    //eventBaseCount.length == 4, corresponding to insertion, deletion, substitution, match
     for (int ii = 0; ii < eventBaseCount.length; ++ii) {
       eventBaseCount[ii] = dis.readLong();
     }
+    //eventCount.length == 4, corresponding to insertion, deletion, substitution, match
     for (int ii = 0; ii < eventCount.length; ++ii) {
       eventCount[ii] = dis.readLong();
     }
@@ -323,14 +328,37 @@ public abstract class Samples {
     List<int[]> newLengths = new ArrayList<>(lengths.size());
     List<Integer> newScores = new ArrayList<>(scores.size());
 
+    DescriptiveStatistics stats = new DescriptiveStatistics();
+    for (int[] entry: lengths) {
+      stats.addValue(new MultiPassSpec(entry).fragmentLength);
+    }
+    final double sample_median = stats.getPercentile(50);
+    base_log.info("sample median fragment length: " + sample_median);
+    base_log.info("target median fragment length: " + limits.scaledMedianFragmentLength);
+    final double scale;
+    if (limits.scaledMedianFragmentLength > 0) {
+      scale = limits.scaledMedianFragmentLength / sample_median;
+    }
+    else {
+      scale = 1;
+    }
+    base_log.info("scaling lengths by: " + scale);
+
+    stats.clear();
     for (int idx = 0; idx < lengths.size(); ++idx) {
-      final MultiPassSpec spec = new MultiPassSpec(lengths.get(idx));
+      final int[] entry = lengths.get(idx);
+      for (int jj = 0; jj < entry.length; ++jj) {
+        entry[jj] = (int)(scale * entry[jj] + 0.5);
+      }
+      final MultiPassSpec spec = new MultiPassSpec(entry);
       if ( spec.numPasses < limits.minNumPasses || spec.numPasses > limits.maxNumPasses || spec.fragmentLength > limits.maxFragmentLength || spec.fragmentLength < limits.minFragmentLength) {
         continue;
       }
-      newLengths.add(lengths.get(idx));
+      stats.addValue(spec.fragmentLength);
+      newLengths.add(entry);
       newScores.add(scores.get(idx));
     }
+    base_log.info("model median fragment length: " + stats.getPercentile(50));
     base_log.info("length distribution filtering decreased samples from " + lengths.size() + " to " + newLengths.size());
     lengths = newLengths;
     scores = newScores;
@@ -354,12 +382,14 @@ public abstract class Samples {
     public final int maxFragmentLength;
     public final int minNumPasses;
     public final int maxNumPasses;
+    public final int scaledMedianFragmentLength;
 
-    public LengthLimits(int minFragmentLength, int maxFragmentLength, int minNumPasses, int maxNumPasses) {
+    public LengthLimits(int minFragmentLength, int maxFragmentLength, int minNumPasses, int maxNumPasses, int scaledMedianFragmentLength) {
       this.minFragmentLength = minFragmentLength;
       this.maxFragmentLength = maxFragmentLength;
       this.minNumPasses = minNumPasses;
       this.maxNumPasses = maxNumPasses;
+      this.scaledMedianFragmentLength = scaledMedianFragmentLength;
     }
   }
 }

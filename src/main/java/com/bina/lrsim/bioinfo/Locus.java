@@ -7,20 +7,20 @@ public class Locus {
   private String chrom;
   private int begin0;
   private int end0;
-  private boolean rc;
+  private boolean isReverseComplement;
 
-  public Locus(String chrom, int begin0, int end0, boolean rc) {
+  public Locus(String chrom, int begin0, int end0, boolean isReverseComplement) {
     this.chrom = chrom;
     this.begin0 = begin0;
     this.end0 = end0;
-    this.rc = rc;
+    this.isReverseComplement = isReverseComplement;
   }
 
   public Locus(Locus other) {
     this.chrom = other.chrom;
     this.begin0 = other.begin0;
     this.end0 = other.end0;
-    this.rc = other.rc;
+    this.isReverseComplement = other.isReverseComplement;
   }
 
   public String getChrom() {
@@ -31,6 +31,10 @@ public class Locus {
     this.chrom = chrom;
   }
 
+  /**
+   * return 0-based start (first coordinate will be 0 for a chromosome).
+   * @return
+   */
   public int getBegin0() {
     return begin0;
   }
@@ -39,6 +43,10 @@ public class Locus {
     this.begin0 = begin0;
   }
 
+  /**
+   * return 1-based end (last end will be equal to length of a chromosome).
+   * @return
+   */
   public int getEnd0() {
     return end0;
   }
@@ -48,10 +56,10 @@ public class Locus {
   }
 
   public boolean isRc() {
-    return rc;
+    return isReverseComplement;
   }
 
-  public void setRc(boolean rc) {
-    this.rc = rc;
+  public void setRc(boolean reverseComplement) {
+    this.isReverseComplement = reverseComplement;
   }
 }

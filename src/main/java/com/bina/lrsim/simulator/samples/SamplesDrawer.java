@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.bina.lrsim.bioinfo.KmerIntIntCounter;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.samples.pool.AddBehavior;
+import com.bina.lrsim.simulator.samples.pool.AppendState;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -21,7 +22,6 @@ import com.bina.lrsim.pb.EnumDat;
 import com.bina.lrsim.pb.PBReadBuffer;
 import com.bina.lrsim.simulator.EnumEvent;
 import com.bina.lrsim.simulator.Event;
-import com.bina.lrsim.simulator.samples.pool.AppendState;
 import com.bina.lrsim.simulator.samples.pool.BaseCallsPool;
 import com.bina.lrsim.simulator.samples.pool.HPBCPool;
 
@@ -59,7 +59,8 @@ public class SamplesDrawer extends Samples {
   }
 
   /**
-   * Constructor
+   * Private Constructor
+   * WARNING: score/length filtering is not done here
    * 
    * @param prefix
    * @param prefix prefix of files storing sampled data
@@ -69,7 +70,7 @@ public class SamplesDrawer extends Samples {
    * @param lenLimits restrict length properties
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, Spec spec, int maxSample, long[] customFrequency, boolean artificialCleanIns, LengthLimits lenLimits) throws IOException {
+  private SamplesDrawer(String prefix, Spec spec, int maxSample, long[] customFrequency, boolean artificialCleanIns, LengthLimits lenLimits) throws IOException {
     super(prefix);
     this.spec = spec;
     this.customFrequency = customFrequency;
@@ -81,7 +82,7 @@ public class SamplesDrawer extends Samples {
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, maxSample);
     loadEvents(prefix, maxSample, artificialCleanIns);
-    super.filterScoreLength(lenLimits);
+//    super.filterScoreLength(lenLimits);
   }
 
   private AddBehavior calculateAddBehavior(long[] customFrequency) {
@@ -134,53 +135,55 @@ public class SamplesDrawer extends Samples {
    *
    * @param buffer visitor to take the randomly generated sequence
    * @param context sequencing context
-   * @param gen random number generator
+   * @param randomNumberGenerator random number generator
    * @param baseCounter base counter for ins/del/sub/mat
    * @return about current state
    */
-  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState deletion, RandomGenerator gen, long[] baseCounter) {
+  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState deletion, RandomGenerator randomNumberGenerator, long[] baseCounter) {
     final int oldLength = buffer.size();
-    if (context.getHpLen() == 1) {
-      EnumEvent ev = randomEvent(context, gen);
+    if (context.getHpLen() == 1) { //regular K-mer
+      EnumEvent event = randomEvent(context, randomNumberGenerator);
       // ignore the previous event if it's already a deletion
       final int orgLength = buffer.size();
-      AppendState result = kmerEventDrawer.get(ev).appendTo(buffer, context, ev.equals(EnumEvent.DELETION) ? null : deletion, gen);
-
-      final boolean badLength;
-      switch(ev) {
+      AppendState result = kmerEventDrawer.get(event).appendTo(buffer, context,
+                                                                 event.equals(EnumEvent.DELETION) ? null : deletion,
+                                                                 randomNumberGenerator);
+      final boolean isNewLengthIllegal;
+      switch(event) {
         case DELETION:
-          badLength = buffer.size() != orgLength;
+          isNewLengthIllegal = buffer.size() != orgLength;
           break;
         case INSERTION:
-          badLength = buffer.size() <= orgLength + 1;
+          isNewLengthIllegal = buffer.size() <= orgLength + 1;
           break;
         case MATCH:
         case SUBSTITUTION:
-          badLength = buffer.size() != orgLength + 1;
+          isNewLengthIllegal = buffer.size() != orgLength + 1;
+            //TODO: remove redundancy
           if (buffer.size() != orgLength + 1) {
-            throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + ev.name());
+            throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + event.name());
           }
           break;
         default:
-          badLength = false;
+          isNewLengthIllegal = false;
       }
-      if (badLength) {
-        throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + ev.name());
+      if (isNewLengthIllegal) {
+        throw new RuntimeException("length increased by " + (buffer.size() - orgLength) + " for " + event.name());
       }
 
-      ++baseCounter[ev.ordinal()];
-      if (ev == EnumEvent.INSERTION) {
-        baseCounter[ev.ordinal()] += buffer.size() - oldLength - 2;
+      ++baseCounter[event.ordinal()];
+      if (event == EnumEvent.INSERTION) {
+        baseCounter[event.ordinal()] += buffer.size() - oldLength - 2;
       }
-      if (!result.success) { throw new RuntimeException("kmer draw"); }
+      if (!result.success) { throw new RuntimeException("kmer draw failed"); }
       // return a signal for deletion event
-      return (ev == EnumEvent.DELETION && result.lastEvent != null && result.lastEvent.length > 0) ? result : null;
+      return (event == EnumEvent.DELETION && result.lastEvent != null && result.lastEvent.length > 0) ? result : null;
     } else {
       // do not do full hp if custom frequency is provided
       // custom hp drawing is possible improvement
       final boolean hpSampling;
       if (customFrequency == null) {
-        final AppendState result = hpEventDrawer.appendTo(buffer, context, deletion, gen);
+        final AppendState result = hpEventDrawer.appendTo(buffer, context, deletion, randomNumberGenerator);
         hpSampling = result.success;
       } else {
         // might want to do something with remodeling homopolymer indels -- uniform error does not work
@@ -205,7 +208,7 @@ public class SamplesDrawer extends Samples {
         int count = 0;
         // decompose extended kmer to kmer
         for (Iterator<Context> itr = context.decompose(getLeftFlank(), getRightFlank()); itr.hasNext();) {
-          deletion = this.appendTo(buffer, itr.next(), deletion, gen, baseCounter);
+          deletion = this.appendTo(buffer, itr.next(), deletion, randomNumberGenerator, baseCounter);
           ++count;
         }
         if (count != context.getHpLen()) {
@@ -256,7 +259,7 @@ public class SamplesDrawer extends Samples {
    */
   private void loadEvents(DataInputStream[] dis, int maxSample, boolean artificialCleanIns) throws IOException {
     // Bottleneck code
-    AddBehavior ab = calculateAddBehavior(this.customFrequency);
+    AddBehavior addBehavior = calculateAddBehavior(this.customFrequency);
     if (maxSample < 1) return;
     log.info("loading events");
     final int numSrc = dis.length;
@@ -345,7 +348,7 @@ public class SamplesDrawer extends Samples {
           }
 
           ++eventCount[bufferEvent.ordinal()];
-          if (kmerEventDrawer.get(bufferEvent).add(buffer, ab)) {
+          if (kmerEventDrawer.get(bufferEvent).add(buffer, addBehavior)) {
             final int eventIndex = bufferEvent.ordinal();
             ++loggedEventCount[eventIndex];
             numLoggedEvents.increment(bufferKmer, eventIndex, 0);
@@ -379,11 +382,11 @@ public class SamplesDrawer extends Samples {
               }
             }
             if (2 * match >= buffer.size()) {
-              hpEventDrawer.add(buffer, ab);
+              hpEventDrawer.add(buffer, addBehavior);
               ++numHpEvents;
             }
           } else {
-            hpEventDrawer.add(buffer, ab);
+            hpEventDrawer.add(buffer, addBehavior);
             ++numHpEvents;
           }
         }

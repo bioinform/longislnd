@@ -4,6 +4,7 @@ package com.bina.lrsim.bioinfo;
  * Created by bayolau on 9/4/15.
  */
 public class Fragment {
+  //actual sequence of this fragment, could be reverse complement of some reference sequences
   private final byte[] seq;
   private Locus locus = null;
 

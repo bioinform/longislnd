@@ -58,16 +58,17 @@ public final class HPIterator implements Iterator<Context> {
   @Override
   public Context next() {
     // find the next base which is different
-    int diffPos = curr + 1;
-    for (; diffPos < seq.length && seq[diffPos] == seq[curr]; ++diffPos) {}
+    int firstDifferenceIndex = curr + 1;
+    for (; firstDifferenceIndex < seq.length && seq[firstDifferenceIndex] == seq[curr]; ++firstDifferenceIndex) {}
 
-    if (diffPos + rightFlank > seq.length) {
-      curr = diffPos;
+    if (firstDifferenceIndex + rightFlank > seq.length) {
+      //TODO: move unconditionally executed statement out of if statement
+      curr = firstDifferenceIndex;
       return null;
     } else {
-      final byte[] buffer = Arrays.copyOfRange(seq, curr - leftFlank, diffPos + rightFlank);
+      final byte[] buffer = Arrays.copyOfRange(seq, curr - leftFlank, firstDifferenceIndex + rightFlank);
 
-      curr = diffPos;
+      curr = firstDifferenceIndex;
       return new HPContext(buffer, leftFlank, rightFlank, hpAnchor);
     }
   }

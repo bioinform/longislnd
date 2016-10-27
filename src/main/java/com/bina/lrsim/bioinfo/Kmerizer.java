@@ -15,20 +15,23 @@ public class Kmerizer {
 
   /**
    * kmerize a ascii stream of up to 16 bp
+   * kmerize essentially converts an array of atcg to base-4 number
    * 
-   * @param ascii ascii stream
+   * @param asciiArray ascii stream
    * @param begin begin position
    * @param end ending position
    * @return
    */
-  public static int fromASCII(byte[] ascii, int begin, int end) {
+  public static int fromASCII(byte[] asciiArray, int begin, int end) {
+    //integer is 32-bit and signed, will 16-mer result in overflow?
     if (end - begin > 16) throw new RuntimeException("stream too big for 16-mer");
     int out = 0;
     for (int ii = begin; ii < end; ++ii) {
       out *= 4;
-      int val = EnumBP.ascii2value(ascii[ii]);
+      int val = EnumBP.ascii2value(asciiArray[ii]);
       if ( val < 0 || val >=4 ) {
 //        throw new RuntimeException("unsupported base call " + ascii[ii]);
+        //does this line generate a random base call for N base or gap?
         val = ThreadLocalResources.random().nextInt(4);
       }
       out += val;
@@ -37,14 +40,20 @@ public class Kmerizer {
   }
 
 
-  public static int fromASCII(byte[] ascii) {
-    return fromASCII(ascii, 0, ascii.length);
+  public static int fromASCII(byte[] asciiArray) {
+    return fromASCII(asciiArray, 0, asciiArray.length);
   }
 
   public static String toString(int kmer, int length) {
     return new String(toByteArray(kmer, length), StandardCharsets.UTF_8);
   }
 
+  /**
+   * convert base-4 number to array of atcg of a particular length
+   * @param kmer
+   * @param length
+   * @return
+   */
   public static byte[] toByteArray(int kmer, int length) {
     byte[] tmp = new byte[length];
     for (int ii = length - 1; ii >= 0; --ii) {

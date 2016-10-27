@@ -48,19 +48,19 @@ public class SingleBCPool extends BaseCallsPool {
   }
 
   @Override
-  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState as, RandomGenerator gen) {
+  public AppendState appendTo(PBReadBuffer buffer, Context context, AppendState previousAppendState, RandomGenerator gen) {
     if (context.getHpLen() != 1) { throw new RuntimeException("memory compression does not make sense for homopolymer"); }
     final int base = begin(context.getKmer());
     if (base == end[context.getKmer()]) throw new RuntimeException("no sample for " + context.toString());
-    final int shift = base + gen.nextInt((end[context.getKmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
-    if (as == null) {
-      buffer.addLast(data, shift, shift + BYTE_PER_BC);
+    final int randomShift = base + gen.nextInt((end[context.getKmer()] - base) / BYTE_PER_BC) * BYTE_PER_BC;
+    if (previousAppendState == null) {
+      buffer.addLast(data, randomShift, randomShift + BYTE_PER_BC);
     } else { // last base deletion
-      final byte[] tmp = Arrays.copyOfRange(data, shift, shift + BYTE_PER_BC);
-      if (tmp[EnumDat.QualityValue.value] > as.lastEvent[EnumDat.QualityValue.value] || tmp[EnumDat.DeletionQV.value] > as.lastEvent[EnumDat.DeletionQV.value]) {
-        tmp[EnumDat.QualityValue.value] = as.lastEvent[EnumDat.QualityValue.value];
-        tmp[EnumDat.DeletionQV.value] = as.lastEvent[EnumDat.DeletionQV.value];
-        tmp[EnumDat.DeletionTag.value] = as.lastEvent[EnumDat.DeletionTag.value];
+      final byte[] tmp = Arrays.copyOfRange(data, randomShift, randomShift + BYTE_PER_BC);
+      if (tmp[EnumDat.QualityValue.value] > previousAppendState.lastEvent[EnumDat.QualityValue.value] || tmp[EnumDat.DeletionQV.value] > previousAppendState.lastEvent[EnumDat.DeletionQV.value]) {
+        tmp[EnumDat.QualityValue.value] = previousAppendState.lastEvent[EnumDat.QualityValue.value];
+        tmp[EnumDat.DeletionQV.value] = previousAppendState.lastEvent[EnumDat.DeletionQV.value];
+        tmp[EnumDat.DeletionTag.value] = previousAppendState.lastEvent[EnumDat.DeletionTag.value];
       }
       buffer.addLast(tmp, 0, BYTE_PER_BC);
     }
