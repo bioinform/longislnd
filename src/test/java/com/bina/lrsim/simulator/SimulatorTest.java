@@ -58,7 +58,6 @@ public class SimulatorTest {
                 "--totalBases", "200", "--samplePer", "100", "--seed", Integer.toString(seed),
                 "--minFragmentLength", "50", "--maxFragmentLength", "1000",
                 "--minNumPasses", "1", "--maxNumPasses", "10",
-                "--outputPolymeraseRead", "False",
                 "--eventsFrequency", "0:0:0:1", //make sure error rates are zero for events
                 "--forceMovieName", "movie"
         });
@@ -94,7 +93,7 @@ public class SimulatorTest {
                 "--minNumPasses", "1", "--maxNumPasses", "10",
                 "--eventsFrequency", "0:0:0:1", //make sure error rates are zero for events
                 "--forceMovieName", "movie",
-                "--outputPolymeraseRead", "True",
+                "--outputPolymeraseRead",
                 "--adapterSequence", "ATCGTCGAACGGTCGACTA",
         });
         //the reads will be 3bp shorter on 5' end, 3bp shorter on 3' end

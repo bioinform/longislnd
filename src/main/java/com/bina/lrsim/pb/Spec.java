@@ -149,10 +149,8 @@ public enum Spec {
         return adapterSequence;
     }
 
-    public void setPolymeraseReadFlag(final String outputPolymeraseRead) {
-        if (outputPolymeraseRead.equals("True")) {
-            this.polymeraseReadFlag = true;
-        }
+    public void setPolymeraseReadFlag(final boolean outputPolymeraseRead) {
+        this.polymeraseReadFlag = outputPolymeraseRead;
     }
 
     public void setAdapterSequence(final String adapterSequence) {
