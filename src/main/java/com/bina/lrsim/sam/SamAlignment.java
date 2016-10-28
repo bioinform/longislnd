@@ -76,7 +76,7 @@ public class SamAlignment implements EventGroup {
       }
       if (hasRef) {
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext, ++refRefPos) {
-          ref[refNext] = refRef[refRefPos];
+          ref[refNext] = refRef[refRefPos % refRef.length];
         }
       } else if (hasSeq) {
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext) {
