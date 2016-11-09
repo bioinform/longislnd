@@ -45,7 +45,7 @@ if __name__ == "__main__":
     else: os.makedirs(args.model_dir)
     assert os.path.exists(args.model_dir)
 
-    assert args.input_suffix == "fofn.cmp.h5" or args.input_suffix == "fastq.bam", "this convenient script expects alignment would name files such that the read to alignment is either *fofn -> *fofn.cmp.h5, or *fastq -> *fastq.bam"
+    assert args.input_suffix == "fofn.cmp.h5" or args.input_suffix == "fastq.bam" or args.input_suffix == "bam.bam", "this convenient script expects alignment would name files such that the read to alignment is either *fofn -> *fofn.cmp.h5, or *fastq -> *fastq.bam, or *bam -> *bam.bam"
     alignment_files = glob.glob("*" + args.input_suffix)
     assert len(alignment_files) > 0, "failed to find any alignment files with suffix " + args.input_suffix
 

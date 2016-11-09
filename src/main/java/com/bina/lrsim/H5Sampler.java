@@ -27,7 +27,7 @@ public class H5Sampler {
 
   public static class ModuleOptions extends ProgramOptions {
     private final static Logger log = Logger.getLogger(ModuleOptions.class.getName());
-    private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq"));
+    private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq", "clrbam"));
 
     @Option(name = "--outPrefix", required = true, usage = "prefix of output model files")
     private String outPrefix;
@@ -86,6 +86,12 @@ public class H5Sampler {
           return new CmpH5Reader(this.inFile, Spec.CcsSpec);
         } else {
           log.error("ccs spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
+        }
+      } else if (readType.equals("clrbam")) {
+        if (this.inFile.endsWith("bam")) {
+          return new SamReader(new File(this.inFile), this.reference, Spec.ClrBamSpec);
+        } else {
+          log.error("pbbam spec is supported only with bam input, please contact developer if more is needed");
         }
       } else {
         log.error("valid --readType: " + StringUtils.join(VALID_READ_TYPES, ", "));

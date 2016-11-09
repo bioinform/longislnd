@@ -9,6 +9,8 @@ import java.util.Set;
 import com.bina.lrsim.pb.RunInfo;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.util.ProgramOptions;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SamReaderFactory;
 import ncsa.hdf.object.FileFormat;
 import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +28,7 @@ import org.kohsuke.args4j.Option;
  */
 public class H5RegionSampler {
   private final static Logger log = Logger.getLogger(H5RegionSampler.class.getName());
-  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq"));
+  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("clrbam", "bax", "ccs", "fastq"));
 
   public static class ModuleOptions extends ProgramOptions {
     @Option(name = "--outPrefix", required = true, usage = "prefix of output model files")
@@ -70,7 +72,8 @@ public class H5RegionSampler {
       scoreOut.writeInt(-1);
       if (po.readType.equals("fastq")) {
         triple = SampleFASTQ(po, lenOut, runInfoOut, scoreOut);
-
+      } else if (po.readType.equals("clrbam")) {
+        triple = SampleClrBam(po, lenOut, runInfoOut, scoreOut);
       } else {
         triple = SampleFOFN(po, lenOut, runInfoOut, scoreOut);
       }
@@ -163,5 +166,22 @@ public class H5RegionSampler {
       }
     }
     return new ImmutableTriple<>(numReads, numSubReads, baseCount);
+  }
+
+  static private Triple<Integer, Integer, Long> SampleClrBam(ModuleOptions po, DataOutputStream lenOut, ObjectOutputStream runInfoOut, DataOutputStream scoreOut) throws IOException {
+    int numSubReads = 0;
+    long baseCount = 0;
+    Set<Integer> allZmws = new HashSet<>();
+    runInfoOut.writeObject(new RunInfo());
+    try (htsjdk.samtools.SamReader br = SamReaderFactory.makeDefault().open(new File(po.inFile))) {
+      for (SAMRecord record : br) {
+        ++numSubReads;
+        baseCount += record.getReadLength();
+        allZmws.add((Integer) record.getAttribute("zm"));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return new ImmutableTriple<>(allZmws.size(), numSubReads, baseCount);
   }
 }

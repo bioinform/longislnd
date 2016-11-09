@@ -24,10 +24,31 @@ public class SamAlignment implements EventGroup {
   private final static Logger log = Logger.getLogger(SamAlignment.class.getName());
   private final SAMRecord samRecord;
   private PairwiseAlignment pairwiseAlignment = null;
+  private Spec alignmentSpec;
 
+  /**
+   * by default, it will assume Fastq as source of reads
+   * this is for compatibility purposes
+   *
+   * @param samRecord
+   * @param references
+   */
   public SamAlignment(SAMRecord samRecord, ReferenceSequenceFile references) {
     this.samRecord = samRecord;
     load(this.samRecord, references);
+    this.alignmentSpec = Spec.FastqSpec;
+  }
+
+  /**
+   * alternative constructor with a specific spec object
+   *
+   * @param samRecord
+   * @param references
+   */
+  public SamAlignment(SAMRecord samRecord, ReferenceSequenceFile references, Spec spec) {
+    this.samRecord = samRecord;
+    load(this.samRecord, references);
+    this.alignmentSpec = spec;
   }
 
   /**
@@ -189,7 +210,7 @@ public class SamAlignment implements EventGroup {
 
   @Override
   public Spec getSpec() {
-    return Spec.FastqSpec;
+    return alignmentSpec;
   }
 
   @Override

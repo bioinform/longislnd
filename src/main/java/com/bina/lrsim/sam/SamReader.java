@@ -7,6 +7,7 @@ import java.util.Iterator;
 import com.bina.lrsim.interfaces.EventGroup;
 import com.bina.lrsim.interfaces.EventGroupFactory;
 
+import com.bina.lrsim.pb.Spec;
 import htsjdk.samtools.*;
 import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequenceFile;
@@ -19,6 +20,7 @@ public class SamReader implements EventGroupFactory {
   private final static Logger log = Logger.getLogger(SamReader.class.getName());
   private final htsjdk.samtools.SamReader samReader;
   private final ReferenceSequenceFile references;
+  private final Spec spec;
 
   public SamReader(File sambam, File fasta) {
     this.samReader = SamReaderFactory.makeDefault().open(sambam);
@@ -27,11 +29,22 @@ public class SamReader implements EventGroupFactory {
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e.getMessage());
     }
+    this.spec = Spec.FastqSpec;
+  }
+
+  public SamReader(File sambam, File fasta, Spec spec) {
+    this.samReader = SamReaderFactory.makeDefault().open(sambam);
+    try {
+      this.references = new IndexedFastaSequenceFile(fasta);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+    this.spec = spec;
   }
 
   @Override
   public Iterator<EventGroup> iterator() {
-    return new SamIterator(samReader.iterator(), references);
+    return new SamIterator(samReader.iterator(), references, spec);
   }
 
   private static class SamIterator implements Iterator<EventGroup> {
@@ -39,11 +52,13 @@ public class SamReader implements EventGroupFactory {
     private final SAMRecordIterator samItr;
     private final ReferenceSequenceFile references;
     private SAMRecord buffer;
+    private Spec spec;
 
-    SamIterator(SAMRecordIterator samItr, ReferenceSequenceFile references) {
+    SamIterator(SAMRecordIterator samItr, ReferenceSequenceFile references, Spec spec) {
       this.samItr = samItr;
       this.references = references;
       this.buffer = this.seek();
+      this.spec = spec;
     }
 
     @Override
@@ -55,7 +70,7 @@ public class SamReader implements EventGroupFactory {
     public EventGroup next() {
       SAMRecord ret = buffer;
       buffer = seek();
-      return new SamAlignment(ret, references);
+      return new SamAlignment(ret, references, spec);
     }
 
     @Override
