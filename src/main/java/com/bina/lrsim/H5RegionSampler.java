@@ -175,6 +175,9 @@ public class H5RegionSampler {
     runInfoOut.writeObject(new RunInfo());
     try (htsjdk.samtools.SamReader br = SamReaderFactory.makeDefault().open(new File(po.inFile))) {
       for (SAMRecord record : br) {
+        lenOut.writeInt(1);
+        lenOut.writeInt(record.getReadLength());
+        scoreOut.writeInt(999);
         ++numSubReads;
         baseCount += record.getReadLength();
         allZmws.add((Integer) record.getAttribute("zm"));
