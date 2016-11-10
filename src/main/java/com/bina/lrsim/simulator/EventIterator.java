@@ -38,6 +38,15 @@ public class EventIterator implements Iterator<Event> {
     end = next;
   }
 
+  /**
+   * take an alignment and return an iterator?
+   * @param alignment
+   * @param leftFlank
+   * @param rightFlank
+   * @param leftMask
+   * @param rightMask
+   * @param hpAnchor
+   */
   public EventIterator(EventGroup alignment, int leftFlank, int rightFlank, int leftMask, int rightMask, int hpAnchor) {
     this.alignment = alignment;
     this.lf = leftFlank;
@@ -46,6 +55,7 @@ public class EventIterator implements Iterator<Event> {
 
     // mask out right side of read
     end = this.alignment.size();
+    // end will record
     for (int count = 0; count < rightMask && end > 0; --end) {
       if (EnumBP.Gap.ascii != this.alignment.getSeq(end - 1)) {
         ++count;
@@ -163,6 +173,7 @@ public class EventIterator implements Iterator<Event> {
       valid = false;
     }
 
+    //check if there is any invalid base pairs
     for (byte entry : key) {
       if (EnumBP.N.value == EnumBP.ascii2value(entry)) {
         valid = false;

@@ -24,12 +24,40 @@ public class SamAlignment implements EventGroup {
   private final static Logger log = Logger.getLogger(SamAlignment.class.getName());
   private final SAMRecord samRecord;
   private PairwiseAlignment pairwiseAlignment = null;
+  private Spec alignmentSpec;
 
+  /**
+   * by default, it will assume Fastq as source of reads
+   * this is for compatibility purposes
+   *
+   * @param samRecord
+   * @param references
+   */
   public SamAlignment(SAMRecord samRecord, ReferenceSequenceFile references) {
     this.samRecord = samRecord;
     load(this.samRecord, references);
+    this.alignmentSpec = Spec.FastqSpec;
   }
 
+  /**
+   * alternative constructor with a specific spec object
+   *
+   * @param samRecord
+   * @param references
+   */
+  public SamAlignment(SAMRecord samRecord, ReferenceSequenceFile references, Spec spec) {
+    this.samRecord = samRecord;
+    load(this.samRecord, references);
+    this.alignmentSpec = spec;
+  }
+
+  /**
+   * get the longest possible length where we can see either a reference base or a
+   * read base
+   *
+   * @param samRecord
+   * @return length of alignment excluding hard clipping(H) and reference padding (P)
+   */
   private static int getAlignmentLength(SAMRecord samRecord) {
     int length = 0;
     for (CigarElement entry : samRecord.getCigar().getCigarElements()) {
@@ -40,12 +68,23 @@ public class SamAlignment implements EventGroup {
     return length;
   }
 
+  /**
+   * interpret the sam/bam record
+   *
+   * @param samRecord
+   * @param references
+   */
   public void load(SAMRecord samRecord, ReferenceSequenceFile references) {
+    /*
+    skip secondary alignment and supplementary alignment.
+    supplementary alignment usually represents chimeric/non-linear alignment
+     */
     if (samRecord.getNotPrimaryAlignmentFlag() || samRecord.getSupplementaryAlignmentFlag()) {
       pairwiseAlignment = null;
       return;
     }
     final int length = getAlignmentLength(samRecord);
+    //skip zero-length alignment
     if (length == 0) {
       pairwiseAlignment = null;
       return;
@@ -60,30 +99,41 @@ public class SamAlignment implements EventGroup {
 
     int seqNext = 0;
     int refNext = 0;
+    /*
+    traverse through all cigar operators and reconstruct the base-pair-wise alignment
+     */
     for (CigarElement entry : samRecord.getCigar().getCigarElements()) {
       final boolean hasSeq = entry.getOperator().consumesReadBases();
       final boolean hasRef = entry.getOperator().consumesReferenceBases();
       if (hasSeq) {
+        //cigar strings that will make hasSeq = true, e.g. insertion, match, mismatch
         for (int counter = 0; counter < entry.getLength(); ++counter, ++seqNext, ++seqSamPos) {
           seq[seqNext] = samRecord.getReadBases()[seqSamPos]; // assumes it'll get compiled out
           seqDataIdx[seqNext] = seqSamPos;
         }
       } else if (hasRef) {
+        //cigar strings that will make hasSeq = false && hasRef = true: e.g. deletion
         for (int counter = 0; counter < entry.getLength(); ++counter, ++seqNext) {
           seq[seqNext] = ' ';
           seqDataIdx[seqNext] = -1;
         }
       }
       if (hasRef) {
+        //cigar events that will hasRef = true, e.g. deletion, match, mismatch
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext, ++refRefPos) {
-          ref[refNext] = refRef[refRefPos];
+          ref[refNext] = refRef[refRefPos % refRef.length];
         }
       } else if (hasSeq) {
+        //cigar events hasRef = false && hasSeq = true, e.g. insertion
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext) {
           ref[refNext] = ' ';
         }
       }
     }
+    /*
+    if a read is aligned on reverse complement strand, then
+    reverse complement reference, read, and read base pair index
+     */
     if(samRecord.getReadNegativeStrandFlag() && ref.length > 0) {
       byte btmp;
       int itmp;
@@ -104,6 +154,9 @@ public class SamAlignment implements EventGroup {
     // log.info(new String(seq));
     // log.info(new String(ref));
     pairwiseAlignment = new PairwiseAlignment(ref, seq, seqDataIdx);
+    /*
+    purpose of span() is to reduce alignment bias in kmer error rate calculation
+     */
     pairwiseAlignment.span();
   }
 
@@ -135,7 +188,7 @@ public class SamAlignment implements EventGroup {
 
   @Override
   public Spec getSpec() {
-    return Spec.FastqSpec;
+    return alignmentSpec;
   }
 
   @Override
