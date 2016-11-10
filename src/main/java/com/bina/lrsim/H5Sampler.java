@@ -76,19 +76,19 @@ public class H5Sampler {
         }
         return null;
       } else if (readType.equals("bax")) {
-        if (this.inFile.endsWith("cmp.h5")) {
+        if (this.inFile.endsWith(".cmp.h5")) {
           return new CmpH5Reader(this.inFile, Spec.BaxSampleSpec);
         } else {
           log.error("bax spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
         }
       } else if (readType.equals("ccs")) {
-        if (this.inFile.endsWith("cmp.h5")) {
+        if (this.inFile.endsWith(".cmp.h5")) {
           return new CmpH5Reader(this.inFile, Spec.CcsSpec);
         } else {
           log.error("ccs spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
         }
       } else if (readType.equals("clrbam")) {
-        if (this.inFile.endsWith("bam")) {
+        if (this.inFile.endsWith(".bam")) {
           return new SamReader(new File(this.inFile), this.reference, Spec.ClrBamSpec);
         } else {
           log.error("pbbam spec is supported only with bam input, please contact developer if more is needed");
