@@ -28,11 +28,11 @@ public class LongISLND {
         break;
 
       case "sample": // run sampling
-        H5Sampler.main(pass_args);
+        SamplerDriver.main(pass_args);
         break;
 
       case "region": // run sampling of regions
-        H5RegionSampler.main(pass_args);
+        RegionSamplerDriver.main(pass_args);
         break;
 
       case "h5fastq": // h5 to fastq conversion
