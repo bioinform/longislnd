@@ -104,11 +104,11 @@ public class BAMWriter extends ReadsWriter {
         alignment.setReadBases(Arrays.copyOfRange(enumData.get(EnumDat.BaseCall), begin, end));
         alignment.setBaseQualities(Arrays.copyOfRange(enumData.get(EnumDat.QualityValue), begin, end));
         alignment.setAttribute("RG", moviename);
-        AddScore("dq", EnumDat.DeletionQV, begin, end);
-        AddScore("dt", EnumDat.DeletionTag, begin, end);
-        if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute("ip", Arrays.copyOfRange(enumData.get(EnumDat.IDPV1), begin, end));
-        AddScore("iq", EnumDat.InsertionQV, begin, end);
-        AddScore("mq", EnumDat.MergeQV, begin, end);
+        AddScore(EnumDat.DeletionQV.pbBamTag, EnumDat.DeletionQV, begin, end);
+        AddScore(EnumDat.DeletionTag.pbBamTag, EnumDat.DeletionTag, begin, end);
+        if (spec.getDataSet().contains(EnumDat.IDPV1)) alignment.setUnsignedArrayAttribute(EnumDat.IDPV1.pbBamTag, Arrays.copyOfRange(enumData.get(EnumDat.IDPV1), begin, end));
+        AddScore(EnumDat.InsertionQV.pbBamTag, EnumDat.InsertionQV, begin, end);
+        AddScore(EnumDat.MergeQV.pbBamTag, EnumDat.MergeQV, begin, end);
         alignment.setAttribute("np", Integer.valueOf(1));
         alignment.setAttribute("qs", Integer.valueOf(begin));
         alignment.setAttribute("qe", Integer.valueOf(end));
