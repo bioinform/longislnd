@@ -88,6 +88,7 @@ public class SamplesCollector extends Samples implements Closeable, com.bina.lrs
   @Override
   public void process(EventGroupFactory groups, int minLength, int flankMask) throws IOException {
     int ii = 0;
+    //each group is an abstraction of a read consisting of events (matches, substitutions, indels)
     for (EventGroup group : groups) {
       if (ii % 10000 == 0 && ii != 0) {
         log.info("processing group " + ii);

@@ -1,0 +1,3 @@
+11 Nov 2016 11:57:36,584  INFO [main] (SamplesCollector.java:43): flanks=(3,3) k=7 num_kmers=16384
+11 Nov 2016 11:57:36,623  INFO [main] (SamplesCollector.java:107): processed 1 groups
+11 Nov 2016 11:57:38,552  INFO [main] (H5Sampler.java:127): finished

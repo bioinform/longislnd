@@ -394,7 +394,7 @@ public class SamplesDrawer extends Samples {
         if (count % 10000000 == 1) {
           log.info("loaded " + count + " events" + Arrays.toString(loggedEventCount) + "/" + Arrays.toString(eventCount));
           log.info("loaded " + numHpEvents + " hp events");
-          log.info("pruning criterions " + nKmerDone + "/" + getNumKmer());
+          log.info("pruning criteria " + nKmerDone + "/" + getNumKmer());
         }
       } else if (!srcDone[src]) {
         srcDone[src] = true;
