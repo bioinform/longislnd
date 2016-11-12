@@ -16,7 +16,7 @@ public enum EnumDat {
   QualityValue(5, "/QualityValue", false, true, new Identity(), null),
   SubstitutionQV(6, "/SubstitutionQV", false, true, new Identity(), "sq"),
   SubstitutionTag(7, "/SubstitutionTag", false, false, new Identity(), "st"),
-  IDPV1(8, "/PreBaseFrames", false, false, new IDPCodecV1Compression(), "ip");
+  IPDV1(8, "/PreBaseFrames", false, false, new IDPCodecV1Compression(), "ip");
   public static int numBytes = 9;
 
   public final int value;
