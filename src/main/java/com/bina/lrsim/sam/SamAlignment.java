@@ -121,7 +121,7 @@ public class SamAlignment implements EventGroup {
       if (hasRef) {
         //cigar events that will hasRef = true, e.g. deletion, match, mismatch
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext, ++refRefPos) {
-          ref[refNext] = refRef[refRefPos % refRef.length];
+          ref[refNext] = refRef[refRefPos];
         }
       } else if (hasSeq) {
         //cigar events hasRef = false && hasSeq = true, e.g. insertion
