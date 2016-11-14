@@ -2,13 +2,12 @@ package com.bina.lrsim;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
+import com.bina.lrsim.util.SuffixFixedFileType;
 import com.bina.lrsim.util.ProgramOptions;
-import htsjdk.samtools.BamFileIoUtils;;
-import htsjdk.samtools.util.IOUtil;
+;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.Option;
 import org.apache.log4j.Logger;
@@ -27,7 +26,11 @@ public class SamplerDriver {
 
   public static class ModuleOptions extends ProgramOptions {
     private final static Logger log = Logger.getLogger(ModuleOptions.class.getName());
-    private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "fastq", "clrbam"));
+    private final static Set<SuffixFixedFileType.FileType> VALID_READ_TYPES = EnumSet.of(
+                                                                          SuffixFixedFileType.FileType.bax,
+                                                                          SuffixFixedFileType.FileType.ccs,
+                                                                          SuffixFixedFileType.FileType.fastq,
+                                                                          SuffixFixedFileType.FileType.clrbam);
 
     @Option(name = "--outPrefix", required = true, usage = "prefix of output model files")
     private String outPrefix;
@@ -60,8 +63,8 @@ public class SamplerDriver {
     private boolean noWrite;
 
     private EventGroupFactory getGroupFactory() {
-      if (readType.equals("fastq")) {
-        if (this.inFile.endsWith(IOUtil.SAM_FILE_EXTENSION) || this.inFile.endsWith(BamFileIoUtils.BAM_FILE_EXTENSION)) {
+      if (readType.equals(SuffixFixedFileType.fastq.type.name())) {
+        if (SuffixFixedFileType.fastq.hasLegalOutputSuffix(this.inFile)) {
           if(this.reference == null) {
             log.error("please specify reference file with --reference");
           }
@@ -75,20 +78,20 @@ public class SamplerDriver {
           log.error("fastq spec is supported only with SAM/BAM input, please contact developer if more is needed");
         }
         return null;
-      } else if (readType.equals("bax")) {
-        if (this.inFile.endsWith(".cmp.h5")) {
+      } else if (readType.equals(SuffixFixedFileType.bax.type.name())) {
+        if (SuffixFixedFileType.bax.hasLegalOutputSuffix(this.inFile)) {
           return new CmpH5Reader(this.inFile, Spec.BaxSampleSpec);
         } else {
           log.error("bax spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
         }
-      } else if (readType.equals("ccs")) {
-        if (this.inFile.endsWith(".cmp.h5")) {
+      } else if (readType.equals(SuffixFixedFileType.ccs.type.name())) {
+        if (SuffixFixedFileType.ccs.hasLegalOutputSuffix(this.inFile)) {
           return new CmpH5Reader(this.inFile, Spec.CcsSpec);
         } else {
           log.error("ccs spec is supported only with cmp.h5 input, which contains beyond-fastq quality scores, please contact developer if alternatives are needed");
         }
-      } else if (readType.equals("clrbam")) {
-        if (this.inFile.endsWith(".bam")) {
+      } else if (readType.equals(SuffixFixedFileType.clrbam.type.name())) {
+        if (SuffixFixedFileType.clrbam.hasLegalOutputSuffix(this.inFile)) {
           return new SamReader(new File(this.inFile), this.reference, Spec.ClrBamSpec);
         } else {
           log.error("pbbam spec is supported only with bam input, please contact developer if more is needed");

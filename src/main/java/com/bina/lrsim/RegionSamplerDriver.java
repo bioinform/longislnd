@@ -1,13 +1,11 @@
 package com.bina.lrsim;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.bina.lrsim.pb.RunInfo;
 import com.bina.lrsim.pb.Spec;
+import com.bina.lrsim.util.SuffixFixedFileType;
 import com.bina.lrsim.util.ProgramOptions;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SamReaderFactory;
@@ -28,7 +26,10 @@ import org.kohsuke.args4j.Option;
  */
 public class RegionSamplerDriver {
   private final static Logger log = Logger.getLogger(RegionSamplerDriver.class.getName());
-  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("clrbam", "bax", "ccs", "fastq"));
+  private final static Set<SuffixFixedFileType.FileType> VALID_READ_TYPES = EnumSet.of(SuffixFixedFileType.FileType.bax,
+                                                                                  SuffixFixedFileType.FileType.ccs,
+                                                                                  SuffixFixedFileType.FileType.fastq,
+                                                                                  SuffixFixedFileType.FileType.clrbam);
 
   public static class ModuleOptions extends ProgramOptions {
     @Option(name = "--outPrefix", required = true, usage = "prefix of output model files")
@@ -58,7 +59,7 @@ public class RegionSamplerDriver {
       System.exit(1);
     }
 
-    if (!VALID_READ_TYPES.contains(po.readType)) {
+    if (!VALID_READ_TYPES.contains(Enum.valueOf(SuffixFixedFileType.FileType.class, po.readType))) {
       log.error("valid read types: " + StringUtils.join(VALID_READ_TYPES, ", "));
       System.exit(1);
     }
@@ -70,9 +71,9 @@ public class RegionSamplerDriver {
          DataOutputStream scoreOut = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(Samples.Suffixes.SCORE.filename(po.outPrefix))))) {
       lenOut.writeInt(-1);
       scoreOut.writeInt(-1);
-      if (po.readType.equals("fastq")) {
+      if (po.readType.equals(SuffixFixedFileType.FileType.fastq.name())) {
         triple = SampleFASTQ(po, lenOut, runInfoOut, scoreOut);
-      } else if (po.readType.equals("clrbam")) {
+      } else if (po.readType.equals(SuffixFixedFileType.FileType.clrbam.name())) {
         triple = SampleClrBam(po, lenOut, runInfoOut, scoreOut);
       } else {
         triple = SampleFOFN(po, lenOut, runInfoOut, scoreOut);
