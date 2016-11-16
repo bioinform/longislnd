@@ -2,6 +2,7 @@ package com.bina.lrsim;
 
 import com.bina.lrsim.pb.h5.bax.BaxH5Reader;
 import com.bina.lrsim.pb.Spec;
+import com.bina.lrsim.util.SuffixFixedFileType;
 import htsjdk.samtools.fastq.FastqRecord;
 import htsjdk.samtools.fastq.FastqWriter;
 import htsjdk.samtools.fastq.FastqWriterFactory;
@@ -40,7 +41,7 @@ public class H5Fastq {
     FastqWriterFactory fwf = new FastqWriterFactory();
     for (int ii = 1; ii < args.length; ++ii) {
       log.info("converting:" + args[ii]);
-      try (FastqWriter writer = fwf.newWriter(new File(args[ii]+".fastq"))) {
+      try (FastqWriter writer = fwf.newWriter(new File(args[ii]+ SuffixFixedFileType.Suffix.fastq))) {
         for (Iterator<FastqRecord> itr = new BaxH5Reader(args[ii], spec).reads(); itr.hasNext();) {
           writer.write(itr.next());
         }

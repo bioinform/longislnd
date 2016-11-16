@@ -8,6 +8,7 @@ import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
 import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.ParallelSimulator;
+import com.bina.lrsim.util.SuffixFixedFileType;
 import com.bina.lrsim.util.ProgramOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.MersenneTwister;
@@ -23,8 +24,10 @@ import org.kohsuke.args4j.Option;
  */
 public class SimulatorDriver {
   private final static Logger log = Logger.getLogger(SimulatorDriver.class.getName());
-  private final static Set<String> VALID_READ_TYPES = new HashSet<>(Arrays.asList("bax", "ccs", "clrbam", "fastq"));
-
+  private final static Set<SuffixFixedFileType.FileType> VALID_READ_TYPES = EnumSet.of(SuffixFixedFileType.FileType.bax,
+                                                                                  SuffixFixedFileType.FileType.ccs,
+                                                                                  SuffixFixedFileType.FileType.clrbam,
+                                                                                  SuffixFixedFileType.FileType.fastq);
   /**
    * create a file of simulated reads based on the given FASTA and model
    */
@@ -36,7 +39,7 @@ public class SimulatorDriver {
 
     final long[] eventsFrequency = po.getEventsFrequency();
 
-    if (!VALID_READ_TYPES.contains(po.readType)) {
+    if (!VALID_READ_TYPES.contains(Enum.valueOf(SuffixFixedFileType.FileType.class, po.readType))) {
       log.error("valid read types: " + StringUtils.join(VALID_READ_TYPES, ", "));
       System.exit(1);
     }

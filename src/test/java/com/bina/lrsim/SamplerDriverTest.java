@@ -7,8 +7,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertTrue;
@@ -17,7 +15,7 @@ import static org.junit.Assume.assumeTrue;
 /**
  * Created by guoy28 on 11/8/16.
  */
-public class H5SamplerTest {
+public class SamplerDriverTest {
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
 
@@ -42,7 +40,7 @@ public class H5SamplerTest {
     sample --outPrefix src/test/resources/samplingTest/pacbioBAMSamplingTest/expected_model/pacbio_arabidopsis_1subread_aln_smallref.bam.bam.clrbam.3.1.100
             --inFile pacbio_arabidopsis_1subread_aln_smallref.bam.bam --readType clrbam --leftFlank 3 --rightFlank 3 --minLength 1 --flankMask 100  --reference reference_for_1subread.fasta
     */
-    H5Sampler.main(new String[]{
+    SamplerDriver.main(new String[]{
             "--outPrefix", outputPrefix,
             "--inFile", inputBAM,
             "--readType", "clrbam",
@@ -61,7 +59,7 @@ public class H5SamplerTest {
     region --outPrefix src/test/resources/samplingTest/pacbioBAMSamplingTest/expected_model/pacbio_arabidopsis_1subread_aln_smallref.bam.bam.clrbam.3.1.100
             --inFile pacbio_arabidopsis_1subread_aln_smallref.bam --readType clrbam --minReadScore 0.7
             */
-    H5RegionSampler.main(new String[]{
+    RegionSamplerDriver.main(new String[]{
             "--outPrefix", outputPrefix,
             "--inFile", inputBAM,
             "--readType", "clrbam",

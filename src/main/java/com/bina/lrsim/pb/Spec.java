@@ -5,8 +5,6 @@ import com.bina.lrsim.pb.h5.bax.EnumGroups;
 import htsjdk.samtools.BamFileIoUtils;
 
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -15,7 +13,7 @@ import java.util.Set;
 public enum Spec {
     ClrBamSpec(
             "clrbam",
-            new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IDPV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
+            new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IPDV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses)),
             true,
             EnumGroups.BaseCalls,
@@ -34,14 +32,14 @@ public enum Spec {
             EnumGroups.BaseCalls,
             EnumGroups.ZMW,
             EnumGroups.ZMWMetrics,
-            EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IDPV1)),
+            EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.IPDV1)),
             ".bax.h5",
             false,
             Heuristics.SMRT_ADAPTOR_STRING
     ),
     BaxSampleSpec(
             "baxsample",
-            new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IDPV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
+            new String[] {"Basecall", "DeletionQV", "DeletionTag", "InsertionQV", "MergeQV", "QualityValue", "SubstitutionQV", "SubstitutionTag", "IPDV1", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8", "uint8"},
             EnumSet.complementOf(EnumSet.of(EnumGroups.CBaseCalls, EnumGroups.CZMW, EnumGroups.CZMWMetrics, EnumGroups.CPasses)),
             true,
             EnumGroups.BaseCalls,
@@ -60,7 +58,7 @@ public enum Spec {
             EnumGroups.BaseCalls,
             EnumGroups.CZMW,
             EnumGroups.CZMWMetrics,
-            EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IDPV1)),
+            EnumSet.complementOf(EnumSet.of(EnumDat.AlnArray, EnumDat.MergeQV, EnumDat.IPDV1)),
             ".ccs.h5",
             false,
             Heuristics.SMRT_ADAPTOR_STRING
