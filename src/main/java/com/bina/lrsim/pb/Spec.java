@@ -2,6 +2,7 @@ package com.bina.lrsim.pb;
 
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
+import com.google.common.collect.Sets;
 import htsjdk.samtools.BamFileIoUtils;
 
 import java.util.EnumSet;
@@ -116,18 +117,18 @@ public enum Spec {
          final byte[] adapterSequence) {
         this.readType = readType;
         this.dataDescription = dataDescription;
-        this.groupSet = groupSet;
+        this.groupSet = groupSet == null ? null : Sets.immutableEnumSet(groupSet);
         this.writeAdapterInsert = writeAdapterInsert;
         this.baseCalls = baseCalls;
         this.zmw = zmw;
         this.zmwMetrics = zmwMetrics;
-        this.dataSet = dataSet;
-        nonBaseDataSet = EnumSet.copyOf(dataSet);
+        this.dataSet = dataSet == null ? null : Sets.immutableEnumSet(dataSet);
+        if (dataSet != null)
+            dataSet.remove(EnumDat.BaseCall);
+        nonBaseDataSet = dataSet == null ? null : Sets.immutableEnumSet(dataSet);
         this.suffix = suffix;
         this.polymeraseReadFlag = polymeraseReadFlag;
         this.adapterSequence = adapterSequence;
-
-        nonBaseDataSet.remove(EnumDat.BaseCall);
     }
 
     public static Spec fromReadType(final String readType) {
