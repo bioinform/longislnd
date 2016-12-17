@@ -93,8 +93,13 @@
             <artifactId>commons-math3</artifactId>
             <version>3.5</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
+	<dependency>
+	    <groupId>com.google.guava</groupId>
+	    <artifactId>guava</artifactId>
+	    <version>20.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
@@ -109,11 +114,6 @@
             <groupId>args4j</groupId>
             <artifactId>args4j</artifactId>
             <version>2.33</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>16.0.1</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -147,112 +147,20 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.2.3</version>
         </dependency>
-
-<!--
-        <dependency>
-            <groupId>com.bina.foobar</groupId>
-            <artifactId>hdf5</artifactId>
-            <version>SNAPSHOT-1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina.foobar</groupId>
-            <artifactId>hdf5-2.11.0</artifactId>
-            <version>SNAPSHOT-1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina.foobar</groupId>
-            <artifactId>hdf-2.11.0</artifactId>
-            <version>SNAPSHOT-1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina.foobar</groupId>
-            <artifactId>hdfobj</artifactId>
-            <version>SNAPSHOT-1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina.foobar</groupId>
-            <artifactId>slf4j-nop-1.7.5</artifactId>
-            <version>SNAPSHOT-1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina.foobar</groupId>
-            <artifactId>slf4j-api-1.7.5</artifactId>
-            <version>SNAPSHOT-1.0.0</version>
-        </dependency>
--->
-<!--
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>jarnc2obj</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>jarh4obj</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-        </dependency>
--->
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarh5obj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
         </dependency>
-<!--
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>fits</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>netcdf</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>slf4jnop</artifactId>
-            <version>1.7.5-SNAPSHOT</version>
-        </dependency>
--->
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdf5</artifactId>
             <version>2.11.0-SNAPSHOT</version>
         </dependency>
-<!--
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>jarfitsobj</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>slf4japi</artifactId>
-            <version>1.7.5-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>jarhdf</artifactId>
-            <version>2.11.0-SNAPSHOT</version>
-        </dependency>
--->
         <dependency>
             <groupId>com.bina</groupId>
             <artifactId>jarhdfobj</artifactId>
             <version>0.0.0-SNAPSHOT</version>
-        </dependency>
-<!--
-        <dependency>
-            <groupId>com.bina</groupId>
-            <artifactId>jhdfview</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
-        </dependency>
--->
-
-        <dependency>
-            <groupId>org.biojava</groupId>
-            <artifactId>biojava-genome</artifactId>
-            <version>4.0.0</version>
         </dependency>
     </dependencies>
 
