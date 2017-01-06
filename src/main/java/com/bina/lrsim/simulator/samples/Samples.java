@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import com.bina.lrsim.pb.RunInfo;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -297,6 +298,15 @@ public abstract class Samples {
     return sb.toString();
   }
 
+  /**
+   * load a list of length arrays
+   *
+   * during simulation, each reference sequence drawn from sampler will be simulated based on
+   * one of these length arrays.
+   *
+   * @param prefix
+   * @throws IOException
+   */
   protected final void loadLengths(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
     int newSize = dis.readInt();
@@ -322,6 +332,16 @@ public abstract class Samples {
     }
     dis.close();
     base_log.info("loaded " + scores.size() + " score");
+  }
+
+  protected final void sumLengths() {
+    for (int i = 0; i < lengths.size(); i++) {
+      int sum = 0;
+      for (int j : lengths.get(i)) {
+        sum += j;
+      }
+      lengths.set(i, new int[] {sum});
+    }
   }
 
   protected final void filterScoreLength(LengthLimits limits) {

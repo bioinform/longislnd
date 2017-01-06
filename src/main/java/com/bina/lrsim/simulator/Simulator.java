@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,7 @@ import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
 import com.bina.lrsim.util.ArrayUtils;
 import com.bina.lrsim.util.CircularArrayList;
+import com.bina.lrsim.util.SequencingMode;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -82,7 +84,7 @@ public class Simulator {
 
         // draw a list of smrt belts
         Pair<int[], Integer> lenScore = drawer.getRandomLengthScore(gen);
-        final int[] insertLengths = lenScore.getFirst();
+        int[] insertLengths = lenScore.getFirst();
         MultiPassSpec multiPassSpec = new MultiPassSpec(insertLengths);
 
         final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, gen);
@@ -91,6 +93,7 @@ public class Simulator {
         nameCounter.get(locus.getChrom()).incrementAndGet();
         final byte[] sequence = fragment.getSeq();
         // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
+        // make sure number of passes is at least 1.0 (one full pass at least).
         if(multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sequence.length) {
           for (int ii = 1; ii + 1 < insertLengths.length; ++ii) {
             if (insertLengths[ii] < sequence.length) {
@@ -99,9 +102,18 @@ public class Simulator {
           }
         }
         // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
-        for (int ii = 0; ii < insertLengths.length; ++ii) {
-          if(insertLengths[ii] > sequence.length) {
-            insertLengths[ii] = sequence.length;
+        // if we want to estimate number of passes by insert lengths, we break up the lengths into chunks
+        // that are equal to lengths of template sequence drawn
+        if (spec.isEstimateNPByLength() && spec.getSequencingMode() == SequencingMode.fragment) {
+          //right now we assume the sampled lengths contain adapter lengths
+          //i.e. each multiples of adapter + template except for the first
+          //one
+          insertLengths = breakUpLengths(insertLengths[0], sequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
+        } else {
+          for (int ii = 0; ii < insertLengths.length; ++ii) {
+            if (insertLengths[ii] > sequence.length) {
+              insertLengths[ii] = sequence.length;
+            }
           }
         }
 
@@ -220,7 +232,7 @@ public class Simulator {
         Pair<int[], Integer> lenScore = samplesDrawer.getRandomLengthScore(randomNumberGenerator);
         //TODO: for polymerase mode, we should probably apply polymerase length distribution
         //for now, we just stick with subread length distribution model
-        final int[] insertLengths = lenScore.getFirst();
+        int[] insertLengths = lenScore.getFirst();
         MultiPassSpec multiPassSpec = new MultiPassSpec(insertLengths);
 
         final Fragment fragment = seqGen.getFragment(multiPassSpec.fragmentLength, randomNumberGenerator);
@@ -263,12 +275,19 @@ public class Simulator {
             }
           }
         }
-        /* correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
-            * make sure no insert length is longer than sampled reference sequence
-            */
-        for (int ii = 0; ii < insertLengths.length; ++ii) {
-          if(insertLengths[ii] > sampledReferenceSequence.length) {
-            insertLengths[ii] = sampledReferenceSequence.length;
+        // correct insert lengths if the drawn fragment is shorter, the fractional change might not be realistic, but it avoids crazy coverage in fragment mode
+        // if we want to estimate number of passes by insert lengths, we break up the lengths into chunks
+        // that are equal to lengths of template sequence drawn
+        if (spec.isEstimateNPByLength() && spec.getSequencingMode() == SequencingMode.fragment) {
+          //right now we assume the sampled lengths contain adapter lengths
+          //i.e. each multiples of adapter + template except for the first
+          //one
+          insertLengths = breakUpLengths(insertLengths[0], sampledReferenceSequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
+        } else {
+          for (int ii = 0; ii < insertLengths.length; ++ii) {
+            if (insertLengths[ii] > sampledReferenceSequence.length) {
+              insertLengths[ii] = sampledReferenceSequence.length;
+            }
           }
         }
 
@@ -595,5 +614,31 @@ public class Simulator {
     normalizedAdapterLociStrings.set(normalizedAdapterLociStrings.size() - 1,
             normalizedAdapterLociStrings.get(normalizedAdapterLociStrings.size() - 1) + "\n");
     return new Pair<byte[], String[]>(noErrorPolymeraseRead, normalizedAdapterLociStrings.toArray(new String[0]));
+  }
+  /**
+   * take a length, break it up into an array of lengths
+   * the number of split lengths is deteremined jointly
+   * by l + a (except for the first pass, where only l
+   * is used), however, each split length is up to l
+   *
+   * because later on in simulation, we assume the split
+   * length does not include adapter sequence (a).
+   *
+   */
+  private int[] breakUpLengths(int L, int l, int a) {
+    int np = 0;
+    if (L <= l) {
+      //make sure at least one pass
+      return new int[]{l};
+    }
+    L -= l; //first pass
+    np++;
+    np += Math.ceil(L/(l + a)); //from the 2nd pass, number of passes is determined jointly by l+a
+
+    int[] splitLengths = new int[np];
+    Arrays.fill(splitLengths, l);
+    //last pass might be incomplete
+    splitLengths[np - 1] = Math.max(l, L % (l + a));
+    return splitLengths;
   }
 }
