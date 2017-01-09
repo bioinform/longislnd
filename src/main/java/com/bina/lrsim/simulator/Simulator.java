@@ -638,7 +638,7 @@ public class Simulator {
     int[] splitLengths = new int[np];
     Arrays.fill(splitLengths, l);
     //last pass might be incomplete
-    splitLengths[np - 1] = Math.max(l, L % (l + a));
+    splitLengths[np - 1] = Math.min(l, L % (l + a));
     return splitLengths;
   }
 }
