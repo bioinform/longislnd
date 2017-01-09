@@ -62,7 +62,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_polymerase_read", help="shall we simulate polymerase read (including adapter)?", action='store_true')
     parser.set_defaults(output_polymerase_read=False)
     parser.add_argument("--estimate_np_by_length", help="shall we estimate number of passes by sampled length?", action='store_true')
-    parser.add_argument(estimate_np_by_length=False)
+    parser.set_defaults(estimate_np_by_length=False)
     parser.add_argument("--adapter_sequence", type=str, help="specify adapater sequence for polymerase reads.", default="")
     parser.add_argument("--scaled_median_frag", help="scale fragment length to this value", type=int, default=-1)
     parser.add_argument("--custom_rate", help="i:d:s:m, where i/d/s/m are integer-frequency of insertion/deletion/substitution/match. For example, 0:0:0:1 means perfect sequencing.", type=str, default=None)
