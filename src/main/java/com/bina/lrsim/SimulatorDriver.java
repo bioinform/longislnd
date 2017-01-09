@@ -53,6 +53,7 @@ public class SimulatorDriver {
 
     if (spec.getSequencingMode() == SequencingMode.fragment && spec.isEstimateNPByLength()) {
       //effectively remove these options
+      log.info("Setting min and max fragment length to 0 and MAXINT, respectively.");
       po.minFragmentLength = 0;
       po.maxFragmentLength = Integer.MAX_VALUE;
     }
