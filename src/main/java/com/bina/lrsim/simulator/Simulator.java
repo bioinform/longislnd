@@ -139,7 +139,7 @@ public class Simulator {
           final boolean firstClr = insIdx == 0;
           final boolean lastClr = insIdx + 1 == insertLengths.length;
           final int begin = firstClr ? sequence.length - insertLength : 0;
-          final int end = lastClr ? insertLength : sequence.length;
+          final int end = lastClr && (!firstClr) ? insertLength : sequence.length;
           final boolean isShort = insertLength < Heuristics.SMRT_INSERT_FRACTION * sequence.length && !firstClr && !lastClr;
           //TODO the read may begin with an adapter, right now, we assume first bp is in insert
           if (!isShort || !skipIfShort) {
@@ -405,7 +405,7 @@ public class Simulator {
           final boolean isLastClr = insIdx + 1 == insertLengths.length;
           //why set begin and end like this?
           final int begin = isFirstClr ? sampledReferenceSequence.length - currentInsertLength : 0;
-          final int end = isLastClr ? currentInsertLength : sampledReferenceSequence.length;
+          final int end = isLastClr && (!isFirstClr) ? currentInsertLength : sampledReferenceSequence.length;
           final boolean isShort = currentInsertLength < Heuristics.SMRT_INSERT_FRACTION * sampledReferenceSequence.length && !isFirstClr && !isLastClr;
           if (!isShort || !skipIfShort) {
             if (!isFirstClr) {
@@ -642,7 +642,7 @@ public class Simulator {
     }
     L -= l; //first pass
     np++;
-    np += Math.ceil(L/(l + a)); //from the 2nd pass, number of passes is determined jointly by l+a
+    np += Math.ceil((double) L/(l + a)); //from the 2nd pass, number of passes is determined jointly by l+a
 
     int[] splitLengths = new int[np];
     Arrays.fill(splitLengths, l);
