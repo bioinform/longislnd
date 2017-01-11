@@ -100,6 +100,13 @@ public class Simulator {
           //right now we assume the sampled lengths contain adapter lengths
           //i.e. each multiples of adapter + template except for the first
           //one
+          /*
+          focusing on inserts, we assume first pass ends at the end of template,
+          and last pass starts at the beginning of template. Here template could
+          be regular or reverse complement.
+          if there is only one pass and it is partial, we assume it ends at the
+          end of template.
+           */
           insertLengths = breakUpLengths(insertLengths[0], sequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
         } else {
           // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
@@ -165,8 +172,7 @@ public class Simulator {
                 clrEnd = locus.getBegin0() + insertLength;
               else
                 clrBegin = locus.getEnd0() - insertLength;
-            }
-            if (lastClr) {
+            } else if (lastClr) {
               if(readIsRc)
                 clrBegin = locus.getEnd0() - insertLength;
               else
@@ -432,8 +438,7 @@ public class Simulator {
                 clrBegin = locus.getEnd0() - currentInsertLength;
               else
                 clrEnd = locus.getBegin0() + currentInsertLength;
-            }
-            if (isLastClr) {
+            } else if (isLastClr) {
               if(isReverseComplement)
                 clrBegin = locus.getEnd0() - currentInsertLength;
               else
@@ -629,8 +634,8 @@ public class Simulator {
    *  why not we use random start for first pass? this is
    *  to be consistent with current implementation where
    *  we assume first bp is insert rather than adapter even
-   *  though reality is not the case.
-   *
+   *  though reality is not the case. In particular, this
+   *  might not be true under polymerase read mode.
    *
    */
   private int[] breakUpLengths(int L, int l, int a) {
