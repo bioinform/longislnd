@@ -100,4 +100,35 @@ public class SimulatorTest {
         assertTrue(FileUtils.contentEquals(outputBAM.toFile(), new File(expectedBAM)));
         assertTrue(FileUtils.contentEquals(outputBED.toFile(), new File(expectedBED)));
     }
+    @Test
+    public void estimateNPByLengthTest() throws IOException {
+        File workingDirectory = tmpFolder.newFolder("tmp");
+        String fasta = "src/test/resources/addAdapterSimulatorTest/reference.fasta";
+        String modelPrefix = "src/test/resources/addAdapterSimulatorTest/ecoli_model/p6_ecoli.fofn.cmp.h5.bax.3.1000.100";
+        String modelDirectory = "src/test/resources/addAdapterSimulatorTest/ecoli_model";
+        String expectedBAM = "src/test/resources/estimateNPByLengthTest/expected.bam";
+        String expectedBED = "src/test/resources/estimateNPByLengthTest/expected.bam.bed";
+        String expectedClrBED = "src/test/resources/estimateNPByLengthTest/expected.bam.clr.bed";
+        Path outputBAM = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam");
+        Path outputBED = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam.bed");
+        Path outputClrBED = Paths.get(workingDirectory.getCanonicalPath(), "movie00000_ctest_s1_p0.bam.clr.bed");
+
+        //model directory is large, and so is not included in the git repo
+        assumeTrue(Files.exists(Paths.get(modelDirectory)));
+
+        SimulatorDriver.main(new String[]{"--outDir", workingDirectory.toString(),
+                "--identifier", "test", "--readType", "clrbam",
+                "--sequencingMode", "fragment",
+                "--fasta", fasta,
+                "--modelPrefixes", modelPrefix,
+                "--totalBases", "1000", "--samplePer", "100", "--seed", Integer.toString(seed),
+                "--minFragmentLength", "1", "--maxFragmentLength", "1000000",
+                "--minNumPasses", "1", "--maxNumPasses", "10000",
+                "--forceMovieName", "movie",
+                "--estimateNPByLength"
+        });
+        assertTrue(FileUtils.contentEquals(outputBAM.toFile(), new File(expectedBAM)));
+        assertTrue(FileUtils.contentEquals(outputBED.toFile(), new File(expectedBED)));
+        assertTrue(FileUtils.contentEquals(outputClrBED.toFile(), new File(expectedClrBED)));
+    }
 }
