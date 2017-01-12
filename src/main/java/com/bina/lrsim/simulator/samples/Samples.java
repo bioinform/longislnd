@@ -332,16 +332,6 @@ public abstract class Samples {
     base_log.info("loaded " + scores.size() + " score");
   }
 
-  protected final void sumLengths() {
-    for (int i = 0; i < lengths.size(); i++) {
-      int sum = 0;
-      for (int j : lengths.get(i)) {
-        sum += j;
-      }
-      lengths.set(i, new int[] {sum});
-    }
-  }
-
   protected final void filterScoreLength(LengthLimits limits) {
     List<int[]> newLengths = new ArrayList<>(lengths.size());
     List<Integer> newScores = new ArrayList<>(scores.size());

@@ -26,6 +26,8 @@ import com.bina.lrsim.interfaces.RandomFragmentGenerator;
 import com.bina.lrsim.simulator.samples.SamplesDrawer;
 import com.bina.lrsim.util.Monitor;
 
+import static com.bina.lrsim.util.ArrayUtils.sum;
+
 /**
  * Created by bayo on 5/11/15.
  */
@@ -107,7 +109,7 @@ public class Simulator {
           if there is only one pass and it is partial, we assume it ends at the
           end of template.
            */
-          insertLengths = breakUpLengths(insertLengths[0], sequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
+          insertLengths = breakUpLengths(sum(insertLengths), sequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
         } else {
           // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
           // make sure number of passes is at least 1.0 (one full pass at least).
@@ -281,7 +283,7 @@ public class Simulator {
           //right now we assume the sampled lengths contain adapter lengths
           //i.e. each multiples of adapter + template except for the first
           //one
-          insertLengths = breakUpLengths(insertLengths[0], sampledReferenceSequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
+          insertLengths = breakUpLengths(sum(insertLengths), sampledReferenceSequence.length, Heuristics.SMRT_ADAPTOR_STRING.length);
         } else {
           // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
           if(multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sampledReferenceSequence.length) {

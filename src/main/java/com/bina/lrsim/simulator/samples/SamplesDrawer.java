@@ -75,9 +75,6 @@ public class SamplesDrawer extends Samples {
     super(prefix);
     this.spec = spec;
     this.customFrequency = customFrequency;
-    if (spec.isEstimateNPByLength() && spec.getSequencingMode() == SequencingMode.fragment) {
-      sumLengths();
-    }
     if (this.customFrequency != null) {
       log.info("using custom event frequencies");
     } else {
