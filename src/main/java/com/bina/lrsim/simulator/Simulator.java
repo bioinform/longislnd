@@ -437,9 +437,9 @@ public class Simulator {
             final boolean isReverseComplement = (insIdx % 2 == 1) ^ locus.isRc();
             if (isFirstClr) {
               if(isReverseComplement)
-                clrBegin = locus.getEnd0() - currentInsertLength;
-              else
                 clrEnd = locus.getBegin0() + currentInsertLength;
+              else
+                clrBegin = locus.getEnd0() - currentInsertLength;
             } else if (isLastClr) {
               if(isReverseComplement)
                 clrBegin = locus.getEnd0() - currentInsertLength;
