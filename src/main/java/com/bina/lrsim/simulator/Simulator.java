@@ -16,6 +16,7 @@ import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
 import com.bina.lrsim.util.ArrayUtils;
 import com.bina.lrsim.util.CircularArrayList;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -255,7 +256,7 @@ public class Simulator {
          *
          */
         // in some sequence drawer, such as fragment mode, the sequence can be much longer than read length, in this case we set the passes to fragment length
-        if(multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sampledReferenceSequence.length) {
+        if (multiPassSpec.fragmentLength < Heuristics.READLENGTH_RESCUE_FRACTION * sampledReferenceSequence.length) {
           //why starts from 1 instead of 0?
           for (int ii = 1; ii + 1 < insertLengths.length; ++ii) {
             if (insertLengths[ii] < sampledReferenceSequence.length) {
@@ -267,7 +268,7 @@ public class Simulator {
             * make sure no insert length is longer than sampled reference sequence
             */
         for (int ii = 0; ii < insertLengths.length; ++ii) {
-          if(insertLengths[ii] > sampledReferenceSequence.length) {
+          if (insertLengths[ii] > sampledReferenceSequence.length) {
             insertLengths[ii] = sampledReferenceSequence.length;
           }
         }
@@ -367,9 +368,9 @@ public class Simulator {
           writer.addLast(read, sectionEnds, lenScore.getSecond(), locus, clrLoci);
           numBases += read.size();
           continue;
-        }
-
-        //TODO: remove the following code in comment, as simulateWithPerfectAdapter can replace it
+        } else {
+          throw new NotImplementedException("not implemented.");
+          //TODO: remove the following code in comment, as simulateWithPerfectAdapter can replace it
 
         /*****************************************************************************************
          ******************************************************************************************
@@ -431,10 +432,11 @@ public class Simulator {
             skipIfShort = false;
           }
         }
-        */
 
         writer.addLast(read, sectionEnds, lenScore.getSecond(), locus, clrLoci);
         numBases += read.size();
+        */
+        }
       }
       for (int index = 0; index < localBaseCounter.length; ++index) {
         baseCounter.getAndAdd(index, localBaseCounter[index]);
