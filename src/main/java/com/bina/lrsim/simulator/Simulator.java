@@ -316,6 +316,10 @@ public class Simulator {
           }
           forwardAndReverseComplementSequences.add(reverseComplementSequence);
         //}
+        /*
+        TODO: consider changing assumption about sum of insertLengths.
+        in perfect adapter mode, I assume `sum(insertLengths) == polymerase read` (excluding the very first adapter), whereas in polymerase mode (noisy adapter), I assume `sum(insertLengths) == sum(all subreads)`.
+         */
 
         /*****************************************************************************************
          ******************************************************************************************
