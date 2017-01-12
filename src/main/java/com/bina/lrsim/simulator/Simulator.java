@@ -18,6 +18,7 @@ import com.bina.lrsim.simulator.samples.pool.AppendState;
 import com.bina.lrsim.util.ArrayUtils;
 import com.bina.lrsim.util.CircularArrayList;
 import com.bina.lrsim.util.SequencingMode;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
@@ -400,7 +401,9 @@ public class Simulator {
           writer.addLast(read, sectionEnds, lenScore.getSecond(), locus, clrLoci);
           numBases += read.size();
           continue;
-        }
+        } else {
+          throw new NotImplementedException("not implemented.");
+          //TODO: remove the following code in comment, as simulateWithPerfectAdapter can replace it
 
         /*****************************************************************************************
          ******************************************************************************************
@@ -410,6 +413,7 @@ public class Simulator {
          ******************************************************************************************
          */
 
+        /*
         boolean skipIfShort = false;
         for (int insIdx = 0; insIdx < insertLengths.length; ++insIdx) {
           final int currentInsertLength = insertLengths[insIdx];
@@ -463,6 +467,8 @@ public class Simulator {
 
         writer.addLast(read, sectionEnds, lenScore.getSecond(), locus, clrLoci);
         numBases += read.size();
+        */
+        }
       }
       for (int index = 0; index < localBaseCounter.length; ++index) {
         baseCounter.getAndAdd(index, localBaseCounter[index]);
