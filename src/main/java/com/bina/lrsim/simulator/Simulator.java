@@ -369,6 +369,8 @@ public class Simulator {
           continue;
         }
 
+        //TODO: remove the following code in comment, as simulateWithPerfectAdapter can replace it
+
         /*****************************************************************************************
          ******************************************************************************************
          *subread mode*
@@ -377,6 +379,7 @@ public class Simulator {
          ******************************************************************************************
          */
 
+        /*
         boolean skipIfShort = false;
         for (int insIdx = 0; insIdx < insertLengths.length; ++insIdx) {
           final int currentInsertLength = insertLengths[insIdx];
@@ -428,6 +431,7 @@ public class Simulator {
             skipIfShort = false;
           }
         }
+        */
 
         writer.addLast(read, sectionEnds, lenScore.getSecond(), locus, clrLoci);
         numBases += read.size();
