@@ -6,6 +6,15 @@ package com.bina.lrsim.util;
  * hacked up some reusable snippets until I figure out the proper way of doing so in java
  */
 public class ArrayUtils {
+  public static int sum(int[] a) {
+    int sum = 0;
+    if (a == null)
+      return sum;
+    for (int i : a) {
+      sum += i;
+    }
+    return sum;
+  }
   public static void axpy(long a, long[] x, long[] y) {
     if (x.length != y.length) throw new RuntimeException("inconsistent samples");
     for (int ii = 0; ii < x.length; ++ii) {
