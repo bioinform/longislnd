@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser.add_argument("--min_pass", help="Minimum passes", type=int, default=1)
     parser.add_argument("--max_pass", help="Maximum passes", type=int, default=1000000000)
     parser.add_argument("--output_polymerase_read", help="shall we simulate polymerase read (including adapter)?", action='store_true')
-    parser.set_defaults(output_polymerase_read=False)
+    parser.add_argument("--estimate_np_by_length", help="shall we estimate number of passes by sampled length?", action='store_true')
     parser.add_argument("--adapter_sequence", type=str, help="specify adapater sequence for polymerase reads.", default="")
     parser.add_argument("--scaled_median_frag", help="scale fragment length to this value", type=int, default=-1)
     parser.add_argument("--custom_rate", help="i:d:s:m, where i/d/s/m are integer-frequency of insertion/deletion/substitution/match. For example, 0:0:0:1 means perfect sequencing.", type=str, default=None)
@@ -76,6 +76,11 @@ if __name__ == "__main__":
         args.output_polymerase_read = "--outputPolymeraseRead"
     else:
         args.output_polymerase_read = ""
+
+    if args.estimate_np_by_length:
+        args.estimate_np_by_length = "--estimateNPByLength"
+    else:
+        args.estimate_np_by_length = ""
 
     if len(args.adapter_sequence) > 0:
         args.adapter_sequence = " --adapterSequence {}".format(args.adapter_sequence)
@@ -93,7 +98,7 @@ if __name__ == "__main__":
     assert len(glob.glob(os.path.join(args.model_dir, "*stats"))) > 0, "failed to find models in directory {d}".format(d=args.model_dir)
     model_prefix = ",".join(map(lambda x: os.path.splitext(x)[0], glob.glob(os.path.join(args.model_dir, "*stats"))))
 
-    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate --outDir {out} --identifier {movie_id} --readType {read_type} --sequencingMode {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases} --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} --scaledMedianFragmentLength {scaled_median_frag} {output_polymerase_read} {adapter_sequence} {custom_rate}".format(
+    command_line = "java -Djava.library.path={hdf5} {jvm_opt} -jar {jar} simulate --outDir {out} --identifier {movie_id} --readType {read_type} --sequencingMode {seq_mode} --fasta {fasta} --modelPrefixes {model_prefix} --totalBases {num_bases} --samplePer {sample_per} --seed {seed} --minFragmentLength {min_frag} --maxFragmentLength {max_frag} --minNumPasses {min_pass} --maxNumPasses {max_pass} --scaledMedianFragmentLength {scaled_median_frag} {output_polymerase_read} {estimate_np_by_length} {adapter_sequence} {custom_rate}".format(
         hdf5=args.hdf5,
         jvm_opt=args.jvm_opt,
         jar=args.jar,
@@ -112,6 +117,7 @@ if __name__ == "__main__":
         max_pass=args.max_pass,
         scaled_median_frag=args.scaled_median_frag,
         output_polymerase_read = args.output_polymerase_read,
+        estimate_np_by_length = args.estimate_np_by_length,
         adapter_sequence = args.adapter_sequence,
         custom_rate = args.custom_rate,
         )

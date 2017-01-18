@@ -11,6 +11,7 @@ import com.bina.lrsim.bioinfo.KmerIntIntCounter;
 import com.bina.lrsim.pb.Spec;
 import com.bina.lrsim.simulator.samples.pool.AddBehavior;
 import com.bina.lrsim.simulator.samples.pool.AppendState;
+import com.bina.lrsim.util.SequencingMode;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;

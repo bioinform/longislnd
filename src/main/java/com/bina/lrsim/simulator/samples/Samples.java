@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.bina.lrsim.pb.RunInfo;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
@@ -297,6 +296,15 @@ public abstract class Samples {
     return sb.toString();
   }
 
+  /**
+   * load a list of length arrays
+   *
+   * during simulation, each reference sequence drawn from sampler will be simulated based on
+   * one of these length arrays.
+   *
+   * @param prefix
+   * @throws IOException
+   */
   protected final void loadLengths(String prefix) throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(Suffixes.LENGTH.filename(prefix))));
     int newSize = dis.readInt();

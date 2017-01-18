@@ -2,6 +2,7 @@ package com.bina.lrsim.pb;
 
 import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.pb.h5.bax.EnumGroups;
+import com.bina.lrsim.util.SequencingMode;
 import com.google.common.collect.Sets;
 import htsjdk.samtools.BamFileIoUtils;
 
@@ -102,6 +103,9 @@ public enum Spec {
     public final Set<EnumDat> nonBaseDataSet;
     public final String suffix;
     private boolean polymeraseReadFlag;
+    private SequencingMode sequencingMode;
+
+    private boolean estimateNPByLength;
     private byte[] adapterSequence;
 
     Spec(final String readType,
@@ -140,9 +144,26 @@ public enum Spec {
         return UnknownSpec;
     }
 
+    public SequencingMode getSequencingMode() {
+        return sequencingMode;
+    }
+
+    public void setSequencingMode(SequencingMode sequencingMode) {
+        this.sequencingMode = sequencingMode;
+    }
+
     public boolean isPolymeraseReadFlag() {
         return polymeraseReadFlag;
     }
+
+    public boolean isEstimateNPByLength() {
+        return estimateNPByLength;
+    }
+
+    public void setEstimateNPByLength(boolean estimateNPByLength) {
+        this.estimateNPByLength = estimateNPByLength;
+    }
+
 
     public byte[] getAdapterSequence() {
         return adapterSequence;

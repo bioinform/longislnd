@@ -8,6 +8,7 @@ import com.bina.lrsim.bioinfo.Heuristics;
 import com.bina.lrsim.bioinfo.ReferenceSequenceDrawer;
 import com.bina.lrsim.pb.*;
 import com.bina.lrsim.simulator.ParallelSimulator;
+import com.bina.lrsim.util.SequencingMode;
 import com.bina.lrsim.util.SuffixFixedFileType;
 import com.bina.lrsim.util.ProgramOptions;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,15 @@ public class SimulatorDriver {
     final Spec spec = Spec.fromReadType(po.readType);
     spec.setPolymeraseReadFlag(po.outputPolymeraseRead);
     spec.setAdapterSequence(po.adapterSequence);
+    spec.setEstimateNPByLength(po.estimateNPByLength);
+    spec.setSequencingMode(SequencingMode.valueOf(po.sequencingMode));
+
+    if (spec.getSequencingMode() == SequencingMode.fragment && spec.isEstimateNPByLength()) {
+      //effectively remove these options
+      log.info("Setting min and max fragment length to 0 and MAXINT, respectively.");
+      po.minFragmentLength = 0;
+      po.maxFragmentLength = Integer.MAX_VALUE;
+    }
 
     final ReferenceSequenceDrawer referenceDrawer = ReferenceSequenceDrawer.Factory(po.sequencingMode, po.fasta);
     if (referenceDrawer == null) {
@@ -136,6 +146,9 @@ public class SimulatorDriver {
 
     @Option(name = "--adapterSequence", required = false, usage = "adapter sequence for polymerase read")
     private String adapterSequence = "";
+
+    @Option(name = "--estimateNPByLength", required = false, usage = "In fragment mode only, estimate number of passes by sum of sampled insert lengths for each polymerase read.")
+    private boolean estimateNPByLength = false;
 
     long [] getEventsFrequency() {
       long[] ret = null;
