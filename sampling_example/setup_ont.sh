@@ -9,7 +9,6 @@ fi
 
 git clone https://github.com/isovic/graphmap.git
 pushd graphmap
-  git reset --hard 1d16f07888b60547094e8257688088d6f00be8af
   make modules
   make -j${NUM_THREADS}
 popd
