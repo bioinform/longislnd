@@ -25,7 +25,7 @@ done
 
 #download reference
 REF=GCF_000005845.2_ASM584v2_genomic.fa
-curl ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz | gunzip > ${REF}
+curl ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz | gunzip > ${REF}
 SAMTOOLS=../samtools-1.2/samtools
 ${SAMTOOLS} faidx ${REF}
 
