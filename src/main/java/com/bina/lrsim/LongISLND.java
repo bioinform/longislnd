@@ -55,6 +55,10 @@ public class LongISLND {
         Fast5Extract.main(pass_args);
         break;
 
+      case "-version": // print version
+        System.out.println(VERSION);
+        break;
+
       default:
         System.err.println(usage);
     }

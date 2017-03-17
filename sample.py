@@ -7,6 +7,7 @@ import subprocess
 import glob
 import sys
 from multiprocessing import Pool
+from simulate import get_version
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 
@@ -35,6 +36,7 @@ if __name__ == "__main__":
     parser.add_argument("--hdf5", help="Path to HDF5 library", default=os.path.join(mydir, "build", "lib"))
     parser.add_argument("--num_threads", type=int, help="maximum number of concurrent process", default=1)
     parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
+    parser.add_argument('--version', action='version', version=get_version())
 
     args = parser.parse_args()
 

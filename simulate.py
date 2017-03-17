@@ -9,6 +9,8 @@ import sys
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 
+DEFAULT_LONGISLND_JAR = os.path.join(mydir, "LongISLND.jar")
+
 class Contig:
     def __init__(self, name, length, sequence=None):
         self.name = name
@@ -37,6 +39,10 @@ class ReferenceContigs:
         return self.contigs
 
 
+def get_version():
+    return subprocess.check_output("java -jar {} -version".format(DEFAULT_LONGISLND_JAR), shell=True).strip() 
+
+
 if __name__ == "__main__":
     FORMAT = '%(levelname)s %(asctime)-15s %(name)-20s %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
@@ -61,6 +67,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_pass", help="Maximum passes", type=int, default=1000000000)
     parser.add_argument("--custom_rate", help="i:d:s:m, where i/d/s/m are integer-frequency of insertion/deletion/substitution/match. For example, 0:0:0:1 means perfect sequencing.", type=str, default=None)
     parser.add_argument("--jvm_opt", type=str, help="options to jvm", default="")
+    parser.add_argument('--version', action='version', version=get_version())
     args = parser.parse_args()
 
     if args.custom_rate is None:
