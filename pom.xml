@@ -4,7 +4,7 @@
 
     <groupId>com.bina.lrsim</groupId>
     <artifactId>LongISLND</artifactId>
-    <version>0.9</version>
+    <version>0.9.4</version>
     <packaging>jar</packaging>
 
     <name>LongISLND</name>
