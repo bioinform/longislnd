@@ -59,7 +59,8 @@ public class SamplesDrawer extends Samples {
   }
 
   /**
-   * Constructor
+   * Private Constructor
+   * WARNING: score/length filtering is not done here
    * 
    * @param prefix
    * @param prefix prefix of files storing sampled data
@@ -69,7 +70,7 @@ public class SamplesDrawer extends Samples {
    * @param lenLimits restrict length properties
    * @throws IOException
    */
-  public SamplesDrawer(String prefix, Spec spec, int maxSample, long[] customFrequency, boolean artificialCleanIns, LengthLimits lenLimits) throws IOException {
+  private SamplesDrawer(String prefix, Spec spec, int maxSample, long[] customFrequency, boolean artificialCleanIns, LengthLimits lenLimits) throws IOException {
     super(prefix);
     this.spec = spec;
     this.customFrequency = customFrequency;
@@ -81,7 +82,7 @@ public class SamplesDrawer extends Samples {
     log.info("loaded bulk statistics from " + prefix);
     allocateEventDrawer(spec, maxSample);
     loadEvents(prefix, maxSample, artificialCleanIns);
-    super.filterScoreLength(lenLimits);
+//    super.filterScoreLength(lenLimits);
   }
 
   private AddBehavior calculateAddBehavior(long[] customFrequency) {

@@ -21,6 +21,8 @@ public abstract class ReferenceSequenceDrawer implements RandomFragmentGenerator
     switch (mode) {
       case "shotgun":
         return new ShotgunSequenceDrawer(fasta);
+      case "circularshotgun":
+        return new CircularShotgunSequenceDrawer(fasta);
       case "fragment":
         return new FragmentSequenceDrawer(fasta);
       case "shotgunfragment":
