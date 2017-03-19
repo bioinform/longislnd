@@ -29,4 +29,7 @@ curl -LO http://search.maven.org/remotecontent?filepath=com/google/guava/guava/1
 curl -LO http://search.maven.org/remotecontent?filepath=org/apache/commons/commons-lang3/3.3.1/commons-lang3-3.3.1.jar
 curl -LO http://search.maven.org/remotecontent?filepath=org/lucee/commons-io/2.4.0/commons-io-2.4.0.jar
 curl -LO http://search.maven.org/remotecontent?filepath=junit/junit/4.12/junit-4.12.jar
+curl -LO http://search.maven.org/remotecontent?filepath=log4j/log4j/1.2.17/log4j-1.2.17.jar
+curl -LO http://search.maven.org/remotecontent?filepath=args4j/args4j/2.33/args4j-2.33.jar
+curl -LO http://search.maven.org/remotecontent?filepath=org/kohsuke/args4j/args4j-maven-plugin/2.33/args4j-maven-plugin-2.33.jar
 popd
