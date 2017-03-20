@@ -27,7 +27,13 @@ public class SamAlignment implements EventGroup {
 
   public SamAlignment(SAMRecord samRecord, ReferenceSequenceFile references) {
     this.samRecord = samRecord;
-    load(this.samRecord, references);
+    try {
+      load(this.samRecord, references);
+    }
+    catch ( htsjdk.samtools.SAMException e ) {
+      log.error("bad alignment record:. " + e.getMessage());
+      pairwiseAlignment = null;
+    }
   }
 
   private static int getAlignmentLength(SAMRecord samRecord) {
@@ -56,6 +62,9 @@ public class SamAlignment implements EventGroup {
 
     int seqSamPos = 0;
     int refRefPos = 0;
+//    log.info(samRecord.getReferenceName());
+//    log.info(samRecord.getAlignmentStart());
+//    log.info(samRecord.getAlignmentEnd());
     final byte[] refRef = references.getSubsequenceAt(samRecord.getReferenceName(), samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()).getBases();
 
     int seqNext = 0;
