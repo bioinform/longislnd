@@ -74,7 +74,13 @@ public class SamAlignment implements EventGroup {
       final boolean hasRef = entry.getOperator().consumesReferenceBases();
       if (hasSeq) {
         for (int counter = 0; counter < entry.getLength(); ++counter, ++seqNext, ++seqSamPos) {
-          seq[seqNext] = samRecord.getReadBases()[seqSamPos]; // assumes it'll get compiled out
+          switch (samRecord.getReadBases()[seqSamPos]) {
+            case 'A': case 'a': seq[seqNext] = 'A'; break;
+            case 'C': case 'c': seq[seqNext] = 'C'; break;
+            case 'G': case 'g': seq[seqNext] = 'G'; break;
+            case 'T': case 't': seq[seqNext] = 'T'; break;
+            default: throw new RuntimeException("unsupported base call");
+          }
           seqDataIdx[seqNext] = seqSamPos;
         }
       } else if (hasRef) {
@@ -85,7 +91,13 @@ public class SamAlignment implements EventGroup {
       }
       if (hasRef) {
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext, ++refRefPos) {
-          ref[refNext] = refRef[refRefPos];
+          switch (refRef[refRefPos]) {
+            case 'A': case 'a': ref[refNext] = 'A'; break;
+            case 'C': case 'c': ref[refNext] = 'C'; break;
+            case 'G': case 'g': ref[refNext] = 'G'; break;
+            case 'T': case 't': ref[refNext] = 'T'; break;
+            default: ref[refNext] = 'N';
+          }
         }
       } else if (hasSeq) {
         for (int counter = 0; counter < entry.getLength(); ++counter, ++refNext) {
